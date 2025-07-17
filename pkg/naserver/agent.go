@@ -99,8 +99,6 @@ func (a *NodeAgent) Stop() {
 // handleMessage processes incoming WebSocket messages
 func (a *NodeAgent) handleMessage(msg WebSocketMessage) {
 	switch msg.Type {
-	case "REGISTRATION_CONFIRMED":
-		a.handleRegistrationConfirmed(msg)
 	case "GET_PROCESSES":
 		a.handleGetProcesses(msg.RequestID)
 	case "EXECUTE_COMMAND":
@@ -135,19 +133,6 @@ func (a *NodeAgent) handleGetProcesses(requestID string) {
 	}
 }
 
-// handleRegistrationConfirmed handles registration confirmation from server
-func (a *NodeAgent) handleRegistrationConfirmed(msg WebSocketMessage) {
-	if data, ok := msg.Data.(map[string]interface{}); ok {
-		if nodeID, ok := data["node_id"].(string); ok {
-			log.Printf("Registration confirmed. Server assigned node ID: %s", nodeID)
-		}
-		if status, ok := data["status"].(string); ok {
-			log.Printf("Registration status: %s", status)
-		}
-	} else {
-		log.Println("Registration confirmed by server")
-	}
-}
 
 // handleExecuteCommand handles command execution requests
 func (a *NodeAgent) handleExecuteCommand(requestID, command string) {

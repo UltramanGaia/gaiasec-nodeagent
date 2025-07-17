@@ -16,15 +16,6 @@ type WebSocketMessage struct {
 	Data      interface{} `json:"data,omitempty"`
 }
 
-// RegistrationData represents node registration data
-type RegistrationData struct {
-	Hostname     string `json:"hostname"`
-	IP           string `json:"ip"`
-	ProjectID    string `json:"project_id"`
-	NodeID       string `json:"node_id"`
-	AgentVersion string `json:"agent_version"`
-	ProxyMode    bool   `json:"proxy_mode"`
-}
 
 // connect establishes WebSocket connection to the server
 func (a *NodeAgent) connect() error {
@@ -42,25 +33,10 @@ func (a *NodeAgent) connect() error {
 
 	a.conn = conn
 	log.Println("Connected to Sothoth server")
-
-	// Send registration message
-	regData := RegistrationData{
-		Hostname:     a.Hostname,
-		IP:           a.IPAddress,
-		ProjectID:    a.ProjectID,
-		NodeID:       a.NodeID,
-		AgentVersion: a.AgentVersion,
-		ProxyMode:    a.ProxyMode,
-	}
-
-	regMsg := WebSocketMessage{
-		Type: "REGISTER",
-		Data: regData,
-	}
-
-	if err := a.sendMessage(regMsg); err != nil {
-		return fmt.Errorf("failed to send registration: %v", err)
-	}
+	
+	// Node registration is now handled automatically by the server
+	// based on the projectId and nodeId in the connection URL
+	log.Printf("Node connection established for Project: %s, Node: %s", a.ProjectID, a.NodeID)
 
 	return nil
 }
