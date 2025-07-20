@@ -12,12 +12,12 @@ func MkdirWithPerm(path string, perm os.FileMode) error {
 	if err := os.MkdirAll(path, perm); err != nil {
 		return fmt.Errorf("failed to create directory %s: %v", path, err)
 	}
-	
+
 	// Ensure the directory has the correct permissions
 	if err := os.Chmod(path, perm); err != nil {
 		return fmt.Errorf("failed to set permissions for directory %s: %v", path, err)
 	}
-	
+
 	return nil
 }
 
@@ -25,4 +25,15 @@ func MkdirWithPerm(path string, perm os.FileMode) error {
 func EnsureFileDir(filePath string) error {
 	dir := filepath.Dir(filePath)
 	return MkdirWithPerm(dir, 0755)
+}
+
+func Exists(filePath string) bool {
+	_, err := os.Stat(filePath)
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
 }

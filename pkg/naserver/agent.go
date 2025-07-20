@@ -1,44 +1,69 @@
+// Package naserver 提供NodeAgent的核心功能实现
+//
+// 该包包含NodeAgent的主要结构和方法，负责：
+// - 与Sothoth服务器建立和维护WebSocket连接
+// - 处理来自服务器的各种请求（命令执行、进程查询等）
+// - 管理终端会话和文件系统操作
+// - 提供独立连接管理器支持多会话架构
 package naserver
 
 import (
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
 	"sothoth-nodeagent/pkg/system"
 )
 
-// NodeAgent represents the main agent structure
+// NodeAgent 代表主要的Agent结构体
+// 包含Agent的所有配置信息和运行状态
 type NodeAgent struct {
-	ProjectID    string `json:"project_id"`
-	NodeID       string `json:"node_id"`
-	ServerURL    string `json:"server_url"`
-	SothothDir   string `json:"sothoth_dir"`
-	ProxyMode    bool   `json:"proxy_mode"`
-	AgentVersion string `json:"agent_version"`
-	Hostname     string `json:"hostname"`
-	IPAddress    string `json:"ip_address"`
+	ProjectID    string `json:"project_id"`    // 所属项目ID
+	NodeID       string `json:"node_id"`       // 节点唯一标识
+	ServerURL    string `json:"server_url"`    // 服务器WebSocket URL
+	SothothDir   string `json:"sothoth_dir"`   // Sothoth工作目录
+	ProxyMode    bool   `json:"proxy_mode"`    // 是否启用代理模式
+	AgentVersion string `json:"agent_version"` // Agent版本号
+	Hostname     string `json:"hostname"`      // 主机名
+	IPAddress    string `json:"ip_address"`    // IP地址
 
-	conn     *websocket.Conn
-	running  bool
-	stopChan chan struct{}
+	conn     *websocket.Conn // WebSocket连接
+	mu       sync.Mutex      // 保护写操作的互斥锁
+	running  bool            // 运行状态标志
+	stopChan chan struct{}   // 停止信号通道
 }
 
-// NewNodeAgent creates a new NodeAgent instance
+// NewNodeAgent 创建一个新的NodeAgent实例
+// 初始化Agent的基本配置，获取系统信息（主机名、IP地址），
+// 并设置独立连接管理器
+//
+// 参数：
+//
+//	projectID - 项目ID
+//	nodeID - 节点ID
+//	server - 服务器地址
+//	sothothDir - Sothoth工作目录
+//	proxyMode - 是否启用代理模式
+//
+// 返回：
+//
+//	*NodeAgent - 创建的Agent实例
+//	error - 创建过程中的错误
 func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) (*NodeAgent, error) {
 	serverURL := fmt.Sprintf("ws://%s/ws/nodeagent?projectId=%s&nodeId=%s", server, projectID, nodeID)
 	hostname, err := system.GetHostname()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get hostname: %v", err)
+		return nil, fmt.Errorf("获取主机名失败: %v", err)
 	}
 
 	ipAddress, err := system.GetLocalIP()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get IP address: %v", err)
+		return nil, fmt.Errorf("获取IP地址失败: %v", err)
 	}
 
-	return &NodeAgent{
+	agent := &NodeAgent{
 		ProjectID:    projectID,
 		NodeID:       nodeID,
 		ServerURL:    serverURL,
@@ -49,37 +74,47 @@ func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) 
 		IPAddress:    ipAddress,
 		running:      false,
 		stopChan:     make(chan struct{}),
-	}, nil
+	}
+
+	return agent, nil
 }
 
-// Run starts the agent and maintains connection
+// Run 启动Agent并维护连接
+// 这是Agent的主运行循环，负责：
+// - 建立与服务器的WebSocket连接
+// - 处理连接断开后的自动重连
+// - 维护连接状态直到Agent停止
+//
+// 返回：
+//
+//	error - 运行过程中的错误
 func (a *NodeAgent) Run() error {
-	log.Printf("Starting Sothoth Node Agent v%s", a.AgentVersion)
-	log.Printf("Project ID: %s", a.ProjectID)
-	log.Printf("Node ID: %s", a.NodeID)
-	log.Printf("Hostname: %s", a.Hostname)
-	log.Printf("IP Address: %s", a.IPAddress)
-	log.Printf("Sothoth Dir: %s", a.SothothDir)
-	log.Printf("Proxy Mode: %t", a.ProxyMode)
-	log.Printf("Connecting to: %s", a.ServerURL)
+	log.Printf("启动Sothoth Node Agent v%s", a.AgentVersion)
+	log.Printf("项目ID: %s", a.ProjectID)
+	log.Printf("节点ID: %s", a.NodeID)
+	log.Printf("主机名: %s", a.Hostname)
+	log.Printf("IP地址: %s", a.IPAddress)
+	log.Printf("Sothoth目录: %s", a.SothothDir)
+	log.Printf("代理模式: %t", a.ProxyMode)
+	log.Printf("连接到: %s", a.ServerURL)
 
 	a.running = true
 
 	for a.running {
 		if err := a.connect(); err != nil {
-			log.Printf("Connection failed: %v", err)
+			log.Printf("连接失败: %v", err)
 			if a.running {
-				log.Println("Reconnecting in 5 seconds...")
+				log.Println("5秒后重新连接...")
 				time.Sleep(5 * time.Second)
 			}
 			continue
 		}
 
-		// Connection established, start message handling
+		// 连接建立成功，开始处理消息
 		a.handleConnection()
 
 		if a.running {
-			log.Println("Connection lost, reconnecting in 5 seconds...")
+			log.Println("连接丢失，5秒后重新连接...")
 			time.Sleep(5 * time.Second)
 		}
 	}
@@ -87,16 +122,29 @@ func (a *NodeAgent) Run() error {
 	return nil
 }
 
-// Stop gracefully stops the agent
+// Stop 优雅地停止Agent
+// 关闭所有连接和资源，包括：
+// - 设置运行状态为false
+// - 关闭停止信号通道
+// - 关闭传统WebSocket连接
 func (a *NodeAgent) Stop() {
 	a.running = false
 	close(a.stopChan)
+
+	// 关闭传统连接
 	if a.conn != nil {
 		a.conn.Close()
 	}
+
+	log.Printf("Node Agent已停止")
 }
 
-// handleMessage processes incoming WebSocket messages
+// handleMessage 处理传入的WebSocket消息
+// 根据消息类型分发到相应的处理函数
+//
+// 参数：
+//
+//	msg - WebSocket消息对象
 func (a *NodeAgent) handleMessage(msg WebSocketMessage) {
 	switch msg.Type {
 	case "GET_PROCESSES":
@@ -108,52 +156,6 @@ func (a *NodeAgent) handleMessage(msg WebSocketMessage) {
 			}
 		}
 	default:
-		log.Printf("Unknown message type: %s", msg.Type)
-	}
-}
-
-// handleGetProcesses handles process list requests
-func (a *NodeAgent) handleGetProcesses(requestID string) {
-	processes, err := system.GetProcessList()
-	if err != nil {
-		log.Printf("Failed to get processes: %v", err)
-		return
-	}
-
-	response := WebSocketMessage{
-		Type:      "PROCESSES_RESPONSE",
-		RequestID: requestID,
-		Data: map[string]interface{}{
-			"processes": processes,
-		},
-	}
-
-	if err := a.sendMessage(response); err != nil {
-		log.Printf("Failed to send processes response: %v", err)
-	}
-}
-
-
-// handleExecuteCommand handles command execution requests
-func (a *NodeAgent) handleExecuteCommand(requestID, command string) {
-	result, err := system.ExecuteCommand(command)
-	if err != nil {
-		log.Printf("Failed to execute command: %v", err)
-		result = &system.CommandResult{
-			ExitCode:      -1,
-			Stdout:        "",
-			Stderr:        err.Error(),
-			ExecutionTime: 0,
-		}
-	}
-
-	response := WebSocketMessage{
-		Type:      "COMMAND_RESULT",
-		RequestID: requestID,
-		Data:      result,
-	}
-
-	if err := a.sendMessage(response); err != nil {
-		log.Printf("Failed to send command result: %v", err)
+		log.Printf("未知消息类型: %s", msg.Type)
 	}
 }

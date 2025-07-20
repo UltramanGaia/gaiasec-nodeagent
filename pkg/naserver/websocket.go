@@ -16,7 +16,6 @@ type WebSocketMessage struct {
 	Data      interface{} `json:"data,omitempty"`
 }
 
-
 // connect establishes WebSocket connection to the server
 func (a *NodeAgent) connect() error {
 	u, err := url.Parse(a.ServerURL)
@@ -33,7 +32,7 @@ func (a *NodeAgent) connect() error {
 
 	a.conn = conn
 	log.Println("Connected to Sothoth server")
-	
+
 	// Node registration is now handled automatically by the server
 	// based on the projectId and nodeId in the connection URL
 	log.Printf("Node connection established for Project: %s, Node: %s", a.ProjectID, a.NodeID)
@@ -57,7 +56,7 @@ func (a *NodeAgent) handleConnection() {
 			break
 		}
 
-		go a.handleMessage(msg)
+		go a.processMessage(msg)
 	}
 }
 
@@ -93,5 +92,47 @@ func (a *NodeAgent) sendMessage(msg WebSocketMessage) error {
 	if a.conn == nil {
 		return fmt.Errorf("connection not established")
 	}
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	return a.conn.WriteJSON(msg)
+}
+
+// processMessage processes incoming WebSocket messages (renamed to avoid conflict)
+func (a *NodeAgent) processMessage(msg WebSocketMessage) {
+	switch msg.Type {
+	case "EXECUTE_COMMAND":
+		a.handleExecuteCommandWS(msg)
+	case "GET_PROCESSES":
+		a.handleGetProcessesWS(msg)
+	case "PTY_CREATE":
+		a.handlePtyCreate(msg)
+	case "FS_LIST_DIR":
+		a.handleFsListDir(msg)
+	case "FS_READ_FILE":
+		a.handleFsReadFile(msg)
+	case "FS_WRITE_FILE":
+		a.handleFsWriteFile(msg)
+	case "FS_CREATE_FILE":
+		a.handleFsCreateFile(msg)
+	case "FS_CREATE_DIR":
+		a.handleFsCreateDir(msg)
+	case "FS_DELETE":
+		a.handleFsDelete(msg)
+	case "FS_RENAME":
+		a.handleFsRename(msg)
+	default:
+		log.Printf("Unknown message type: %s", msg.Type)
+	}
+}
+
+// 发送错误响应
+func (a *NodeAgent) sendErrorResponse(requestID, message string) {
+	errorMsg := WebSocketMessage{
+		Type:      "ERROR",
+		RequestID: requestID,
+		Data: map[string]interface{}{
+			"message": message,
+		},
+	}
+	a.sendMessage(errorMsg)
 }
