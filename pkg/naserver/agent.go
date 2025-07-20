@@ -110,7 +110,10 @@ func (a *NodeAgent) Run() error {
 			continue
 		}
 
-		// 连接建立成功，开始处理消息
+		// 连接建立成功，上报节点信息
+		a.reportNodeInfo()
+
+		// 开始处理消息
 		a.handleConnection()
 
 		if a.running {
@@ -157,5 +160,32 @@ func (a *NodeAgent) handleMessage(msg WebSocketMessage) {
 		}
 	default:
 		log.Printf("未知消息类型: %s", msg.Type)
+	}
+}
+
+func (a *NodeAgent) reportNodeInfo() {
+	// 构建节点信息数据
+	nodeInfo := map[string]interface{}{
+		"project_id":     a.ProjectID,
+		"node_id":        a.NodeID,
+		"hostname":       a.Hostname,
+		"ip_address":     a.IPAddress,
+		"agent_version":  a.AgentVersion,
+		"sothoth_dir":    a.SothothDir,
+		"proxy_mode":     a.ProxyMode,
+	}
+
+	// 创建节点信息上报消息
+	msg := WebSocketMessage{
+		Type: "NODE_INFO_REPORT",
+		Data: nodeInfo,
+	}
+
+	// 发送节点信息到服务器
+	if err := a.sendMessage(msg); err != nil {
+		log.Printf("节点信息上报失败: %v", err)
+	} else {
+		log.Printf("节点信息上报成功 - 主机名: %s, IP: %s, 版本: %s", 
+			a.Hostname, a.IPAddress, a.AgentVersion)
 	}
 }
