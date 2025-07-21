@@ -47,7 +47,7 @@ func init() {
 func ParseMain() {
 	flag.Parse()
 	cfg := config.GetInstance()
-	
+
 	// 如果请求显示版本信息，则输出版本并退出
 	if cfg.Version {
 		fmt.Println("Sothoth NodeAgent v1.0.0 (Go)")
@@ -82,21 +82,20 @@ func ParseMain() {
 	if err != nil {
 		log.Fatalf("创建Agent失败: %v", err)
 	}
+	
+	// 启动Agent
+	if err := nodeAgent.Start(); err != nil {
+		log.Fatalf("Agent运行失败: %v", err)
+	}
 
 	// 处理优雅关闭
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	go func() {
-		<-sigChan
-		log.Println("正在关闭Agent...")
-		nodeAgent.Stop()
-	}()
+	<-sigChan
+	log.Println("正在关闭Agent...")
+	nodeAgent.Stop()
 
-	// 启动Agent
-	if err := nodeAgent.Run(); err != nil {
-		log.Fatalf("Agent运行失败: %v", err)
-	}
 }
 
 // EnvInit 初始化NodeAgent运行环境

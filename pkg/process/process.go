@@ -1,4 +1,4 @@
-package system
+package process
 
 import (
 	"context"
@@ -9,16 +9,17 @@ import (
 
 // ProcessInfo represents process information
 type ProcessInfo struct {
-	PID         int    `json:"pid"`
-	PPID        int    `json:"ppid"`
-	Comm        string `json:"comm"`
-	CommandLine string `json:"command_line"`
+	PID     int    `json:"pid"`
+	PPID    int    `json:"ppid"`
+	Name    string `json:"name"`
+	Cmdline string `json:"cmdline"`
+	User    string `json:"user"`
 }
 
 // GetProcessList returns a list of running processes using gopsutil
 func GetProcessList() ([]ProcessInfo, error) {
 	ctx := context.Background()
-	
+
 	// Get all process PIDs
 	pids, err := process.Pids()
 	if err != nil {
@@ -78,10 +79,17 @@ func getProcessInfo(ctx context.Context, proc *process.Process) (*ProcessInfo, e
 		cmdline = "[" + name + "]"
 	}
 
+	// Get process user
+	user, err := proc.Username()
+	if err != nil {
+		user = "unknown"
+	}
+
 	return &ProcessInfo{
-		PID:         int(pid),
-		PPID:        int(ppid),
-		Comm:        name,
-		CommandLine: cmdline,
+		PID:     int(pid),
+		PPID:    int(ppid),
+		Name:    name,
+		Cmdline: cmdline,
+		User:    user,
 	}, nil
 }

@@ -1,14 +1,5 @@
 package naserver
 
-import (
-	"fmt"
-	"log"
-	"net/url"
-	"time"
-
-	"github.com/gorilla/websocket"
-)
-
 // WebSocketMessage represents the message structure for WebSocket communication
 type WebSocketMessage struct {
 	Type      string      `json:"type"`
@@ -16,123 +7,143 @@ type WebSocketMessage struct {
 	Data      interface{} `json:"data,omitempty"`
 }
 
-// connect establishes WebSocket connection to the server
-func (a *NodeAgent) connect() error {
-	u, err := url.Parse(a.ServerURL)
-	if err != nil {
-		return fmt.Errorf("invalid server URL: %v", err)
-	}
+//// connect establishes WebSocket connection to the server
+//func (na *NodeAgent) connect() error {
+//	u, err := url.Parse(na.ServerURL)
+//	if err != nil {
+//		return fmt.Errorf("invalid server URL: %v", err)
+//	}
+//
+//	dialer := websocket.DefaultDialer
+//	conn, _, err := dialer.Dial(u.String(), nil)
+//	if err != nil {
+//		return fmt.Errorf("failed to connect: %v", err)
+//	}
+//	conn.SetReadLimit(0) // 0代表不限制读取
+//
+//	na.conn = conn
+//	log.Println("Connected to Sothoth server")
+//
+//	// Node registration is now handled automatically by the server
+//	// based on the projectId and nodeId in the connection URL
+//	log.Printf("Node connection established for Project: %s, Node: %s", na.ProjectID, na.NodeID)
+//
+//	return nil
+//}
 
-	dialer := websocket.DefaultDialer
-	conn, _, err := dialer.Dial(u.String(), nil)
-	if err != nil {
-		return fmt.Errorf("failed to connect: %v", err)
-	}
-	conn.SetReadLimit(0) // 0代表不限制读取
+//// handleConnection handles the WebSocket connection lifecycle
+//func (na *NodeAgent) handleConnection() {
+//	// Start heartbeat goroutine
+//	go na.heartbeatLoop()
+//
+//	// handler agent message
+//	go na.handleAgentMessage()
+//
+//	// Handle incoming messages
+//	for na.running {
+//		var msg WebSocketMessage
+//		err := na.conn.ReadJSON(&msg)
+//		if err != nil {
+//			if na.running {
+//				log.Printf("Read error: %v", err)
+//			}
+//			break
+//		}
+//
+//		go na.processMessage(msg)
+//	}
+//}
 
-	a.conn = conn
-	log.Println("Connected to Sothoth server")
+//// heartbeatLoop sends periodic heartbeat messages
+//func (na *NodeAgent) heartbeatLoop() {
+//	ticker := time.NewTicker(30 * time.Second)
+//	defer ticker.Stop()
+//
+//	for {
+//		select {
+//		case <-ticker.C:
+//			if !na.running {
+//				return
+//			}
+//
+//			heartbeat := WebSocketMessage{
+//				Type: model.HEARTBEAT,
+//				Data: map[string]interface{}{},
+//			}
+//
+//			if err := na.sendMessage(heartbeat); err != nil {
+//				log.Printf("Heartbeat error: %v", err)
+//				return
+//			}
+//		case <-na.stopChan:
+//			return
+//		}
+//	}
+//}
 
-	// Node registration is now handled automatically by the server
-	// based on the projectId and nodeId in the connection URL
-	log.Printf("Node connection established for Project: %s, Node: %s", a.ProjectID, a.NodeID)
+//// processMessage processes incoming WebSocket messages (renamed to avoid conflict)
+//func (na *NodeAgent) processMessage(msg WebSocketMessage) {
+//	switch msg.Type {
+//	case model.EXECUTE_COMMAND:
+//		na.handleExecuteCommandWS(msg)
+//	case model.GET_PROCESSES:
+//		na.handleGetProcessesWS(msg)
+//	case model.PTY_CREATE:
+//		na.handlePtyCreate(msg)
+//	case model.FS_LIST_DIR:
+//		na.handleFsListDir(msg)
+//	case model.FS_READ_FILE:
+//		na.handleFsReadFile(msg)
+//	case model.FS_WRITE_FILE:
+//		na.handleFsWriteFile(msg)
+//	case model.FS_CREATE_FILE:
+//		na.handleFsCreateFile(msg)
+//	case model.FS_CREATE_DIR:
+//		na.handleFsCreateDir(msg)
+//	case model.FS_DELETE:
+//		na.handleFsDelete(msg)
+//	case model.FS_RENAME:
+//		na.handleFsRename(msg)
+//	case model.DEPLOY_PLUGIN:
+//		na.handlePluginDeploy(msg)
+//	default:
+//		log.Printf("Unknown message type: %s", msg.Type)
+//	}
+//}
 
-	return nil
-}
+//// sendMessage sends a WebSocket message
+//func (na *NodeAgent) sendMessage(msg WebSocketMessage) error {
+//	if na.conn == nil {
+//		return fmt.Errorf("connection not established")
+//	}
+//	na.mu.Lock()
+//	defer na.mu.Unlock()
+//	return na.conn.WriteJSON(msg)
+//}
 
-// handleConnection handles the WebSocket connection lifecycle
-func (a *NodeAgent) handleConnection() {
-	// Start heartbeat goroutine
-	go a.heartbeatLoop()
+//// emit
+//func (na *NodeAgent) emit(message string, args ...interface{}) error {
+//	args = append([]interface{}{message}, args...)
+//	response := WebSocketMessage{
+//		Type:      model.EVENT,
+//		RequestID: "",
+//		Data:      args,
+//	}
+//	return na.sendMessage(response)
+//}
 
-	// Handle incoming messages
-	for a.running {
-		var msg WebSocketMessage
-		err := a.conn.ReadJSON(&msg)
-		if err != nil {
-			if a.running {
-				log.Printf("Read error: %v", err)
-			}
-			break
-		}
-
-		go a.processMessage(msg)
-	}
-}
-
-// heartbeatLoop sends periodic heartbeat messages
-func (a *NodeAgent) heartbeatLoop() {
-	ticker := time.NewTicker(30 * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ticker.C:
-			if !a.running {
-				return
-			}
-
-			heartbeat := WebSocketMessage{
-				Type: "HEARTBEAT",
-				Data: map[string]interface{}{},
-			}
-
-			if err := a.sendMessage(heartbeat); err != nil {
-				log.Printf("Heartbeat error: %v", err)
-				return
-			}
-		case <-a.stopChan:
-			return
-		}
-	}
-}
-
-// sendMessage sends a WebSocket message
-func (a *NodeAgent) sendMessage(msg WebSocketMessage) error {
-	if a.conn == nil {
-		return fmt.Errorf("connection not established")
-	}
-	a.mu.Lock()
-	defer a.mu.Unlock()
-	return a.conn.WriteJSON(msg)
-}
-
-// processMessage processes incoming WebSocket messages (renamed to avoid conflict)
-func (a *NodeAgent) processMessage(msg WebSocketMessage) {
-	switch msg.Type {
-	case "EXECUTE_COMMAND":
-		a.handleExecuteCommandWS(msg)
-	case "GET_PROCESSES":
-		a.handleGetProcessesWS(msg)
-	case "PTY_CREATE":
-		a.handlePtyCreate(msg)
-	case "FS_LIST_DIR":
-		a.handleFsListDir(msg)
-	case "FS_READ_FILE":
-		a.handleFsReadFile(msg)
-	case "FS_WRITE_FILE":
-		a.handleFsWriteFile(msg)
-	case "FS_CREATE_FILE":
-		a.handleFsCreateFile(msg)
-	case "FS_CREATE_DIR":
-		a.handleFsCreateDir(msg)
-	case "FS_DELETE":
-		a.handleFsDelete(msg)
-	case "FS_RENAME":
-		a.handleFsRename(msg)
-	default:
-		log.Printf("Unknown message type: %s", msg.Type)
-	}
-}
-
-// 发送错误响应
-func (a *NodeAgent) sendErrorResponse(requestID, message string) {
-	errorMsg := WebSocketMessage{
-		Type:      "ERROR",
-		RequestID: requestID,
-		Data: map[string]interface{}{
-			"message": message,
-		},
-	}
-	a.sendMessage(errorMsg)
-}
+//// sendErrorResponse 发送错误响应
+//func (na *NodeAgent) sendErrorResponse(requestID, errorMsg string) {
+//	response := map[string]interface{}{
+//		"success": false,
+//		"error":   errorMsg,
+//	}
+//
+//	responseMsg := WebSocketMessage{
+//		Type:      model.ERROR_RESPONSE,
+//		RequestID: requestID,
+//		Data:      response,
+//	}
+//
+//	na.sendMessage(responseMsg)
+//}

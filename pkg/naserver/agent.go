@@ -10,11 +10,9 @@ package naserver
 import (
 	"fmt"
 	"log"
-	"sync"
-	"time"
-
-	"github.com/gorilla/websocket"
 	"sothoth-nodeagent/pkg/system"
+	"sothoth-nodeagent/pkg/udsserver"
+	"sothoth-nodeagent/pkg/wsclient"
 )
 
 // NodeAgent 代表主要的Agent结构体
@@ -29,10 +27,10 @@ type NodeAgent struct {
 	Hostname     string `json:"hostname"`      // 主机名
 	IPAddress    string `json:"ip_address"`    // IP地址
 
-	conn     *websocket.Conn // WebSocket连接
-	mu       sync.Mutex      // 保护写操作的互斥锁
-	running  bool            // 运行状态标志
-	stopChan chan struct{}   // 停止信号通道
+	wsclient  *wsclient.Client
+	udsserver *udsserver.Server
+	running   bool          // 运行状态标志
+	stopChan  chan struct{} // 停止信号通道
 }
 
 // NewNodeAgent 创建一个新的NodeAgent实例
@@ -63,6 +61,15 @@ func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) 
 		return nil, fmt.Errorf("获取IP地址失败: %v", err)
 	}
 
+	wsClient, err := wsclient.NewClient(serverURL, 5, 5)
+	if err != nil {
+		return nil, fmt.Errorf("创建WebSocket客户端失败: %v", err)
+	}
+	udsServer, err := udsserver.NewServer(wsClient)
+	if err != nil {
+		return nil, fmt.Errorf("创建UDS服务器失败: %v", err)
+	}
+
 	agent := &NodeAgent{
 		ProjectID:    projectID,
 		NodeID:       nodeID,
@@ -74,12 +81,14 @@ func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) 
 		IPAddress:    ipAddress,
 		running:      false,
 		stopChan:     make(chan struct{}),
+		wsclient:     wsClient,
+		udsserver:    udsServer,
 	}
 
 	return agent, nil
 }
 
-// Run 启动Agent并维护连接
+// Start 启动Agent并维护连接
 // 这是Agent的主运行循环，负责：
 // - 建立与服务器的WebSocket连接
 // - 处理连接断开后的自动重连
@@ -88,39 +97,20 @@ func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) 
 // 返回：
 //
 //	error - 运行过程中的错误
-func (a *NodeAgent) Run() error {
-	log.Printf("启动Sothoth Node Agent v%s", a.AgentVersion)
-	log.Printf("项目ID: %s", a.ProjectID)
-	log.Printf("节点ID: %s", a.NodeID)
-	log.Printf("主机名: %s", a.Hostname)
-	log.Printf("IP地址: %s", a.IPAddress)
-	log.Printf("Sothoth目录: %s", a.SothothDir)
-	log.Printf("代理模式: %t", a.ProxyMode)
-	log.Printf("连接到: %s", a.ServerURL)
+func (na *NodeAgent) Start() error {
+	log.Printf("启动Sothoth Node Agent v%s", na.AgentVersion)
+	log.Printf("项目ID: %s", na.ProjectID)
+	log.Printf("节点ID: %s", na.NodeID)
+	log.Printf("主机名: %s", na.Hostname)
+	log.Printf("IP地址: %s", na.IPAddress)
+	log.Printf("Sothoth目录: %s", na.SothothDir)
+	log.Printf("代理模式: %t", na.ProxyMode)
+	log.Printf("连接到: %s", na.ServerURL)
 
-	a.running = true
+	na.running = true
 
-	for a.running {
-		if err := a.connect(); err != nil {
-			log.Printf("连接失败: %v", err)
-			if a.running {
-				log.Println("5秒后重新连接...")
-				time.Sleep(5 * time.Second)
-			}
-			continue
-		}
-
-		// 连接建立成功，上报节点信息
-		a.reportNodeInfo()
-
-		// 开始处理消息
-		a.handleConnection()
-
-		if a.running {
-			log.Println("连接丢失，5秒后重新连接...")
-			time.Sleep(5 * time.Second)
-		}
-	}
+	go na.wsclient.Start()
+	go na.udsserver.Start()
 
 	return nil
 }
@@ -130,62 +120,84 @@ func (a *NodeAgent) Run() error {
 // - 设置运行状态为false
 // - 关闭停止信号通道
 // - 关闭传统WebSocket连接
-func (a *NodeAgent) Stop() {
-	a.running = false
-	close(a.stopChan)
+func (na *NodeAgent) Stop() {
+	na.running = false
 
-	// 关闭传统连接
-	if a.conn != nil {
-		a.conn.Close()
-	}
+	na.udsserver.Stop()
+	na.wsclient.Stop()
 
 	log.Printf("Node Agent已停止")
 }
 
-// handleMessage 处理传入的WebSocket消息
-// 根据消息类型分发到相应的处理函数
+//// handleMessage 处理传入的WebSocket消息
+//// 根据消息类型分发到相应的处理函数
+////
+//// 参数：
+////
+////	msg - WebSocket消息对象
+//func (na *NodeAgent) handleMessage(msg WebSocketMessage) {
+//	switch msg.Type {
+//	case "GET_PROCESSES":
+//		na.handleGetProcesses(msg.RequestID)
+//	case "EXECUTE_COMMAND":
+//		if data, ok := msg.Data.(map[string]interface{}); ok {
+//			if command, ok := data["command"].(string); ok {
+//				na.handleExecuteCommand(msg.RequestID, command)
+//			}
+//		}
+//	case "DEPLOY_PLUGIN":
+//		na.handleDeployPlugin(msg)
+//	default:
+//		log.Printf("未知消息类型: %s", msg.Type)
+//	}
+//}
+
+//// handleDeployPlugin 处理插件部署请求
+//func (na *NodeAgent) handleDeployPlugin(msg WebSocketMessage) {
+//	log.Printf("收到插件部署请求: %s", msg.RequestID)
 //
-// 参数：
+//	data, ok := msg.Data.(map[string]interface{})
+//	if !ok {
+//		na.sendErrorResponse(msg.RequestID, "无效的插件部署数据")
+//		return
+//	}
 //
-//	msg - WebSocket消息对象
-func (a *NodeAgent) handleMessage(msg WebSocketMessage) {
-	switch msg.Type {
-	case "GET_PROCESSES":
-		a.handleGetProcesses(msg.RequestID)
-	case "EXECUTE_COMMAND":
-		if data, ok := msg.Data.(map[string]interface{}); ok {
-			if command, ok := data["command"].(string); ok {
-				a.handleExecuteCommand(msg.RequestID, command)
-			}
-		}
-	default:
-		log.Printf("未知消息类型: %s", msg.Type)
-	}
-}
-
-func (a *NodeAgent) reportNodeInfo() {
-	// 构建节点信息数据
-	nodeInfo := map[string]interface{}{
-		"project_id":     a.ProjectID,
-		"node_id":        a.NodeID,
-		"hostname":       a.Hostname,
-		"ip_address":     a.IPAddress,
-		"agent_version":  a.AgentVersion,
-		"sothoth_dir":    a.SothothDir,
-		"proxy_mode":     a.ProxyMode,
-	}
-
-	// 创建节点信息上报消息
-	msg := WebSocketMessage{
-		Type: "NODE_INFO_REPORT",
-		Data: nodeInfo,
-	}
-
-	// 发送节点信息到服务器
-	if err := a.sendMessage(msg); err != nil {
-		log.Printf("节点信息上报失败: %v", err)
-	} else {
-		log.Printf("节点信息上报成功 - 主机名: %s, IP: %s, 版本: %s", 
-			a.Hostname, a.IPAddress, a.AgentVersion)
-	}
-}
+//	// 解析部署参数
+//	pluginName, _ := data["plugin_name"].(string)
+//	pluginVersion, _ := data["plugin_version"].(string)
+//	pluginURL, _ := data["plugin_url"].(string)
+//	targetPID := int(data["target_pid"].(float64))
+//	deploymentOptions, _ := data["deployment_options"].(map[string]interface{})
+//
+//	if pluginName == "" || pluginVersion == "" || pluginURL == "" {
+//		na.sendErrorResponse(msg.RequestID, "缺少必需的插件部署参数")
+//		return
+//	}
+//
+//	log.Printf("部署插件: %s 版本: %s 到进程: %d", pluginName, pluginVersion, targetPID)
+//
+//	// 异步部署插件
+//	go func() {
+//		err := na.pluginManager.DeployPlugin(pluginName, pluginVersion, pluginURL, targetPID, deploymentOptions)
+//		if err != nil {
+//			log.Printf("插件部署失败: %v", err)
+//		} else {
+//			log.Printf("插件部署成功: %s", pluginName)
+//		}
+//	}()
+//
+//	// 立即返回部署开始响应
+//	response := map[string]interface{}{
+//		"success":     true,
+//		"message":     "插件部署已开始",
+//		"plugin_name": pluginName,
+//	}
+//
+//	responseMsg := WebSocketMessage{
+//		Type:      model.PLUGIN_DEPLOY_RESPONSE,
+//		RequestID: msg.RequestID,
+//		Data:      response,
+//	}
+//
+//	na.sendMessage(responseMsg)
+//}
