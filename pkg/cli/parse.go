@@ -82,7 +82,7 @@ func ParseMain() {
 	if err != nil {
 		log.Fatalf("创建Agent失败: %v", err)
 	}
-	
+
 	// 启动Agent
 	if err := nodeAgent.Start(); err != nil {
 		log.Fatalf("Agent运行失败: %v", err)
@@ -95,7 +95,6 @@ func ParseMain() {
 	<-sigChan
 	log.Println("正在关闭Agent...")
 	nodeAgent.Stop()
-
 }
 
 // EnvInit 初始化NodeAgent运行环境

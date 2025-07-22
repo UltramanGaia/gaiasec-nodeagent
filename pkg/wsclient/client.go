@@ -20,34 +20,27 @@ type Client struct {
 	namespace        string
 	retryNum         int
 	pauseBeforeRetry int
-	running          bool
+	Running          bool
 	cfg              *config.Config
 }
 
 func NewClient(uri string, retryNum int, pauseBeforeRetry int) (client *Client, err error) {
 	log.Info("Try to connect server: [" + uri + "]")
-	c, _, err := websocket.DefaultDialer.Dial(uri, nil)
-	if err != nil {
-		log.Error("dial:", err)
-		os.Exit(-1)
-	}
-	c.SetReadLimit(0) // 禁用读超时
 
 	client = &Client{
 		uri:              uri,
-		conn:             c,
 		id:               0,
 		retryNum:         retryNum,
 		pauseBeforeRetry: pauseBeforeRetry,
-		running:          false,
+		Running:          false,
 		cfg:              config.GetInstance(),
 	}
 	return client, nil
 }
 
 func (c *Client) Reconnect() error {
-	if !c.running {
-		return fmt.Errorf("it is not running")
+	if !c.Running {
+		return fmt.Errorf("it is not Running")
 	}
 	log.Errorf("Trying to reconnect client: [" + c.uri + "]")
 	for i := 0; c.retryNum == 0 || i <= c.retryNum; i++ {
@@ -62,55 +55,26 @@ func (c *Client) Reconnect() error {
 	return fmt.Errorf("max retry exceeded")
 }
 
-func (c *Client) Start() error {
-	c.running = true
-
-	// 连接建立成功，上报节点信息
-	c.reportNodeLogin()
-
-	for {
-		messageType, message, err := c.conn.ReadMessage()
-		if err != nil {
-			if !c.running {
-				return nil
-			}
-			log.Error("read:", err)
-			err = c.Reconnect()
-			if err != nil {
-				log.Error("Reconnect failed")
-				return err
-			}
-			continue
-		}
-
-		if messageType == websocket.BinaryMessage {
-			// 解析基础消息
-			baseMessage := &pb.BaseMessage{}
-			if err := proto.Unmarshal(message, baseMessage); err != nil {
-				log.Println("解析基础消息失败:", err)
-				continue
-			}
-			// 根据消息类型处理
-			switch baseMessage.Type {
-			case pb.MessageType_HEARTBEAT:
-				nodeHeartbeat := &pb.NodeHeartbeat{}
-				if err := proto.Unmarshal(baseMessage.Data, nodeHeartbeat); err != nil {
-					log.Println("解析登录请求失败:", err)
-					continue
-				}
-			default:
-				log.Println("未知消息类型")
-			}
-		}
+func (c *Client) Start() {
+	c.Running = true
+	conn, _, err := websocket.DefaultDialer.Dial(c.uri, nil)
+	if err != nil {
+		log.Error("dial:", err)
+		os.Exit(-1)
 	}
+	conn.SetReadLimit(0) // 禁用读超时
+	c.conn = conn
 }
 
 func (c *Client) Stop() {
-	c.running = false
-	c.conn.Close()
+	c.Running = false
+	if c.conn != nil {
+		_ = c.conn.Close()
+		c.conn = nil
+	}
 }
 
-func (c *Client) sendMessage(data []byte) error {
+func (c *Client) SendMessage(data []byte) error {
 	c.writeLock.Lock()
 	defer c.writeLock.Unlock()
 	w, err := c.conn.NextWriter(websocket.BinaryMessage)
@@ -139,5 +103,9 @@ func (c *Client) Send(msgType pb.MessageType, m proto.Message) error {
 	if err != nil {
 		return err
 	}
-	return c.sendMessage(bytes)
+	return c.SendMessage(bytes)
+}
+
+func (c *Client) ReadMessage() (messageType int, p []byte, err error) {
+	return c.conn.ReadMessage()
 }

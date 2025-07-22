@@ -25,40 +25,64 @@ const (
 type MessageType int32
 
 const (
-	MessageType_UNKNOWN      MessageType = 0
-	MessageType_HEARTBEAT    MessageType = 1
-	MessageType_INIT         MessageType = 2
-	MessageType_NODE_LOGIN   MessageType = 3
-	MessageType_NODE_LOGOUT  MessageType = 4
-	MessageType_AGENT_LOGIN  MessageType = 5
-	MessageType_AGENT_LOGOUT MessageType = 6
-	MessageType_PUSH         MessageType = 7
-	MessageType_PULL         MessageType = 8
+	MessageType_UNKNOWN                     MessageType = 0
+	MessageType_NODE_LOGIN                  MessageType = 1
+	MessageType_NODE_LOGOUT                 MessageType = 2
+	MessageType_NODE_HEARTBEAT              MessageType = 3
+	MessageType_NODE_INIT                   MessageType = 4
+	MessageType_NODE_PROCESSES_REQUEST      MessageType = 5
+	MessageType_NODE_PROCESSES_RESPONSE     MessageType = 6
+	MessageType_NODE_DEPLOY_PLUGIN_REQUEST  MessageType = 7
+	MessageType_NODE_DEPLOY_PLUGIN_RESPONSE MessageType = 8
+	MessageType_AGENT_LOGIN                 MessageType = 21
+	MessageType_AGENT_LOGOUT                MessageType = 22
+	MessageType_AGENT_HEARTBEAT             MessageType = 23
+	MessageType_AGENT_INIT                  MessageType = 24
+	MessageType_AGENT_WEB_ROUTES_REQUEST    MessageType = 25
+	MessageType_AGENT_WEB_ROUTES_RESPONSE   MessageType = 26
+	MessageType_PUSH                        MessageType = 30
+	MessageType_PULL                        MessageType = 31
 )
 
 // Enum value maps for MessageType.
 var (
 	MessageType_name = map[int32]string{
-		0: "UNKNOWN",
-		1: "HEARTBEAT",
-		2: "INIT",
-		3: "NODE_LOGIN",
-		4: "NODE_LOGOUT",
-		5: "AGENT_LOGIN",
-		6: "AGENT_LOGOUT",
-		7: "PUSH",
-		8: "PULL",
+		0:  "UNKNOWN",
+		1:  "NODE_LOGIN",
+		2:  "NODE_LOGOUT",
+		3:  "NODE_HEARTBEAT",
+		4:  "NODE_INIT",
+		5:  "NODE_PROCESSES_REQUEST",
+		6:  "NODE_PROCESSES_RESPONSE",
+		7:  "NODE_DEPLOY_PLUGIN_REQUEST",
+		8:  "NODE_DEPLOY_PLUGIN_RESPONSE",
+		21: "AGENT_LOGIN",
+		22: "AGENT_LOGOUT",
+		23: "AGENT_HEARTBEAT",
+		24: "AGENT_INIT",
+		25: "AGENT_WEB_ROUTES_REQUEST",
+		26: "AGENT_WEB_ROUTES_RESPONSE",
+		30: "PUSH",
+		31: "PULL",
 	}
 	MessageType_value = map[string]int32{
-		"UNKNOWN":      0,
-		"HEARTBEAT":    1,
-		"INIT":         2,
-		"NODE_LOGIN":   3,
-		"NODE_LOGOUT":  4,
-		"AGENT_LOGIN":  5,
-		"AGENT_LOGOUT": 6,
-		"PUSH":         7,
-		"PULL":         8,
+		"UNKNOWN":                     0,
+		"NODE_LOGIN":                  1,
+		"NODE_LOGOUT":                 2,
+		"NODE_HEARTBEAT":              3,
+		"NODE_INIT":                   4,
+		"NODE_PROCESSES_REQUEST":      5,
+		"NODE_PROCESSES_RESPONSE":     6,
+		"NODE_DEPLOY_PLUGIN_REQUEST":  7,
+		"NODE_DEPLOY_PLUGIN_RESPONSE": 8,
+		"AGENT_LOGIN":                 21,
+		"AGENT_LOGOUT":                22,
+		"AGENT_HEARTBEAT":             23,
+		"AGENT_INIT":                  24,
+		"AGENT_WEB_ROUTES_REQUEST":    25,
+		"AGENT_WEB_ROUTES_RESPONSE":   26,
+		"PUSH":                        30,
+		"PULL":                        31,
 	}
 )
 
@@ -93,18 +117,27 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\x8b\x01\n" +
+	"\x12message_type.proto*\xf1\x02\n" +
 	"\vMessageType\x12\v\n" +
-	"\aUNKNOWN\x10\x00\x12\r\n" +
-	"\tHEARTBEAT\x10\x01\x12\b\n" +
-	"\x04INIT\x10\x02\x12\x0e\n" +
+	"\aUNKNOWN\x10\x00\x12\x0e\n" +
 	"\n" +
-	"NODE_LOGIN\x10\x03\x12\x0f\n" +
-	"\vNODE_LOGOUT\x10\x04\x12\x0f\n" +
-	"\vAGENT_LOGIN\x10\x05\x12\x10\n" +
-	"\fAGENT_LOGOUT\x10\x06\x12\b\n" +
-	"\x04PUSH\x10\a\x12\b\n" +
-	"\x04PULL\x10\bB)\n" +
+	"NODE_LOGIN\x10\x01\x12\x0f\n" +
+	"\vNODE_LOGOUT\x10\x02\x12\x12\n" +
+	"\x0eNODE_HEARTBEAT\x10\x03\x12\r\n" +
+	"\tNODE_INIT\x10\x04\x12\x1a\n" +
+	"\x16NODE_PROCESSES_REQUEST\x10\x05\x12\x1b\n" +
+	"\x17NODE_PROCESSES_RESPONSE\x10\x06\x12\x1e\n" +
+	"\x1aNODE_DEPLOY_PLUGIN_REQUEST\x10\a\x12\x1f\n" +
+	"\x1bNODE_DEPLOY_PLUGIN_RESPONSE\x10\b\x12\x0f\n" +
+	"\vAGENT_LOGIN\x10\x15\x12\x10\n" +
+	"\fAGENT_LOGOUT\x10\x16\x12\x13\n" +
+	"\x0fAGENT_HEARTBEAT\x10\x17\x12\x0e\n" +
+	"\n" +
+	"AGENT_INIT\x10\x18\x12\x1c\n" +
+	"\x18AGENT_WEB_ROUTES_REQUEST\x10\x19\x12\x1d\n" +
+	"\x19AGENT_WEB_ROUTES_RESPONSE\x10\x1a\x12\b\n" +
+	"\x04PUSH\x10\x1e\x12\b\n" +
+	"\x04PULL\x10\x1fB)\n" +
 	"\n" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 

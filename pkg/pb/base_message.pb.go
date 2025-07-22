@@ -26,7 +26,8 @@ type BaseMessage struct {
 	Type          MessageType            `protobuf:"varint,1,opt,name=type,proto3,enum=MessageType" json:"type,omitempty"`
 	Source        string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
 	Destination   string                 `protobuf:"bytes,3,opt,name=destination,proto3" json:"destination,omitempty"`
-	Data          []byte                 `protobuf:"bytes,4,opt,name=data,proto3" json:"data,omitempty"`
+	Session       string                 `protobuf:"bytes,4,opt,name=session,proto3" json:"session,omitempty"`
+	Data          []byte                 `protobuf:"bytes,5,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -82,6 +83,13 @@ func (x *BaseMessage) GetDestination() string {
 	return ""
 }
 
+func (x *BaseMessage) GetSession() string {
+	if x != nil {
+		return x.Session
+	}
+	return ""
+}
+
 func (x *BaseMessage) GetData() []byte {
 	if x != nil {
 		return x.Data
@@ -93,12 +101,13 @@ var File_base_message_proto protoreflect.FileDescriptor
 
 const file_base_message_proto_rawDesc = "" +
 	"\n" +
-	"\x12base_message.proto\x1a\x12message_type.proto\"}\n" +
+	"\x12base_message.proto\x1a\x12message_type.proto\"\x97\x01\n" +
 	"\vBaseMessage\x12 \n" +
 	"\x04type\x18\x01 \x01(\x0e2\f.MessageTypeR\x04type\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\tR\x06source\x12 \n" +
-	"\vdestination\x18\x03 \x01(\tR\vdestination\x12\x12\n" +
-	"\x04data\x18\x04 \x01(\fR\x04dataB)\n" +
+	"\vdestination\x18\x03 \x01(\tR\vdestination\x12\x18\n" +
+	"\asession\x18\x04 \x01(\tR\asession\x12\x12\n" +
+	"\x04data\x18\x05 \x01(\fR\x04dataB)\n" +
 	"\n" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 

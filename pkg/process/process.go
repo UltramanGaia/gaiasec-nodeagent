@@ -2,6 +2,7 @@ package process
 
 import (
 	"context"
+	"sothoth-nodeagent/pkg/pb"
 	"strings"
 
 	"github.com/shirou/gopsutil/v3/process"
@@ -17,7 +18,7 @@ type ProcessInfo struct {
 }
 
 // GetProcessList returns a list of running processes using gopsutil
-func GetProcessList() ([]ProcessInfo, error) {
+func GetProcessList() ([]*pb.Process, error) {
 	ctx := context.Background()
 
 	// Get all process PIDs
@@ -26,7 +27,7 @@ func GetProcessList() ([]ProcessInfo, error) {
 		return nil, err
 	}
 
-	var processes []ProcessInfo
+	var processes []*pb.Process
 
 	for _, pid := range pids {
 		proc, err := process.NewProcess(pid)
@@ -39,14 +40,14 @@ func GetProcessList() ([]ProcessInfo, error) {
 			continue // Skip processes we can't read
 		}
 
-		processes = append(processes, *processInfo)
+		processes = append(processes, processInfo)
 	}
 
 	return processes, nil
 }
 
 // getProcessInfo extracts process information using gopsutil
-func getProcessInfo(ctx context.Context, proc *process.Process) (*ProcessInfo, error) {
+func getProcessInfo(ctx context.Context, proc *process.Process) (*pb.Process, error) {
 	pid := proc.Pid
 
 	// Get parent PID
@@ -85,9 +86,9 @@ func getProcessInfo(ctx context.Context, proc *process.Process) (*ProcessInfo, e
 		user = "unknown"
 	}
 
-	return &ProcessInfo{
-		PID:     int(pid),
-		PPID:    int(ppid),
+	return &pb.Process{
+		Pid:     pid,
+		Ppid:    ppid,
 		Name:    name,
 		Cmdline: cmdline,
 		User:    user,

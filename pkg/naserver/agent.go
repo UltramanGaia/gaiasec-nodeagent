@@ -9,7 +9,10 @@ package naserver
 
 import (
 	"fmt"
-	"log"
+	"github.com/gorilla/websocket"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
+	"sothoth-nodeagent/pkg/pb"
 	"sothoth-nodeagent/pkg/system"
 	"sothoth-nodeagent/pkg/udsserver"
 	"sothoth-nodeagent/pkg/wsclient"
@@ -61,7 +64,7 @@ func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) 
 		return nil, fmt.Errorf("获取IP地址失败: %v", err)
 	}
 
-	wsClient, err := wsclient.NewClient(serverURL, 5, 5)
+	wsClient, err := wsclient.NewClient(serverURL, 10, 30)
 	if err != nil {
 		return nil, fmt.Errorf("创建WebSocket客户端失败: %v", err)
 	}
@@ -109,10 +112,57 @@ func (na *NodeAgent) Start() error {
 
 	na.running = true
 
-	go na.wsclient.Start()
-	go na.udsserver.Start()
+	na.wsclient.Start()
+	na.udsserver.Start()
+
+	go na.handleWsMessages()
+	go na.handleUdsMessages()
 
 	return nil
+}
+
+func (na *NodeAgent) handleWsMessages() {
+	// 连接建立成功，上报节点信息
+	na.reportNodeLogin()
+
+	for {
+		messageType, message, err := na.wsclient.ReadMessage()
+		if err != nil {
+			if !na.wsclient.Running {
+				return
+
+			}
+			log.Error("read:", err)
+			err = na.wsclient.Reconnect()
+			if err != nil {
+				log.Error("Reconnect failed")
+				return
+			}
+			continue
+		}
+
+		if messageType == websocket.BinaryMessage {
+			// 解析基础消息
+			baseMessage := &pb.BaseMessage{}
+			if err := proto.Unmarshal(message, baseMessage); err != nil {
+				log.Println("解析基础消息失败:", err)
+				continue
+			}
+			// 根据消息类型处理
+			switch baseMessage.Type {
+			case pb.MessageType_NODE_PROCESSES_REQUEST:
+				go na.handleProcessRequest(baseMessage)
+			case pb.MessageType_NODE_DEPLOY_PLUGIN_REQUEST:
+				go na.handleDeployPluginRequest(baseMessage)
+			default:
+				log.Println("未知消息类型")
+			}
+		}
+	}
+}
+
+func (na *NodeAgent) handleUdsMessages() {
+	na.udsserver.HandleAgentMessage()
 }
 
 // Stop 优雅地停止Agent

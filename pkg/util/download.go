@@ -53,6 +53,9 @@ func DownloadTool(name string) error {
 	log.Printf("开始下载工具: %s", name)
 	// 构建下载URL
 	downloadURL := fmt.Sprintf("/plugins/nodeagent/%s-%s-%s", name, runtime.GOOS, runtime.GOARCH)
+	if runtime.GOOS == "windows" {
+		downloadURL += ".exe"
+	}
 
 	// 下载插件文件
 	toolPath := filepath.Join(cfg.SothothDir, name)
