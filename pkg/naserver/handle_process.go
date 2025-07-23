@@ -7,9 +7,9 @@ import (
 	"sothoth-nodeagent/pkg/process"
 )
 
-func (na *NodeAgent) handleProcessRequest(message *pb.BaseMessage) {
+func (na *NodeAgent) handleProcessRequest(message *pb.Base) {
 	log.Info("收到进程列表请求")
-	request := &pb.NodeProcessesRequest{}
+	request := &pb.ProcessesRequest{}
 	if err := proto.Unmarshal(message.Data, request); err != nil {
 		log.Println("解析进程列表请求失败:", err)
 		return
@@ -19,7 +19,7 @@ func (na *NodeAgent) handleProcessRequest(message *pb.BaseMessage) {
 	if err != nil {
 		log.Info("GetProcesses failed:", err)
 	}
-	response := &pb.NodeProcessesResponse{
+	response := &pb.ProcessesResponse{
 		TaskId:    request.TaskId,
 		Processes: processes,
 	}
@@ -30,8 +30,8 @@ func (na *NodeAgent) handleProcessRequest(message *pb.BaseMessage) {
 		return
 	}
 
-	msg := pb.BaseMessage{
-		Type:    pb.MessageType_NODE_PROCESSES_RESPONSE,
+	msg := pb.Base{
+		Type:    pb.MessageType_PROCESSES_RESPONSE,
 		Session: message.Session,
 		Data:    data,
 	}

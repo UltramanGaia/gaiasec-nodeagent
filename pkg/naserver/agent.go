@@ -53,7 +53,7 @@ type NodeAgent struct {
 //	*NodeAgent - 创建的Agent实例
 //	error - 创建过程中的错误
 func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) (*NodeAgent, error) {
-	serverURL := fmt.Sprintf("ws://%s/ws/nodeagent?projectId=%s&nodeId=%s", server, projectID, nodeID)
+	serverURL := fmt.Sprintf("ws://%s/ws/agent?projectId=%s&connectId=%s", server, projectID, nodeID)
 	hostname, err := system.GetHostname()
 	if err != nil {
 		return nil, fmt.Errorf("获取主机名失败: %v", err)
@@ -138,24 +138,32 @@ func (na *NodeAgent) handleWsMessages() {
 				log.Error("Reconnect failed")
 				return
 			}
+			na.reportNodeLogin()
 			continue
 		}
 
 		if messageType == websocket.BinaryMessage {
 			// 解析基础消息
-			baseMessage := &pb.BaseMessage{}
+			baseMessage := &pb.Base{}
 			if err := proto.Unmarshal(message, baseMessage); err != nil {
 				log.Println("解析基础消息失败:", err)
 				continue
 			}
-			// 根据消息类型处理
-			switch baseMessage.Type {
-			case pb.MessageType_NODE_PROCESSES_REQUEST:
-				go na.handleProcessRequest(baseMessage)
-			case pb.MessageType_NODE_DEPLOY_PLUGIN_REQUEST:
-				go na.handleDeployPluginRequest(baseMessage)
-			default:
-				log.Println("未知消息类型")
+
+			destination := baseMessage.Destination
+			if na.NodeID == destination {
+				log.Println("收到来自服务器的消息")
+				// 根据消息类型处理
+				switch baseMessage.Type {
+				case pb.MessageType_PROCESSES_REQUEST:
+					go na.handleProcessRequest(baseMessage)
+				case pb.MessageType_DEPLOY_PLUGIN_REQUEST:
+					go na.handleDeployPluginRequest(baseMessage)
+				default:
+					log.Println("未知消息类型")
+				}
+			} else {
+				na.routeToAgent(baseMessage)
 			}
 		}
 	}
@@ -177,6 +185,12 @@ func (na *NodeAgent) Stop() {
 	na.wsclient.Stop()
 
 	log.Printf("Node Agent已停止")
+}
+
+// 转发给特定目标，从WsServer收到消息，通过uds转发给下面的 agent
+func (na *NodeAgent) routeToAgent(message *pb.Base) {
+	log.Info("route message to agent: " + message.Destination)
+	na.udsserver.HandleMessage(message)
 }
 
 //// handleMessage 处理传入的WebSocket消息

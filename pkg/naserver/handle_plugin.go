@@ -8,9 +8,9 @@ import (
 	"sothoth-nodeagent/pkg/plugin"
 )
 
-func (na *NodeAgent) handleDeployPluginRequest(message *pb.BaseMessage) {
+func (na *NodeAgent) handleDeployPluginRequest(message *pb.Base) {
 	log.Info("收到插件部署请求")
-	request := &pb.NodeDeployPluginRequest{}
+	request := &pb.DeployPluginRequest{}
 	if err := proto.Unmarshal(message.Data, request); err != nil {
 		log.Println("解析插件部署请求失败:", err)
 		return
@@ -19,7 +19,7 @@ func (na *NodeAgent) handleDeployPluginRequest(message *pb.BaseMessage) {
 	err := plugin.DeployPlugin(request)
 	if err != nil {
 		log.Println("部署插件失败:", err)
-		response := &pb.NodeDeployPluginResponse{
+		response := &pb.DeployPluginResponse{
 			TaskId:        request.TaskId,
 			AgentId:       request.AgentId,
 			PluginName:    request.PluginName,
@@ -27,11 +27,11 @@ func (na *NodeAgent) handleDeployPluginRequest(message *pb.BaseMessage) {
 			Pid:           request.Pid,
 			Result:        fmt.Sprintf("deploy plugin failed: %v", err),
 		}
-		na.wsclient.Send(pb.MessageType_NODE_DEPLOY_PLUGIN_RESPONSE, response)
+		na.wsclient.Send(pb.MessageType_DEPLOY_PLUGIN_RESPONSE, response)
 		return
 	} else {
 		log.Println("部署插件成功")
-		response := &pb.NodeDeployPluginResponse{
+		response := &pb.DeployPluginResponse{
 			TaskId:        request.TaskId,
 			AgentId:       request.AgentId,
 			PluginName:    request.PluginName,
@@ -39,7 +39,7 @@ func (na *NodeAgent) handleDeployPluginRequest(message *pb.BaseMessage) {
 			Pid:           request.Pid,
 			Result:        "deploy plugin success",
 		}
-		na.wsclient.Send(pb.MessageType_NODE_DEPLOY_PLUGIN_RESPONSE, response)
+		na.wsclient.Send(pb.MessageType_DEPLOY_PLUGIN_RESPONSE, response)
 	}
 
 }

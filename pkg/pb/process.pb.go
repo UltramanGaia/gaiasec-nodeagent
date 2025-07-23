@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v3.12.4
-// source: node_process_response.proto
+// source: process.proto
 
 package pb
 
@@ -21,6 +21,51 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 获取进程列表请求
+type ProcessesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProcessesRequest) Reset() {
+	*x = ProcessesRequest{}
+	mi := &file_process_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProcessesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessesRequest) ProtoMessage() {}
+
+func (x *ProcessesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_process_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessesRequest.ProtoReflect.Descriptor instead.
+func (*ProcessesRequest) Descriptor() ([]byte, []int) {
+	return file_process_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ProcessesRequest) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
+}
+
 type Process struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Pid           int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
@@ -34,7 +79,7 @@ type Process struct {
 
 func (x *Process) Reset() {
 	*x = Process{}
-	mi := &file_node_process_response_proto_msgTypes[0]
+	mi := &file_process_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +91,7 @@ func (x *Process) String() string {
 func (*Process) ProtoMessage() {}
 
 func (x *Process) ProtoReflect() protoreflect.Message {
-	mi := &file_node_process_response_proto_msgTypes[0]
+	mi := &file_process_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +104,7 @@ func (x *Process) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Process.ProtoReflect.Descriptor instead.
 func (*Process) Descriptor() ([]byte, []int) {
-	return file_node_process_response_proto_rawDescGZIP(), []int{0}
+	return file_process_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Process) GetPid() int32 {
@@ -98,7 +143,7 @@ func (x *Process) GetUser() string {
 }
 
 // 获取进程列表响应
-type NodeProcessesResponse struct {
+type ProcessesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	Processes     []*Process             `protobuf:"bytes,2,rep,name=processes,proto3" json:"processes,omitempty"`
@@ -106,21 +151,21 @@ type NodeProcessesResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *NodeProcessesResponse) Reset() {
-	*x = NodeProcessesResponse{}
-	mi := &file_node_process_response_proto_msgTypes[1]
+func (x *ProcessesResponse) Reset() {
+	*x = ProcessesResponse{}
+	mi := &file_process_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *NodeProcessesResponse) String() string {
+func (x *ProcessesResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*NodeProcessesResponse) ProtoMessage() {}
+func (*ProcessesResponse) ProtoMessage() {}
 
-func (x *NodeProcessesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_node_process_response_proto_msgTypes[1]
+func (x *ProcessesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_process_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -131,61 +176,64 @@ func (x *NodeProcessesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use NodeProcessesResponse.ProtoReflect.Descriptor instead.
-func (*NodeProcessesResponse) Descriptor() ([]byte, []int) {
-	return file_node_process_response_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use ProcessesResponse.ProtoReflect.Descriptor instead.
+func (*ProcessesResponse) Descriptor() ([]byte, []int) {
+	return file_process_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *NodeProcessesResponse) GetTaskId() string {
+func (x *ProcessesResponse) GetTaskId() string {
 	if x != nil {
 		return x.TaskId
 	}
 	return ""
 }
 
-func (x *NodeProcessesResponse) GetProcesses() []*Process {
+func (x *ProcessesResponse) GetProcesses() []*Process {
 	if x != nil {
 		return x.Processes
 	}
 	return nil
 }
 
-var File_node_process_response_proto protoreflect.FileDescriptor
+var File_process_proto protoreflect.FileDescriptor
 
-const file_node_process_response_proto_rawDesc = "" +
+const file_process_proto_rawDesc = "" +
 	"\n" +
-	"\x1bnode_process_response.proto\"q\n" +
+	"\rprocess.proto\"+\n" +
+	"\x10ProcessesRequest\x12\x17\n" +
+	"\atask_id\x18\x01 \x01(\tR\x06taskId\"q\n" +
 	"\aProcess\x12\x10\n" +
 	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12\x12\n" +
 	"\x04ppid\x18\x02 \x01(\x05R\x04ppid\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
 	"\acmdline\x18\x04 \x01(\tR\acmdline\x12\x12\n" +
-	"\x04user\x18\x05 \x01(\tR\x04user\"X\n" +
-	"\x15NodeProcessesResponse\x12\x17\n" +
+	"\x04user\x18\x05 \x01(\tR\x04user\"T\n" +
+	"\x11ProcessesResponse\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\tR\x06taskId\x12&\n" +
 	"\tprocesses\x18\x02 \x03(\v2\b.ProcessR\tprocessesB)\n" +
 	"\n" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 
 var (
-	file_node_process_response_proto_rawDescOnce sync.Once
-	file_node_process_response_proto_rawDescData []byte
+	file_process_proto_rawDescOnce sync.Once
+	file_process_proto_rawDescData []byte
 )
 
-func file_node_process_response_proto_rawDescGZIP() []byte {
-	file_node_process_response_proto_rawDescOnce.Do(func() {
-		file_node_process_response_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_node_process_response_proto_rawDesc), len(file_node_process_response_proto_rawDesc)))
+func file_process_proto_rawDescGZIP() []byte {
+	file_process_proto_rawDescOnce.Do(func() {
+		file_process_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_process_proto_rawDesc), len(file_process_proto_rawDesc)))
 	})
-	return file_node_process_response_proto_rawDescData
+	return file_process_proto_rawDescData
 }
 
-var file_node_process_response_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_node_process_response_proto_goTypes = []any{
-	(*Process)(nil),               // 0: Process
-	(*NodeProcessesResponse)(nil), // 1: NodeProcessesResponse
+var file_process_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_process_proto_goTypes = []any{
+	(*ProcessesRequest)(nil),  // 0: ProcessesRequest
+	(*Process)(nil),           // 1: Process
+	(*ProcessesResponse)(nil), // 2: ProcessesResponse
 }
-var file_node_process_response_proto_depIdxs = []int32{
-	0, // 0: NodeProcessesResponse.processes:type_name -> Process
+var file_process_proto_depIdxs = []int32{
+	1, // 0: ProcessesResponse.processes:type_name -> Process
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -193,26 +241,26 @@ var file_node_process_response_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_node_process_response_proto_init() }
-func file_node_process_response_proto_init() {
-	if File_node_process_response_proto != nil {
+func init() { file_process_proto_init() }
+func file_process_proto_init() {
+	if File_process_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_node_process_response_proto_rawDesc), len(file_node_process_response_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_process_proto_rawDesc), len(file_process_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_node_process_response_proto_goTypes,
-		DependencyIndexes: file_node_process_response_proto_depIdxs,
-		MessageInfos:      file_node_process_response_proto_msgTypes,
+		GoTypes:           file_process_proto_goTypes,
+		DependencyIndexes: file_process_proto_depIdxs,
+		MessageInfos:      file_process_proto_msgTypes,
 	}.Build()
-	File_node_process_response_proto = out.File
-	file_node_process_response_proto_goTypes = nil
-	file_node_process_response_proto_depIdxs = nil
+	File_process_proto = out.File
+	file_process_proto_goTypes = nil
+	file_process_proto_depIdxs = nil
 }

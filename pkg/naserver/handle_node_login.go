@@ -7,16 +7,16 @@ import (
 )
 
 func (na *NodeAgent) reportNodeLogin() {
-	nodeLogin := pb.NodeLogin{
+	nodeLogin := pb.Register{
+		Id:        na.NodeID,
 		ProjectId: na.ProjectID,
-		NodeId:    na.NodeID,
 		Hostname:  na.Hostname,
-		Ip:        na.IPAddress,
+		Ips:       []string{na.IPAddress},
 		Os:        runtime.GOOS,
 		Arch:      runtime.GOARCH,
 	}
 
-	err := na.wsclient.Send(pb.MessageType_NODE_LOGIN, &nodeLogin)
+	err := na.wsclient.Send(pb.MessageType_REGISTER, &nodeLogin)
 	if err != nil {
 		log.Errorf("failed to send node login: %v", err)
 		return

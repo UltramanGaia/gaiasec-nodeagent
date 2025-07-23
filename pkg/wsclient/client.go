@@ -44,13 +44,13 @@ func (c *Client) Reconnect() error {
 	}
 	log.Errorf("Trying to reconnect client: [" + c.uri + "]")
 	for i := 0; c.retryNum == 0 || i <= c.retryNum; i++ {
+		time.Sleep(time.Duration(c.pauseBeforeRetry) * time.Second)
 		client, _, err := websocket.DefaultDialer.Dial(c.uri, nil)
 		if err == nil {
 			log.Info("Reconnect success")
 			c.conn = client
 			return nil
 		}
-		time.Sleep(time.Duration(c.pauseBeforeRetry) * time.Second)
 	}
 	return fmt.Errorf("max retry exceeded")
 }
@@ -94,7 +94,7 @@ func (c *Client) Send(msgType pb.MessageType, m proto.Message) error {
 		return err
 	}
 
-	msg := pb.BaseMessage{
+	msg := pb.Base{
 		Type: msgType,
 		Data: data,
 	}

@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v3.12.4
-// source: node_deploy_plugin_response.proto
+// source: deploy_plugin_response.proto
 
 package pb
 
@@ -22,7 +22,7 @@ const (
 )
 
 // 节点部署插件响应
-type NodeDeployPluginResponse struct {
+type DeployPluginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	AgentId       string                 `protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
@@ -34,21 +34,21 @@ type NodeDeployPluginResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *NodeDeployPluginResponse) Reset() {
-	*x = NodeDeployPluginResponse{}
-	mi := &file_node_deploy_plugin_response_proto_msgTypes[0]
+func (x *DeployPluginResponse) Reset() {
+	*x = DeployPluginResponse{}
+	mi := &file_deploy_plugin_response_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *NodeDeployPluginResponse) String() string {
+func (x *DeployPluginResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*NodeDeployPluginResponse) ProtoMessage() {}
+func (*DeployPluginResponse) ProtoMessage() {}
 
-func (x *NodeDeployPluginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_node_deploy_plugin_response_proto_msgTypes[0]
+func (x *DeployPluginResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_deploy_plugin_response_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,59 +59,59 @@ func (x *NodeDeployPluginResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use NodeDeployPluginResponse.ProtoReflect.Descriptor instead.
-func (*NodeDeployPluginResponse) Descriptor() ([]byte, []int) {
-	return file_node_deploy_plugin_response_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use DeployPluginResponse.ProtoReflect.Descriptor instead.
+func (*DeployPluginResponse) Descriptor() ([]byte, []int) {
+	return file_deploy_plugin_response_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *NodeDeployPluginResponse) GetTaskId() string {
+func (x *DeployPluginResponse) GetTaskId() string {
 	if x != nil {
 		return x.TaskId
 	}
 	return ""
 }
 
-func (x *NodeDeployPluginResponse) GetAgentId() string {
+func (x *DeployPluginResponse) GetAgentId() string {
 	if x != nil {
 		return x.AgentId
 	}
 	return ""
 }
 
-func (x *NodeDeployPluginResponse) GetPluginName() string {
+func (x *DeployPluginResponse) GetPluginName() string {
 	if x != nil {
 		return x.PluginName
 	}
 	return ""
 }
 
-func (x *NodeDeployPluginResponse) GetPluginVersion() string {
+func (x *DeployPluginResponse) GetPluginVersion() string {
 	if x != nil {
 		return x.PluginVersion
 	}
 	return ""
 }
 
-func (x *NodeDeployPluginResponse) GetPid() int32 {
+func (x *DeployPluginResponse) GetPid() int32 {
 	if x != nil {
 		return x.Pid
 	}
 	return 0
 }
 
-func (x *NodeDeployPluginResponse) GetResult() string {
+func (x *DeployPluginResponse) GetResult() string {
 	if x != nil {
 		return x.Result
 	}
 	return ""
 }
 
-var File_node_deploy_plugin_response_proto protoreflect.FileDescriptor
+var File_deploy_plugin_response_proto protoreflect.FileDescriptor
 
-const file_node_deploy_plugin_response_proto_rawDesc = "" +
+const file_deploy_plugin_response_proto_rawDesc = "" +
 	"\n" +
-	"!node_deploy_plugin_response.proto\"\xc0\x01\n" +
-	"\x18NodeDeployPluginResponse\x12\x17\n" +
+	"\x1cdeploy_plugin_response.proto\"\xbc\x01\n" +
+	"\x14DeployPluginResponse\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\tR\x06taskId\x12\x19\n" +
 	"\bagent_id\x18\x02 \x01(\tR\aagentId\x12\x1f\n" +
 	"\vplugin_name\x18\x03 \x01(\tR\n" +
@@ -123,22 +123,22 @@ const file_node_deploy_plugin_response_proto_rawDesc = "" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 
 var (
-	file_node_deploy_plugin_response_proto_rawDescOnce sync.Once
-	file_node_deploy_plugin_response_proto_rawDescData []byte
+	file_deploy_plugin_response_proto_rawDescOnce sync.Once
+	file_deploy_plugin_response_proto_rawDescData []byte
 )
 
-func file_node_deploy_plugin_response_proto_rawDescGZIP() []byte {
-	file_node_deploy_plugin_response_proto_rawDescOnce.Do(func() {
-		file_node_deploy_plugin_response_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_node_deploy_plugin_response_proto_rawDesc), len(file_node_deploy_plugin_response_proto_rawDesc)))
+func file_deploy_plugin_response_proto_rawDescGZIP() []byte {
+	file_deploy_plugin_response_proto_rawDescOnce.Do(func() {
+		file_deploy_plugin_response_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_deploy_plugin_response_proto_rawDesc), len(file_deploy_plugin_response_proto_rawDesc)))
 	})
-	return file_node_deploy_plugin_response_proto_rawDescData
+	return file_deploy_plugin_response_proto_rawDescData
 }
 
-var file_node_deploy_plugin_response_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_node_deploy_plugin_response_proto_goTypes = []any{
-	(*NodeDeployPluginResponse)(nil), // 0: NodeDeployPluginResponse
+var file_deploy_plugin_response_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_deploy_plugin_response_proto_goTypes = []any{
+	(*DeployPluginResponse)(nil), // 0: DeployPluginResponse
 }
-var file_node_deploy_plugin_response_proto_depIdxs = []int32{
+var file_deploy_plugin_response_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -146,26 +146,26 @@ var file_node_deploy_plugin_response_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_node_deploy_plugin_response_proto_init() }
-func file_node_deploy_plugin_response_proto_init() {
-	if File_node_deploy_plugin_response_proto != nil {
+func init() { file_deploy_plugin_response_proto_init() }
+func file_deploy_plugin_response_proto_init() {
+	if File_deploy_plugin_response_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_node_deploy_plugin_response_proto_rawDesc), len(file_node_deploy_plugin_response_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_deploy_plugin_response_proto_rawDesc), len(file_deploy_plugin_response_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_node_deploy_plugin_response_proto_goTypes,
-		DependencyIndexes: file_node_deploy_plugin_response_proto_depIdxs,
-		MessageInfos:      file_node_deploy_plugin_response_proto_msgTypes,
+		GoTypes:           file_deploy_plugin_response_proto_goTypes,
+		DependencyIndexes: file_deploy_plugin_response_proto_depIdxs,
+		MessageInfos:      file_deploy_plugin_response_proto_msgTypes,
 	}.Build()
-	File_node_deploy_plugin_response_proto = out.File
-	file_node_deploy_plugin_response_proto_goTypes = nil
-	file_node_deploy_plugin_response_proto_depIdxs = nil
+	File_deploy_plugin_response_proto = out.File
+	file_deploy_plugin_response_proto_goTypes = nil
+	file_deploy_plugin_response_proto_depIdxs = nil
 }

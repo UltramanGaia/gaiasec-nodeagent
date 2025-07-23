@@ -1,11 +1,7 @@
 package udsserver
 
 import (
-	"encoding/binary"
-	"fmt"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/proto"
-	"io"
 	"net"
 	"os"
 	"os/signal"
@@ -17,8 +13,8 @@ import (
 
 type Server struct {
 	socketPath      string
-	wsClient        *wsclient.Client
-	Agent2SocketMap map[string]net.Conn
+	WsClient        *wsclient.Client
+	Agent2SocketMap map[string]*Client
 	listener        net.Listener
 	running         bool
 	cfg             *config.Config
@@ -30,8 +26,8 @@ func NewServer(client *wsclient.Client) (*Server, error) {
 	socketPath := cfg.SothothDir + "/nodeagent.sock"
 	return &Server{
 		socketPath:      socketPath,
-		wsClient:        client,
-		Agent2SocketMap: make(map[string]net.Conn),
+		WsClient:        client,
+		Agent2SocketMap: make(map[string]*Client),
 	}, nil
 }
 
@@ -79,14 +75,27 @@ func (s *Server) HandleAgentMessage() {
 		if conn == nil {
 			continue
 		}
-		go processAgentMessage(conn, s.wsClient)
+		client, err := NewClient(&conn, s)
+		if err != nil {
+			log.Errorf("Error creating client: %s", err)
+			continue
+		}
+		go client.HandleAgentMessage()
 	}
 }
 
-var agent2SocketMap map[string]net.Conn
-
-func init() {
-	agent2SocketMap = make(map[string]net.Conn)
+func (s *Server) HandleMessage(message *pb.Base) {
+	destination := message.Destination
+	if destination != "" {
+		if client, ok := s.Agent2SocketMap[destination]; ok {
+			err := client.SendMessage(message)
+			if err != nil {
+				log.Errorf("Error writing to agent %s: %s", destination, err)
+			}
+		} else {
+			log.Errorf("Agent %s not found", destination)
+		}
+	}
 }
 
 func (s *Server) accept() net.Conn {
@@ -99,90 +108,4 @@ func (s *Server) accept() net.Conn {
 	}
 	log.Infof("Accepted connection from %s", conn.RemoteAddr())
 	return conn
-}
-
-func processAgentMessage(conn net.Conn, client *wsclient.Client) {
-	var agentId string
-	defer func() {
-		if agentId != "" {
-			log.Infof("Agent %s logout", agentId)
-			agentLogout := pb.AgentLogout{
-				AgentId: agentId,
-			}
-
-			err := client.Send(pb.MessageType_AGENT_LOGOUT, &agentLogout)
-			if err != nil {
-				log.Error("Emit logout error: ", err)
-			}
-			delete(agent2SocketMap, agentId)
-		}
-		_ = conn.Close()
-	}()
-	// 用于缓存不完整的数据包
-	buffer := make([]byte, 0)
-
-	for {
-		// 读取数据到临时缓冲区
-		temp := make([]byte, 1024)
-		n, err := conn.Read(temp)
-		if err != nil {
-			if err != io.EOF {
-				fmt.Printf("读取数据错误: %v\n", err)
-			} else {
-				fmt.Printf("客户端 %s 断开连接\n", conn.RemoteAddr())
-			}
-			return
-		}
-
-		// 将新读取的数据追加到缓冲区
-		buffer = append(buffer, temp[:n]...)
-
-		// 处理缓冲区中的完整消息
-		for {
-			// 检查是否有足够的数据解析长度前缀
-			if len(buffer) < 4 {
-				break
-			}
-
-			// 解析长度前缀(大端字节序)
-			messageLength := binary.BigEndian.Uint32(buffer[:4])
-
-			// 验证消息长度是否合法，最大长度设置为100MB，避免恶意攻击
-			if messageLength <= 0 || messageLength > 100*1024*1024 {
-				fmt.Printf("无效的消息长度: %d，关闭连接\n", messageLength)
-				return
-			}
-
-			// 检查是否有完整的消息数据
-			totalLength := 4 + int(messageLength)
-			if len(buffer) < totalLength {
-				break // 数据不完整，等待更多数据
-			}
-
-			// 提取消息体
-			messageData := buffer[4:totalLength]
-			// 保留缓冲区中剩余的数据
-			buffer = buffer[totalLength:]
-
-			if agentId == "" {
-				// 解析Protobuf消息
-				msg := &pb.BaseMessage{}
-				if err := proto.Unmarshal(messageData, msg); err != nil {
-					return
-				}
-				if msg.GetType() != pb.MessageType_AGENT_LOGIN { // 第一个消息必须是登录消息
-					return
-				}
-				loginMsg := &pb.AgentLogin{}
-				if err := proto.Unmarshal(msg.GetData(), loginMsg); err != nil {
-					return
-				}
-				agentId = loginMsg.AgentId
-				agent2SocketMap[agentId] = conn
-			}
-
-			// 直接将Agent侧收到的消息转发给Server即可
-			_ = client.SendMessage(messageData)
-		}
-	}
 }

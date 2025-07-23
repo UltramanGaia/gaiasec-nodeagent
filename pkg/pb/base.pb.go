@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v3.12.4
-// source: base_message.proto
+// source: base.proto
 
 package pb
 
@@ -21,7 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type BaseMessage struct {
+type Base struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          MessageType            `protobuf:"varint,1,opt,name=type,proto3,enum=MessageType" json:"type,omitempty"`
 	Source        string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
@@ -32,21 +32,21 @@ type BaseMessage struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *BaseMessage) Reset() {
-	*x = BaseMessage{}
-	mi := &file_base_message_proto_msgTypes[0]
+func (x *Base) Reset() {
+	*x = Base{}
+	mi := &file_base_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *BaseMessage) String() string {
+func (x *Base) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*BaseMessage) ProtoMessage() {}
+func (*Base) ProtoMessage() {}
 
-func (x *BaseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_base_message_proto_msgTypes[0]
+func (x *Base) ProtoReflect() protoreflect.Message {
+	mi := &file_base_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,52 +57,53 @@ func (x *BaseMessage) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use BaseMessage.ProtoReflect.Descriptor instead.
-func (*BaseMessage) Descriptor() ([]byte, []int) {
-	return file_base_message_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use Base.ProtoReflect.Descriptor instead.
+func (*Base) Descriptor() ([]byte, []int) {
+	return file_base_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *BaseMessage) GetType() MessageType {
+func (x *Base) GetType() MessageType {
 	if x != nil {
 		return x.Type
 	}
 	return MessageType_UNKNOWN
 }
 
-func (x *BaseMessage) GetSource() string {
+func (x *Base) GetSource() string {
 	if x != nil {
 		return x.Source
 	}
 	return ""
 }
 
-func (x *BaseMessage) GetDestination() string {
+func (x *Base) GetDestination() string {
 	if x != nil {
 		return x.Destination
 	}
 	return ""
 }
 
-func (x *BaseMessage) GetSession() string {
+func (x *Base) GetSession() string {
 	if x != nil {
 		return x.Session
 	}
 	return ""
 }
 
-func (x *BaseMessage) GetData() []byte {
+func (x *Base) GetData() []byte {
 	if x != nil {
 		return x.Data
 	}
 	return nil
 }
 
-var File_base_message_proto protoreflect.FileDescriptor
+var File_base_proto protoreflect.FileDescriptor
 
-const file_base_message_proto_rawDesc = "" +
+const file_base_proto_rawDesc = "" +
 	"\n" +
-	"\x12base_message.proto\x1a\x12message_type.proto\"\x97\x01\n" +
-	"\vBaseMessage\x12 \n" +
+	"\n" +
+	"base.proto\x1a\x12message_type.proto\"\x90\x01\n" +
+	"\x04Base\x12 \n" +
 	"\x04type\x18\x01 \x01(\x0e2\f.MessageTypeR\x04type\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\tR\x06source\x12 \n" +
 	"\vdestination\x18\x03 \x01(\tR\vdestination\x12\x18\n" +
@@ -112,24 +113,24 @@ const file_base_message_proto_rawDesc = "" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 
 var (
-	file_base_message_proto_rawDescOnce sync.Once
-	file_base_message_proto_rawDescData []byte
+	file_base_proto_rawDescOnce sync.Once
+	file_base_proto_rawDescData []byte
 )
 
-func file_base_message_proto_rawDescGZIP() []byte {
-	file_base_message_proto_rawDescOnce.Do(func() {
-		file_base_message_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_base_message_proto_rawDesc), len(file_base_message_proto_rawDesc)))
+func file_base_proto_rawDescGZIP() []byte {
+	file_base_proto_rawDescOnce.Do(func() {
+		file_base_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_base_proto_rawDesc), len(file_base_proto_rawDesc)))
 	})
-	return file_base_message_proto_rawDescData
+	return file_base_proto_rawDescData
 }
 
-var file_base_message_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_base_message_proto_goTypes = []any{
-	(*BaseMessage)(nil), // 0: BaseMessage
-	(MessageType)(0),    // 1: MessageType
+var file_base_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_base_proto_goTypes = []any{
+	(*Base)(nil),     // 0: Base
+	(MessageType)(0), // 1: MessageType
 }
-var file_base_message_proto_depIdxs = []int32{
-	1, // 0: BaseMessage.type:type_name -> MessageType
+var file_base_proto_depIdxs = []int32{
+	1, // 0: Base.type:type_name -> MessageType
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -137,9 +138,9 @@ var file_base_message_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_base_message_proto_init() }
-func file_base_message_proto_init() {
-	if File_base_message_proto != nil {
+func init() { file_base_proto_init() }
+func file_base_proto_init() {
+	if File_base_proto != nil {
 		return
 	}
 	file_message_type_proto_init()
@@ -147,17 +148,17 @@ func file_base_message_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_message_proto_rawDesc), len(file_base_message_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_proto_rawDesc), len(file_base_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_base_message_proto_goTypes,
-		DependencyIndexes: file_base_message_proto_depIdxs,
-		MessageInfos:      file_base_message_proto_msgTypes,
+		GoTypes:           file_base_proto_goTypes,
+		DependencyIndexes: file_base_proto_depIdxs,
+		MessageInfos:      file_base_proto_msgTypes,
 	}.Build()
-	File_base_message_proto = out.File
-	file_base_message_proto_goTypes = nil
-	file_base_message_proto_depIdxs = nil
+	File_base_proto = out.File
+	file_base_proto_goTypes = nil
+	file_base_proto_depIdxs = nil
 }

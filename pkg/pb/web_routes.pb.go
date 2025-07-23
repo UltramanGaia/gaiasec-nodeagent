@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v3.12.4
-// source: agent_web_routes_response.proto
+// source: web_routes.proto
 
 package pb
 
@@ -57,11 +57,11 @@ func (x WebAppType) String() string {
 }
 
 func (WebAppType) Descriptor() protoreflect.EnumDescriptor {
-	return file_agent_web_routes_response_proto_enumTypes[0].Descriptor()
+	return file_web_routes_proto_enumTypes[0].Descriptor()
 }
 
 func (WebAppType) Type() protoreflect.EnumType {
-	return &file_agent_web_routes_response_proto_enumTypes[0]
+	return &file_web_routes_proto_enumTypes[0]
 }
 
 func (x WebAppType) Number() protoreflect.EnumNumber {
@@ -70,16 +70,17 @@ func (x WebAppType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use WebAppType.Descriptor instead.
 func (WebAppType) EnumDescriptor() ([]byte, []int) {
-	return file_agent_web_routes_response_proto_rawDescGZIP(), []int{0}
+	return file_web_routes_proto_rawDescGZIP(), []int{0}
 }
 
 type WebProcessorType int32
 
 const (
-	WebProcessorType_FILTER      WebProcessorType = 0
-	WebProcessorType_SERVLET     WebProcessorType = 1
-	WebProcessorType_INTERCEPTOR WebProcessorType = 2
-	WebProcessorType_CONTROLLER  WebProcessorType = 3
+	WebProcessorType_FILTER          WebProcessorType = 0
+	WebProcessorType_SERVLET         WebProcessorType = 1
+	WebProcessorType_INTERCEPTOR     WebProcessorType = 2
+	WebProcessorType_CONTROLLER      WebProcessorType = 3
+	WebProcessorType_HENDLER_ADAPTER WebProcessorType = 4
 )
 
 // Enum value maps for WebProcessorType.
@@ -89,12 +90,14 @@ var (
 		1: "SERVLET",
 		2: "INTERCEPTOR",
 		3: "CONTROLLER",
+		4: "HENDLER_ADAPTER",
 	}
 	WebProcessorType_value = map[string]int32{
-		"FILTER":      0,
-		"SERVLET":     1,
-		"INTERCEPTOR": 2,
-		"CONTROLLER":  3,
+		"FILTER":          0,
+		"SERVLET":         1,
+		"INTERCEPTOR":     2,
+		"CONTROLLER":      3,
+		"HENDLER_ADAPTER": 4,
 	}
 )
 
@@ -109,11 +112,11 @@ func (x WebProcessorType) String() string {
 }
 
 func (WebProcessorType) Descriptor() protoreflect.EnumDescriptor {
-	return file_agent_web_routes_response_proto_enumTypes[1].Descriptor()
+	return file_web_routes_proto_enumTypes[1].Descriptor()
 }
 
 func (WebProcessorType) Type() protoreflect.EnumType {
-	return &file_agent_web_routes_response_proto_enumTypes[1]
+	return &file_web_routes_proto_enumTypes[1]
 }
 
 func (x WebProcessorType) Number() protoreflect.EnumNumber {
@@ -122,22 +125,22 @@ func (x WebProcessorType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use WebProcessorType.Descriptor instead.
 func (WebProcessorType) EnumDescriptor() ([]byte, []int) {
-	return file_agent_web_routes_response_proto_rawDescGZIP(), []int{1}
+	return file_web_routes_proto_rawDescGZIP(), []int{1}
 }
 
 type WebFrameworkType int32
 
 const (
-	WebFrameworkType_SPRINGMNV WebFrameworkType = 0
+	WebFrameworkType_SPRINGMVC WebFrameworkType = 0
 )
 
 // Enum value maps for WebFrameworkType.
 var (
 	WebFrameworkType_name = map[int32]string{
-		0: "SPRINGMNV",
+		0: "SPRINGMVC",
 	}
 	WebFrameworkType_value = map[string]int32{
-		"SPRINGMNV": 0,
+		"SPRINGMVC": 0,
 	}
 )
 
@@ -152,11 +155,11 @@ func (x WebFrameworkType) String() string {
 }
 
 func (WebFrameworkType) Descriptor() protoreflect.EnumDescriptor {
-	return file_agent_web_routes_response_proto_enumTypes[2].Descriptor()
+	return file_web_routes_proto_enumTypes[2].Descriptor()
 }
 
 func (WebFrameworkType) Type() protoreflect.EnumType {
-	return &file_agent_web_routes_response_proto_enumTypes[2]
+	return &file_web_routes_proto_enumTypes[2]
 }
 
 func (x WebFrameworkType) Number() protoreflect.EnumNumber {
@@ -165,7 +168,52 @@ func (x WebFrameworkType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use WebFrameworkType.Descriptor instead.
 func (WebFrameworkType) EnumDescriptor() ([]byte, []int) {
-	return file_agent_web_routes_response_proto_rawDescGZIP(), []int{2}
+	return file_web_routes_proto_rawDescGZIP(), []int{2}
+}
+
+// 获取Web路由请求
+type WebRoutesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WebRoutesRequest) Reset() {
+	*x = WebRoutesRequest{}
+	mi := &file_web_routes_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WebRoutesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WebRoutesRequest) ProtoMessage() {}
+
+func (x *WebRoutesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_routes_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WebRoutesRequest.ProtoReflect.Descriptor instead.
+func (*WebRoutesRequest) Descriptor() ([]byte, []int) {
+	return file_web_routes_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *WebRoutesRequest) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
 }
 
 type WebProcessor struct {
@@ -181,7 +229,7 @@ type WebProcessor struct {
 
 func (x *WebProcessor) Reset() {
 	*x = WebProcessor{}
-	mi := &file_agent_web_routes_response_proto_msgTypes[0]
+	mi := &file_web_routes_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -193,7 +241,7 @@ func (x *WebProcessor) String() string {
 func (*WebProcessor) ProtoMessage() {}
 
 func (x *WebProcessor) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_web_routes_response_proto_msgTypes[0]
+	mi := &file_web_routes_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -206,7 +254,7 @@ func (x *WebProcessor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebProcessor.ProtoReflect.Descriptor instead.
 func (*WebProcessor) Descriptor() ([]byte, []int) {
-	return file_agent_web_routes_response_proto_rawDescGZIP(), []int{0}
+	return file_web_routes_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *WebProcessor) GetProcessorType() WebProcessorType {
@@ -254,7 +302,7 @@ type WebFramework struct {
 
 func (x *WebFramework) Reset() {
 	*x = WebFramework{}
-	mi := &file_agent_web_routes_response_proto_msgTypes[1]
+	mi := &file_web_routes_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -266,7 +314,7 @@ func (x *WebFramework) String() string {
 func (*WebFramework) ProtoMessage() {}
 
 func (x *WebFramework) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_web_routes_response_proto_msgTypes[1]
+	mi := &file_web_routes_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -279,14 +327,14 @@ func (x *WebFramework) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebFramework.ProtoReflect.Descriptor instead.
 func (*WebFramework) Descriptor() ([]byte, []int) {
-	return file_agent_web_routes_response_proto_rawDescGZIP(), []int{1}
+	return file_web_routes_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *WebFramework) GetFrameworkType() WebFrameworkType {
 	if x != nil {
 		return x.FrameworkType
 	}
-	return WebFrameworkType_SPRINGMNV
+	return WebFrameworkType_SPRINGMVC
 }
 
 func (x *WebFramework) GetProcessors() []*WebProcessor {
@@ -310,7 +358,7 @@ type WebApp struct {
 
 func (x *WebApp) Reset() {
 	*x = WebApp{}
-	mi := &file_agent_web_routes_response_proto_msgTypes[2]
+	mi := &file_web_routes_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -322,7 +370,7 @@ func (x *WebApp) String() string {
 func (*WebApp) ProtoMessage() {}
 
 func (x *WebApp) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_web_routes_response_proto_msgTypes[2]
+	mi := &file_web_routes_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -335,7 +383,7 @@ func (x *WebApp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebApp.ProtoReflect.Descriptor instead.
 func (*WebApp) Descriptor() ([]byte, []int) {
-	return file_agent_web_routes_response_proto_rawDescGZIP(), []int{2}
+	return file_web_routes_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *WebApp) GetAppType() WebAppType {
@@ -380,8 +428,8 @@ func (x *WebApp) GetFrameworks() []*WebFramework {
 	return nil
 }
 
-// 获取进程列表响应
-type AgentWebRoutesResponse struct {
+// 获取WebRoutes响应
+type WebRoutesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TaskId        string                 `protobuf:"bytes,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	Webapps       []*WebApp              `protobuf:"bytes,2,rep,name=webapps,proto3" json:"webapps,omitempty"`
@@ -389,21 +437,21 @@ type AgentWebRoutesResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AgentWebRoutesResponse) Reset() {
-	*x = AgentWebRoutesResponse{}
-	mi := &file_agent_web_routes_response_proto_msgTypes[3]
+func (x *WebRoutesResponse) Reset() {
+	*x = WebRoutesResponse{}
+	mi := &file_web_routes_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AgentWebRoutesResponse) String() string {
+func (x *WebRoutesResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AgentWebRoutesResponse) ProtoMessage() {}
+func (*WebRoutesResponse) ProtoMessage() {}
 
-func (x *AgentWebRoutesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_web_routes_response_proto_msgTypes[3]
+func (x *WebRoutesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_routes_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -414,30 +462,32 @@ func (x *AgentWebRoutesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AgentWebRoutesResponse.ProtoReflect.Descriptor instead.
-func (*AgentWebRoutesResponse) Descriptor() ([]byte, []int) {
-	return file_agent_web_routes_response_proto_rawDescGZIP(), []int{3}
+// Deprecated: Use WebRoutesResponse.ProtoReflect.Descriptor instead.
+func (*WebRoutesResponse) Descriptor() ([]byte, []int) {
+	return file_web_routes_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *AgentWebRoutesResponse) GetTaskId() string {
+func (x *WebRoutesResponse) GetTaskId() string {
 	if x != nil {
 		return x.TaskId
 	}
 	return ""
 }
 
-func (x *AgentWebRoutesResponse) GetWebapps() []*WebApp {
+func (x *WebRoutesResponse) GetWebapps() []*WebApp {
 	if x != nil {
 		return x.Webapps
 	}
 	return nil
 }
 
-var File_agent_web_routes_response_proto protoreflect.FileDescriptor
+var File_web_routes_proto protoreflect.FileDescriptor
 
-const file_agent_web_routes_response_proto_rawDesc = "" +
+const file_web_routes_proto_rawDesc = "" +
 	"\n" +
-	"\x1fagent_web_routes_response.proto\"\xac\x01\n" +
+	"\x10web_routes.proto\"+\n" +
+	"\x10WebRoutesRequest\x12\x17\n" +
+	"\atask_id\x18\x01 \x01(\tR\x06taskId\"\xac\x01\n" +
 	"\fWebProcessor\x128\n" +
 	"\x0eprocessor_type\x18\x01 \x01(\x0e2\x11.WebProcessorTypeR\rprocessorType\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -461,8 +511,8 @@ const file_agent_web_routes_response_proto_rawDesc = "" +
 	"processors\x12-\n" +
 	"\n" +
 	"frameworks\x18\x06 \x03(\v2\r.WebFrameworkR\n" +
-	"frameworks\"T\n" +
-	"\x16AgentWebRoutesResponse\x12\x17\n" +
+	"frameworks\"O\n" +
+	"\x11WebRoutesResponse\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\tR\x06taskId\x12!\n" +
 	"\awebapps\x18\x02 \x03(\v2\a.WebAppR\awebapps*<\n" +
 	"\n" +
@@ -471,50 +521,52 @@ const file_agent_web_routes_response_proto_rawDesc = "" +
 	"\x06TOMCAT\x10\x00\x12\t\n" +
 	"\x05JETTY\x10\x01\x12\f\n" +
 	"\bUNDERTOW\x10\x02\x12\t\n" +
-	"\x05NETTY\x10\x03*L\n" +
+	"\x05NETTY\x10\x03*a\n" +
 	"\x10WebProcessorType\x12\n" +
 	"\n" +
 	"\x06FILTER\x10\x00\x12\v\n" +
 	"\aSERVLET\x10\x01\x12\x0f\n" +
 	"\vINTERCEPTOR\x10\x02\x12\x0e\n" +
 	"\n" +
-	"CONTROLLER\x10\x03*!\n" +
+	"CONTROLLER\x10\x03\x12\x13\n" +
+	"\x0fHENDLER_ADAPTER\x10\x04*!\n" +
 	"\x10WebFrameworkType\x12\r\n" +
-	"\tSPRINGMNV\x10\x00B)\n" +
+	"\tSPRINGMVC\x10\x00B)\n" +
 	"\n" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 
 var (
-	file_agent_web_routes_response_proto_rawDescOnce sync.Once
-	file_agent_web_routes_response_proto_rawDescData []byte
+	file_web_routes_proto_rawDescOnce sync.Once
+	file_web_routes_proto_rawDescData []byte
 )
 
-func file_agent_web_routes_response_proto_rawDescGZIP() []byte {
-	file_agent_web_routes_response_proto_rawDescOnce.Do(func() {
-		file_agent_web_routes_response_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_agent_web_routes_response_proto_rawDesc), len(file_agent_web_routes_response_proto_rawDesc)))
+func file_web_routes_proto_rawDescGZIP() []byte {
+	file_web_routes_proto_rawDescOnce.Do(func() {
+		file_web_routes_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_web_routes_proto_rawDesc), len(file_web_routes_proto_rawDesc)))
 	})
-	return file_agent_web_routes_response_proto_rawDescData
+	return file_web_routes_proto_rawDescData
 }
 
-var file_agent_web_routes_response_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_agent_web_routes_response_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_agent_web_routes_response_proto_goTypes = []any{
-	(WebAppType)(0),                // 0: WebAppType
-	(WebProcessorType)(0),          // 1: WebProcessorType
-	(WebFrameworkType)(0),          // 2: WebFrameworkType
-	(*WebProcessor)(nil),           // 3: WebProcessor
-	(*WebFramework)(nil),           // 4: WebFramework
-	(*WebApp)(nil),                 // 5: WebApp
-	(*AgentWebRoutesResponse)(nil), // 6: AgentWebRoutesResponse
+var file_web_routes_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_web_routes_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_web_routes_proto_goTypes = []any{
+	(WebAppType)(0),           // 0: WebAppType
+	(WebProcessorType)(0),     // 1: WebProcessorType
+	(WebFrameworkType)(0),     // 2: WebFrameworkType
+	(*WebRoutesRequest)(nil),  // 3: WebRoutesRequest
+	(*WebProcessor)(nil),      // 4: WebProcessor
+	(*WebFramework)(nil),      // 5: WebFramework
+	(*WebApp)(nil),            // 6: WebApp
+	(*WebRoutesResponse)(nil), // 7: WebRoutesResponse
 }
-var file_agent_web_routes_response_proto_depIdxs = []int32{
+var file_web_routes_proto_depIdxs = []int32{
 	1, // 0: WebProcessor.processor_type:type_name -> WebProcessorType
 	2, // 1: WebFramework.framework_type:type_name -> WebFrameworkType
-	3, // 2: WebFramework.processors:type_name -> WebProcessor
+	4, // 2: WebFramework.processors:type_name -> WebProcessor
 	0, // 3: WebApp.app_type:type_name -> WebAppType
-	3, // 4: WebApp.processors:type_name -> WebProcessor
-	4, // 5: WebApp.frameworks:type_name -> WebFramework
-	5, // 6: AgentWebRoutesResponse.webapps:type_name -> WebApp
+	4, // 4: WebApp.processors:type_name -> WebProcessor
+	5, // 5: WebApp.frameworks:type_name -> WebFramework
+	6, // 6: WebRoutesResponse.webapps:type_name -> WebApp
 	7, // [7:7] is the sub-list for method output_type
 	7, // [7:7] is the sub-list for method input_type
 	7, // [7:7] is the sub-list for extension type_name
@@ -522,27 +574,27 @@ var file_agent_web_routes_response_proto_depIdxs = []int32{
 	0, // [0:7] is the sub-list for field type_name
 }
 
-func init() { file_agent_web_routes_response_proto_init() }
-func file_agent_web_routes_response_proto_init() {
-	if File_agent_web_routes_response_proto != nil {
+func init() { file_web_routes_proto_init() }
+func file_web_routes_proto_init() {
+	if File_web_routes_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agent_web_routes_response_proto_rawDesc), len(file_agent_web_routes_response_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_web_routes_proto_rawDesc), len(file_web_routes_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_agent_web_routes_response_proto_goTypes,
-		DependencyIndexes: file_agent_web_routes_response_proto_depIdxs,
-		EnumInfos:         file_agent_web_routes_response_proto_enumTypes,
-		MessageInfos:      file_agent_web_routes_response_proto_msgTypes,
+		GoTypes:           file_web_routes_proto_goTypes,
+		DependencyIndexes: file_web_routes_proto_depIdxs,
+		EnumInfos:         file_web_routes_proto_enumTypes,
+		MessageInfos:      file_web_routes_proto_msgTypes,
 	}.Build()
-	File_agent_web_routes_response_proto = out.File
-	file_agent_web_routes_response_proto_goTypes = nil
-	file_agent_web_routes_response_proto_depIdxs = nil
+	File_web_routes_proto = out.File
+	file_web_routes_proto_goTypes = nil
+	file_web_routes_proto_depIdxs = nil
 }

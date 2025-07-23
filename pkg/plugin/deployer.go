@@ -17,7 +17,7 @@ import (
 )
 
 // Deploy 部署插件到目标进程
-func DeployPlugin(request *pb.NodeDeployPluginRequest) error {
+func DeployPlugin(request *pb.DeployPluginRequest) error {
 	log.Printf("开始部署插件 %s 到进程 %d", request.PluginName, request.Pid)
 
 	cfg := config.GetInstance()
