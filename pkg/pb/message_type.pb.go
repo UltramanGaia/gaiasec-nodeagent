@@ -34,11 +34,26 @@ const (
 	MessageType_PROCESSES_RESPONSE     MessageType = 6
 	MessageType_DEPLOY_PLUGIN_REQUEST  MessageType = 7
 	MessageType_DEPLOY_PLUGIN_RESPONSE MessageType = 8
+	// 文件系统
+	MessageType_FS_LIST_DIR_REQUEST     MessageType = 20
+	MessageType_FS_LIST_DIR_RESPONSE    MessageType = 21
+	MessageType_FS_READ_FILE_REQUEST    MessageType = 22
+	MessageType_FS_READ_FILE_RESPONSE   MessageType = 23
+	MessageType_FS_WRITE_FILE_REQUEST   MessageType = 24
+	MessageType_FS_WRITE_FILE_RESPONSE  MessageType = 25
+	MessageType_FS_CREATE_FILE_REQUEST  MessageType = 26
+	MessageType_FS_CREATE_FILE_RESPONSE MessageType = 27
+	MessageType_FS_CREATE_DIR_REQUEST   MessageType = 28
+	MessageType_FS_CREATE_DIR_RESPONSE  MessageType = 29
+	MessageType_FS_DELETE_REQUEST       MessageType = 30
+	MessageType_FS_DELETE_RESPONSE      MessageType = 31
+	MessageType_FS_RENAME_REQUEST       MessageType = 32
+	MessageType_FS_RENAME_RESPONSE      MessageType = 33
 	// Java Agent
-	MessageType_WEB_ROUTES_REQUEST  MessageType = 25
-	MessageType_WEB_ROUTES_RESPONSE MessageType = 26
-	MessageType_PUSH                MessageType = 30
-	MessageType_PULL                MessageType = 31
+	MessageType_WEB_ROUTES_REQUEST  MessageType = 50
+	MessageType_WEB_ROUTES_RESPONSE MessageType = 51
+	MessageType_PUSH                MessageType = 80
+	MessageType_PULL                MessageType = 81
 )
 
 // Enum value maps for MessageType.
@@ -53,25 +68,53 @@ var (
 		6:  "PROCESSES_RESPONSE",
 		7:  "DEPLOY_PLUGIN_REQUEST",
 		8:  "DEPLOY_PLUGIN_RESPONSE",
-		25: "WEB_ROUTES_REQUEST",
-		26: "WEB_ROUTES_RESPONSE",
-		30: "PUSH",
-		31: "PULL",
+		20: "FS_LIST_DIR_REQUEST",
+		21: "FS_LIST_DIR_RESPONSE",
+		22: "FS_READ_FILE_REQUEST",
+		23: "FS_READ_FILE_RESPONSE",
+		24: "FS_WRITE_FILE_REQUEST",
+		25: "FS_WRITE_FILE_RESPONSE",
+		26: "FS_CREATE_FILE_REQUEST",
+		27: "FS_CREATE_FILE_RESPONSE",
+		28: "FS_CREATE_DIR_REQUEST",
+		29: "FS_CREATE_DIR_RESPONSE",
+		30: "FS_DELETE_REQUEST",
+		31: "FS_DELETE_RESPONSE",
+		32: "FS_RENAME_REQUEST",
+		33: "FS_RENAME_RESPONSE",
+		50: "WEB_ROUTES_REQUEST",
+		51: "WEB_ROUTES_RESPONSE",
+		80: "PUSH",
+		81: "PULL",
 	}
 	MessageType_value = map[string]int32{
-		"UNKNOWN":                0,
-		"REGISTER":               1,
-		"UNREGISTER":             2,
-		"HEARTBEAT":              3,
-		"INIT":                   4,
-		"PROCESSES_REQUEST":      5,
-		"PROCESSES_RESPONSE":     6,
-		"DEPLOY_PLUGIN_REQUEST":  7,
-		"DEPLOY_PLUGIN_RESPONSE": 8,
-		"WEB_ROUTES_REQUEST":     25,
-		"WEB_ROUTES_RESPONSE":    26,
-		"PUSH":                   30,
-		"PULL":                   31,
+		"UNKNOWN":                 0,
+		"REGISTER":                1,
+		"UNREGISTER":              2,
+		"HEARTBEAT":               3,
+		"INIT":                    4,
+		"PROCESSES_REQUEST":       5,
+		"PROCESSES_RESPONSE":      6,
+		"DEPLOY_PLUGIN_REQUEST":   7,
+		"DEPLOY_PLUGIN_RESPONSE":  8,
+		"FS_LIST_DIR_REQUEST":     20,
+		"FS_LIST_DIR_RESPONSE":    21,
+		"FS_READ_FILE_REQUEST":    22,
+		"FS_READ_FILE_RESPONSE":   23,
+		"FS_WRITE_FILE_REQUEST":   24,
+		"FS_WRITE_FILE_RESPONSE":  25,
+		"FS_CREATE_FILE_REQUEST":  26,
+		"FS_CREATE_FILE_RESPONSE": 27,
+		"FS_CREATE_DIR_REQUEST":   28,
+		"FS_CREATE_DIR_RESPONSE":  29,
+		"FS_DELETE_REQUEST":       30,
+		"FS_DELETE_RESPONSE":      31,
+		"FS_RENAME_REQUEST":       32,
+		"FS_RENAME_RESPONSE":      33,
+		"WEB_ROUTES_REQUEST":      50,
+		"WEB_ROUTES_RESPONSE":     51,
+		"PUSH":                    80,
+		"PULL":                    81,
 	}
 )
 
@@ -106,7 +149,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xfc\x01\n" +
+	"\x12message_type.proto*\xe9\x04\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -117,11 +160,25 @@ const file_message_type_proto_rawDesc = "" +
 	"\x11PROCESSES_REQUEST\x10\x05\x12\x16\n" +
 	"\x12PROCESSES_RESPONSE\x10\x06\x12\x19\n" +
 	"\x15DEPLOY_PLUGIN_REQUEST\x10\a\x12\x1a\n" +
-	"\x16DEPLOY_PLUGIN_RESPONSE\x10\b\x12\x16\n" +
-	"\x12WEB_ROUTES_REQUEST\x10\x19\x12\x17\n" +
-	"\x13WEB_ROUTES_RESPONSE\x10\x1a\x12\b\n" +
-	"\x04PUSH\x10\x1e\x12\b\n" +
-	"\x04PULL\x10\x1fB)\n" +
+	"\x16DEPLOY_PLUGIN_RESPONSE\x10\b\x12\x17\n" +
+	"\x13FS_LIST_DIR_REQUEST\x10\x14\x12\x18\n" +
+	"\x14FS_LIST_DIR_RESPONSE\x10\x15\x12\x18\n" +
+	"\x14FS_READ_FILE_REQUEST\x10\x16\x12\x19\n" +
+	"\x15FS_READ_FILE_RESPONSE\x10\x17\x12\x19\n" +
+	"\x15FS_WRITE_FILE_REQUEST\x10\x18\x12\x1a\n" +
+	"\x16FS_WRITE_FILE_RESPONSE\x10\x19\x12\x1a\n" +
+	"\x16FS_CREATE_FILE_REQUEST\x10\x1a\x12\x1b\n" +
+	"\x17FS_CREATE_FILE_RESPONSE\x10\x1b\x12\x19\n" +
+	"\x15FS_CREATE_DIR_REQUEST\x10\x1c\x12\x1a\n" +
+	"\x16FS_CREATE_DIR_RESPONSE\x10\x1d\x12\x15\n" +
+	"\x11FS_DELETE_REQUEST\x10\x1e\x12\x16\n" +
+	"\x12FS_DELETE_RESPONSE\x10\x1f\x12\x15\n" +
+	"\x11FS_RENAME_REQUEST\x10 \x12\x16\n" +
+	"\x12FS_RENAME_RESPONSE\x10!\x12\x16\n" +
+	"\x12WEB_ROUTES_REQUEST\x102\x12\x17\n" +
+	"\x13WEB_ROUTES_RESPONSE\x103\x12\b\n" +
+	"\x04PUSH\x10P\x12\b\n" +
+	"\x04PULL\x10QB)\n" +
 	"\n" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 

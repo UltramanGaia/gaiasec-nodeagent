@@ -10,8 +10,8 @@ package cli
 import (
 	"flag"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -93,7 +93,7 @@ func ParseMain() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	<-sigChan
-	log.Println("正在关闭Agent...")
+	log.Info("正在关闭Agent...")
 	nodeAgent.Stop()
 }
 

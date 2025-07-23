@@ -1,182 +1,291 @@
 package naserver
 
-//
-//import (
-//	"sothoth-nodeagent/pkg/filesystem"
-//	"sothoth-nodeagent/pkg/model"
-//)
-//
-//// 文件系统相关处理方法
-//func (na *NodeAgent) handleFsListDir(msg WebSocketMessage) {
-//	data, ok := msg.Data.(map[string]interface{})
-//	if !ok {
-//		na.sendErrorResponse(msg.RequestID, "Invalid data format")
-//		return
-//	}
-//
-//	path, _ := data["path"].(string)
-//	if path == "" {
-//		path = "/"
-//	}
-//
-//	files, err := filesystem.ListDirectory(path)
-//	if err != nil {
-//		na.sendErrorResponse(msg.RequestID, err.Error())
-//		return
-//	}
-//
-//	response := WebSocketMessage{
-//		Type:      model.FS_RESPONSE,
-//		RequestID: msg.RequestID,
-//		Data: map[string]interface{}{
-//			"files": files,
-//		},
-//	}
-//	na.sendMessage(response)
-//}
-//
-//func (na *NodeAgent) handleFsReadFile(msg WebSocketMessage) {
-//	data, ok := msg.Data.(map[string]interface{})
-//	if !ok {
-//		na.sendErrorResponse(msg.RequestID, "Invalid data format")
-//		return
-//	}
-//
-//	path, _ := data["path"].(string)
-//
-//	content, err := filesystem.ReadFile(path)
-//	if err != nil {
-//		na.sendErrorResponse(msg.RequestID, err.Error())
-//		return
-//	}
-//
-//	response := WebSocketMessage{
-//		Type:      model.FS_RESPONSE,
-//		RequestID: msg.RequestID,
-//		Data: map[string]interface{}{
-//			"content":      content.Content,
-//			"encoding":     content.Encoding,
-//			"size":         content.Size,
-//			"lastModified": content.LastModified,
-//			"isBinary":     content.IsBinary,
-//		},
-//	}
-//	na.sendMessage(response)
-//}
-//
-//func (na *NodeAgent) handleFsWriteFile(msg WebSocketMessage) {
-//	data, ok := msg.Data.(map[string]interface{})
-//	if !ok {
-//		na.sendErrorResponse(msg.RequestID, "Invalid data format")
-//		return
-//	}
-//
-//	path, _ := data["path"].(string)
-//	content, _ := data["content"].(string)
-//
-//	err := filesystem.WriteFile(path, content)
-//	if err != nil {
-//		na.sendErrorResponse(msg.RequestID, err.Error())
-//		return
-//	}
-//
-//	response := WebSocketMessage{
-//		Type:      model.FS_RESPONSE,
-//		RequestID: msg.RequestID,
-//		Data:      map[string]interface{}{"success": true},
-//	}
-//	na.sendMessage(response)
-//}
-//
-//func (na *NodeAgent) handleFsCreateFile(msg WebSocketMessage) {
-//	data, ok := msg.Data.(map[string]interface{})
-//	if !ok {
-//		na.sendErrorResponse(msg.RequestID, "Invalid data format")
-//		return
-//	}
-//
-//	path, _ := data["path"].(string)
-//
-//	err := filesystem.CreateFile(path)
-//	if err != nil {
-//		na.sendErrorResponse(msg.RequestID, err.Error())
-//		return
-//	}
-//
-//	response := WebSocketMessage{
-//		Type:      model.FS_RESPONSE,
-//		RequestID: msg.RequestID,
-//		Data:      map[string]interface{}{"success": true},
-//	}
-//	na.sendMessage(response)
-//}
-//
-//func (na *NodeAgent) handleFsCreateDir(msg WebSocketMessage) {
-//	data, ok := msg.Data.(map[string]interface{})
-//	if !ok {
-//		na.sendErrorResponse(msg.RequestID, "Invalid data format")
-//		return
-//	}
-//
-//	path, _ := data["path"].(string)
-//
-//	err := filesystem.CreateDirectory(path)
-//	if err != nil {
-//		na.sendErrorResponse(msg.RequestID, err.Error())
-//		return
-//	}
-//
-//	response := WebSocketMessage{
-//		Type:      model.FS_RESPONSE,
-//		RequestID: msg.RequestID,
-//		Data:      map[string]interface{}{"success": true},
-//	}
-//	na.sendMessage(response)
-//}
-//
-//func (na *NodeAgent) handleFsDelete(msg WebSocketMessage) {
-//	data, ok := msg.Data.(map[string]interface{})
-//	if !ok {
-//		na.sendErrorResponse(msg.RequestID, "Invalid data format")
-//		return
-//	}
-//
-//	path, _ := data["path"].(string)
-//
-//	err := filesystem.Delete(path)
-//	if err != nil {
-//		na.sendErrorResponse(msg.RequestID, err.Error())
-//		return
-//	}
-//
-//	response := WebSocketMessage{
-//		Type:      model.FS_RESPONSE,
-//		RequestID: msg.RequestID,
-//		Data:      map[string]interface{}{"success": true},
-//	}
-//	na.sendMessage(response)
-//}
-//
-//func (na *NodeAgent) handleFsRename(msg WebSocketMessage) {
-//	data, ok := msg.Data.(map[string]interface{})
-//	if !ok {
-//		na.sendErrorResponse(msg.RequestID, "Invalid data format")
-//		return
-//	}
-//
-//	oldPath, _ := data["oldPath"].(string)
-//	newPath, _ := data["newPath"].(string)
-//
-//	err := filesystem.Rename(oldPath, newPath)
-//	if err != nil {
-//		na.sendErrorResponse(msg.RequestID, err.Error())
-//		return
-//	}
-//
-//	response := WebSocketMessage{
-//		Type:      model.FS_RESPONSE,
-//		RequestID: msg.RequestID,
-//		Data:      map[string]interface{}{"success": true},
-//	}
-//	na.sendMessage(response)
-//}
+import (
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
+	"sothoth-nodeagent/pkg/filesystem"
+	"sothoth-nodeagent/pkg/pb"
+)
+
+// 文件系统相关处理方法
+func (na *NodeAgent) handleFsListDir(message *pb.Base) {
+	log.Info("handle file system list directory")
+	request := &pb.FSListDirRequest{}
+	if err := proto.Unmarshal(message.Data, request); err != nil {
+		log.Info("unmarshal error:", err)
+	}
+
+	files, err := filesystem.ListDirectory(request.Path)
+	if err != nil {
+		log.Info("file system list directory error:", err)
+	}
+	if err != nil {
+		log.Info("ListDirectory failed:", err)
+	}
+	response := &pb.FSListDirResponse{
+		Path:   request.Path,
+		Files:  files,
+		Result: "ok",
+	}
+
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+	}
+
+	msg := pb.Base{
+		Type:        pb.MessageType_FS_LIST_DIR_RESPONSE,
+		Destination: message.Source,
+		Session:     message.Session,
+		Data:        data,
+	}
+
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+		return
+	}
+	err = na.wsclient.SendMessage(bytes)
+	if err != nil {
+		log.Info("发送响应失败:", err)
+		return
+	}
+}
+
+func (na *NodeAgent) handleFsReadFile(message *pb.Base) {
+	log.Info("handle file system read file")
+	request := &pb.FSReadFileRequest{}
+	if err := proto.Unmarshal(message.Data, request); err != nil {
+		log.Info("unmarshal error:", err)
+		return
+	}
+	response, err := filesystem.ReadFile(request.Path)
+	if err != nil {
+		log.Info("ReadFile failed:", err)
+	}
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+	}
+
+	msg := pb.Base{
+		Type:        pb.MessageType_FS_READ_FILE_RESPONSE,
+		Destination: message.Source,
+		Session:     message.Session,
+		Data:        data,
+	}
+
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+		return
+	}
+	err = na.wsclient.SendMessage(bytes)
+	if err != nil {
+		log.Info("发送响应失败:", err)
+		return
+	}
+}
+
+func (na *NodeAgent) handleFsWriteFile(message *pb.Base) {
+	log.Info("handle file system write file")
+	request := &pb.FSWriteFileRequest{}
+	if err := proto.Unmarshal(message.Data, request); err != nil {
+		log.Info("unmarshal error:", err)
+		return
+	}
+
+	err := filesystem.WriteFile(request.Path, request.Content)
+	if err != nil {
+		log.Info("WriteFile failed:", err)
+	}
+	response := &pb.FSWriteFileResponse{
+		Result: "ok",
+	}
+
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+	}
+
+	msg := pb.Base{
+		Type:        pb.MessageType_FS_WRITE_FILE_RESPONSE,
+		Destination: message.Source,
+		Session:     message.Session,
+		Data:        data,
+	}
+
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+		return
+	}
+	err = na.wsclient.SendMessage(bytes)
+	if err != nil {
+		log.Info("发送响应失败:", err)
+		return
+	}
+
+}
+
+func (na *NodeAgent) handleFsCreateFile(message *pb.Base) {
+	log.Info("handle file system create file")
+	request := &pb.FSCreateFileRequest{}
+	if err := proto.Unmarshal(message.Data, request); err != nil {
+		log.Info("unmarshal error:", err)
+		return
+	}
+
+	err := filesystem.CreateFile(request.Path)
+	if err != nil {
+		log.Info("Create failed:", err)
+	}
+	response := &pb.FSCreateFileResponse{
+		Result: "ok",
+	}
+
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+	}
+
+	msg := pb.Base{
+		Type:        pb.MessageType_FS_CREATE_FILE_RESPONSE,
+		Destination: message.Source,
+		Session:     message.Session,
+		Data:        data,
+	}
+
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+		return
+	}
+	err = na.wsclient.SendMessage(bytes)
+	if err != nil {
+		log.Info("发送响应失败:", err)
+		return
+	}
+}
+
+func (na *NodeAgent) handleFsCreateDir(message *pb.Base) {
+
+	log.Info("handle file system create directory")
+	request := &pb.FSCreateDirRequest{}
+	if err := proto.Unmarshal(message.Data, request); err != nil {
+		log.Info("unmarshal error:", err)
+		return
+	}
+
+	err := filesystem.CreateDirectory(request.Path)
+	if err != nil {
+		log.Info("Create failed:", err)
+	}
+	response := &pb.FSCreateFileResponse{
+		Result: "ok",
+	}
+
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+	}
+
+	msg := pb.Base{
+		Type:        pb.MessageType_FS_CREATE_DIR_RESPONSE,
+		Destination: message.Source,
+		Session:     message.Session,
+		Data:        data,
+	}
+
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+		return
+	}
+	err = na.wsclient.SendMessage(bytes)
+	if err != nil {
+		log.Info("发送响应失败:", err)
+		return
+	}
+}
+
+func (na *NodeAgent) handleFsDelete(message *pb.Base) {
+	log.Info("handle file system create directory")
+	request := &pb.FSDeleteFileRequest{}
+	if err := proto.Unmarshal(message.Data, request); err != nil {
+		log.Info("unmarshal error:", err)
+		return
+	}
+
+	err := filesystem.Delete(request.Path)
+	if err != nil {
+		log.Info("Create failed:", err)
+	}
+	response := &pb.FSDeleteFileResponse{
+		Result: "ok",
+	}
+
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+	}
+
+	msg := pb.Base{
+		Type:        pb.MessageType_FS_DELETE_RESPONSE,
+		Destination: message.Source,
+		Session:     message.Session,
+		Data:        data,
+	}
+
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+		return
+	}
+	err = na.wsclient.SendMessage(bytes)
+	if err != nil {
+		log.Info("发送响应失败:", err)
+		return
+	}
+}
+
+func (na *NodeAgent) handleFsRename(message *pb.Base) {
+	log.Info("handle file system rename")
+	request := &pb.FSRenameFileRequest{}
+	if err := proto.Unmarshal(message.Data, request); err != nil {
+		log.Info("unmarshal error:", err)
+		return
+	}
+
+	err := filesystem.Rename(request.OldPath, request.NewPath)
+	if err != nil {
+		log.Info("Create failed:", err)
+	}
+	response := &pb.FSRenameFileResponse{
+		Result: "ok",
+	}
+
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+	}
+
+	msg := pb.Base{
+		Type:        pb.MessageType_FS_RENAME_RESPONSE,
+		Destination: message.Source,
+		Session:     message.Session,
+		Data:        data,
+	}
+
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		log.Info("序列化响应失败:", err)
+		return
+	}
+	err = na.wsclient.SendMessage(bytes)
+	if err != nil {
+		log.Info("发送响应失败:", err)
+		return
+	}
+
+}

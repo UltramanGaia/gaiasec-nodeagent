@@ -2,7 +2,7 @@ package xdaemon
 
 import (
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
 	"strconv"
@@ -42,11 +42,11 @@ func Background(logFile string, isExit bool) (*exec.Cmd, error) {
 	//启动子进程
 	cmd, err := startProc(os.Args, env, logFile)
 	if err != nil {
-		log.Println(os.Getpid(), "start child process failed:", err)
+		log.Info(os.Getpid(), "start child process failed:", err)
 		return nil, err
 	} else {
 		//执行成功
-		log.Println(os.Getpid(), ":", "start child process success:", "->", cmd.Process.Pid, "\n ")
+		log.Info(os.Getpid(), ":", "start child process success:", "->", cmd.Process.Pid, "\n ")
 	}
 
 	if isExit {
@@ -76,7 +76,7 @@ func startProc(args, env []string, logFile string) (*exec.Cmd, error) {
 	if logFile != "" {
 		stdout, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 		if err != nil {
-			log.Println(os.Getpid(), ": 打开日志文件错误:", err)
+			log.Info(os.Getpid(), ": 打开日志文件错误:", err)
 			return nil, err
 		}
 		cmd.Stderr = stdout

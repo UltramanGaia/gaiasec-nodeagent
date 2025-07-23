@@ -11,7 +11,7 @@ func (na *NodeAgent) handleProcessRequest(message *pb.Base) {
 	log.Info("收到进程列表请求")
 	request := &pb.ProcessesRequest{}
 	if err := proto.Unmarshal(message.Data, request); err != nil {
-		log.Println("解析进程列表请求失败:", err)
+		log.Info("解析进程列表请求失败:", err)
 		return
 	}
 
@@ -26,7 +26,7 @@ func (na *NodeAgent) handleProcessRequest(message *pb.Base) {
 
 	data, err := proto.Marshal(response)
 	if err != nil {
-		log.Println("序列化进程列表响应失败:", err)
+		log.Info("序列化进程列表响应失败:", err)
 		return
 	}
 
@@ -38,12 +38,12 @@ func (na *NodeAgent) handleProcessRequest(message *pb.Base) {
 
 	bytes, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Println("序列化进程列表响应失败:", err)
+		log.Info("序列化进程列表响应失败:", err)
 		return
 	}
 	err = na.wsclient.SendMessage(bytes)
 	if err != nil {
-		log.Println("发送进程列表响应失败:", err)
+		log.Info("发送进程列表响应失败:", err)
 		return
 	}
 }

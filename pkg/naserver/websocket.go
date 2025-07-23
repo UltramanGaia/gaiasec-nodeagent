@@ -22,7 +22,7 @@ type WebSocketMessage struct {
 //	conn.SetReadLimit(0) // 0代表不限制读取
 //
 //	na.conn = conn
-//	log.Println("Connected to Sothoth server")
+//	log.Info("Connected to Sothoth server")
 //
 //	// Node registration is now handled automatically by the server
 //	// based on the projectId and nodeId in the connection URL

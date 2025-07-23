@@ -146,21 +146,35 @@ func (na *NodeAgent) handleWsMessages() {
 			// 解析基础消息
 			baseMessage := &pb.Base{}
 			if err := proto.Unmarshal(message, baseMessage); err != nil {
-				log.Println("解析基础消息失败:", err)
+				log.Info("解析基础消息失败:", err)
 				continue
 			}
 
 			destination := baseMessage.Destination
 			if na.NodeID == destination {
-				log.Println("收到来自服务器的消息")
+				log.Info("收到来自服务器的消息")
 				// 根据消息类型处理
 				switch baseMessage.Type {
 				case pb.MessageType_PROCESSES_REQUEST:
 					go na.handleProcessRequest(baseMessage)
 				case pb.MessageType_DEPLOY_PLUGIN_REQUEST:
 					go na.handleDeployPluginRequest(baseMessage)
+				case pb.MessageType_FS_LIST_DIR_REQUEST:
+					go na.handleFsListDir(baseMessage)
+				case pb.MessageType_FS_READ_FILE_REQUEST:
+					go na.handleFsReadFile(baseMessage)
+				case pb.MessageType_FS_WRITE_FILE_REQUEST:
+					go na.handleFsWriteFile(baseMessage)
+				case pb.MessageType_FS_CREATE_FILE_REQUEST:
+					go na.handleFsCreateFile(baseMessage)
+				case pb.MessageType_FS_CREATE_DIR_REQUEST:
+					go na.handleFsCreateDir(baseMessage)
+				case pb.MessageType_FS_DELETE_REQUEST:
+					go na.handleFsDelete(baseMessage)
+				case pb.MessageType_FS_RENAME_REQUEST:
+					go na.handleFsRename(baseMessage)
 				default:
-					log.Println("未知消息类型")
+					log.Info("未知消息类型")
 				}
 			} else {
 				na.routeToAgent(baseMessage)

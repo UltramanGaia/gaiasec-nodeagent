@@ -12,13 +12,13 @@ func (na *NodeAgent) handleDeployPluginRequest(message *pb.Base) {
 	log.Info("收到插件部署请求")
 	request := &pb.DeployPluginRequest{}
 	if err := proto.Unmarshal(message.Data, request); err != nil {
-		log.Println("解析插件部署请求失败:", err)
+		log.Info("解析插件部署请求失败:", err)
 		return
 	}
 
 	err := plugin.DeployPlugin(request)
 	if err != nil {
-		log.Println("部署插件失败:", err)
+		log.Info("部署插件失败:", err)
 		response := &pb.DeployPluginResponse{
 			TaskId:        request.TaskId,
 			AgentId:       request.AgentId,
@@ -30,7 +30,7 @@ func (na *NodeAgent) handleDeployPluginRequest(message *pb.Base) {
 		na.wsclient.Send(pb.MessageType_DEPLOY_PLUGIN_RESPONSE, response)
 		return
 	} else {
-		log.Println("部署插件成功")
+		log.Info("部署插件成功")
 		response := &pb.DeployPluginResponse{
 			TaskId:        request.TaskId,
 			AgentId:       request.AgentId,

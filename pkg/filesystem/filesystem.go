@@ -6,40 +6,19 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sothoth-nodeagent/pkg/pb"
 	"strings"
 )
 
-// FileContent represents file content with metadata
-type FileContent struct {
-	Content      string `json:"content"`
-	Encoding     string `json:"encoding"`
-	Size         int64  `json:"size"`
-	LastModified int64  `json:"lastModified"`
-	IsBinary     bool   `json:"isBinary"`
-}
-
-// FileNode represents a file or directory node
-type FileNode struct {
-	Name         string      `json:"name"`
-	Path         string      `json:"path"`
-	Type         string      `json:"type"` // "file" or "directory"
-	Size         int64       `json:"size"`
-	LastModified int64       `json:"lastModified"`
-	Permissions  string      `json:"permissions"`
-	Link         string      `json:"link"`
-	IsHidden     bool        `json:"isHidden"`
-	Children     []*FileNode `json:"children,omitempty"`
-}
-
 // ListDirectory lists files and directories in the given path
-func ListDirectory(path string) ([]*FileNode, error) {
+func ListDirectory(path string) ([]*pb.File, error) {
 	cleanPath := filepath.Clean(path)
 	entries, err := os.ReadDir(cleanPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory: %w", err)
 	}
 
-	var nodes []*FileNode
+	var nodes []*pb.File
 	for _, entry := range entries {
 		node, err := createFileNode(cleanPath, entry)
 		if err != nil {
@@ -53,45 +32,44 @@ func ListDirectory(path string) ([]*FileNode, error) {
 }
 
 // ReadFile reads a file and returns its content with metadata
-func ReadFile(path string) (*FileContent, error) {
+func ReadFile(path string) (*pb.FSReadFileResponse, error) {
 	// Get file info first
 	node, err := GetFileInfo(path)
 	if err != nil {
 		return nil, err
 	}
 
-	if node.Type == "directory" {
+	if node.FileType == pb.FileType_DIRECTORY {
 		return nil, fmt.Errorf("cannot read directory as file")
 	}
 
-	// Check if file is binary
 	isBinary := IsBinaryFile(path)
 
-	content := &FileContent{
-		Size:         node.Size,
-		LastModified: node.LastModified,
-		IsBinary:     isBinary,
-	}
-
+	content := ""
 	if isBinary {
 		// For binary files, read as base64
 		data, err := readFileContent(path)
 		if err != nil {
 			return nil, err
 		}
-		content.Content = base64.StdEncoding.EncodeToString(data)
-		content.Encoding = "base64"
+		content = base64.StdEncoding.EncodeToString(data)
 	} else {
 		// For text files, read as UTF-8
 		data, err := readFileContent(path)
 		if err != nil {
 			return nil, err
 		}
-		content.Content = string(data)
-		content.Encoding = "utf-8"
+		content = string(data)
 	}
 
-	return content, nil
+	response := &pb.FSReadFileResponse{
+		Path:     path,
+		Content:  content,
+		Size:     node.Size,
+		IsBinary: isBinary,
+		Result:   "ok",
+	}
+	return response, nil
 }
 
 // WriteFile writes content to a file
@@ -149,7 +127,7 @@ func Rename(oldPath, newPath string) error {
 }
 
 // GetFileInfo gets information about a specific file or directory
-func GetFileInfo(path string) (*FileNode, error) {
+func GetFileInfo(path string) (*pb.File, error) {
 	cleanPath := filepath.Clean(path)
 	info, err := os.Stat(cleanPath)
 	if err != nil {
@@ -204,7 +182,7 @@ func writeFileContent(path string, content []byte) error {
 	return nil
 }
 
-func createFileNode(parentPath string, entry fs.DirEntry) (*FileNode, error) {
+func createFileNode(parentPath string, entry fs.DirEntry) (*pb.File, error) {
 	info, err := entry.Info()
 	if err != nil {
 		return nil, err
@@ -214,27 +192,26 @@ func createFileNode(parentPath string, entry fs.DirEntry) (*FileNode, error) {
 	return createFileNodeFromInfo(fullPath, info)
 }
 
-func createFileNodeFromInfo(path string, info fs.FileInfo) (*FileNode, error) {
-	nodeType := "file"
+func createFileNodeFromInfo(path string, info fs.FileInfo) (*pb.File, error) {
+	fileType := pb.FileType_FILE
 	if info.IsDir() {
-		nodeType = "directory"
+		fileType = pb.FileType_DIRECTORY
 	}
 	mode := info.Mode()
 	link := ""
 	if mode&fs.ModeSymlink == fs.ModeSymlink {
-		nodeType = "symlink"
+		fileType = pb.FileType_SYMLINK
 		link, _ = os.Readlink(path)
 	}
 
-	return &FileNode{
+	return &pb.File{
 		Name:         info.Name(),
 		Path:         path,
-		Type:         nodeType,
+		FileType:     fileType,
 		Size:         info.Size(),
-		LastModified: info.ModTime().UnixMilli(),
-		Permissions:  info.Mode().String(),
+		ModifiedTime: info.ModTime().UnixMilli(),
+		Permission:   info.Mode().String(),
 		Link:         link,
-		IsHidden:     strings.HasPrefix(info.Name(), "."),
 	}, nil
 }
 
