@@ -16,6 +16,7 @@ import (
 	"sothoth-nodeagent/pkg/system"
 	"sothoth-nodeagent/pkg/udsserver"
 	"sothoth-nodeagent/pkg/wsclient"
+	"time"
 )
 
 // NodeAgent 代表主要的Agent结构体
@@ -137,8 +138,9 @@ func (na *NodeAgent) handleWsMessages() {
 			log.Error("read:", err)
 			err = na.wsclient.Reconnect()
 			if err != nil {
-				log.Error("Reconnect failed")
-				return
+				log.Error("Reconnect failed, wait 5 mins")
+				time.Sleep(5 * time.Minute)
+				continue
 			}
 			na.reportRegister()
 			continue
