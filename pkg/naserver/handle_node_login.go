@@ -15,7 +15,7 @@ func (na *NodeAgent) reportRegister() {
 		AgentType:    pb.AgentType_NODE_AGENT,
 		AgentVersion: "1.0",
 		Hostname:     na.Hostname,
-		Ips:          []string{na.IPAddress},
+		Ips:          na.IPAddress,
 		Os:           runtime.GOOS,
 		Arch:         runtime.GOARCH,
 		Pid:          int32(os.Getpid()),

@@ -1,8 +1,10 @@
 package system
 
 import (
+	"fmt"
 	"net"
 	"os"
+	"sort"
 )
 
 // getHostname returns the system hostname
@@ -14,14 +16,53 @@ func GetHostname() (string, error) {
 	return hostname, nil
 }
 
-// getLocalIP returns the local IP address
-func GetLocalIP() (string, error) {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
+// GetLocalIps returns all IP address
+func GetLocalIps() ([]string, error) {
+	ips := []string{}
+	interfaces, err := net.Interfaces()
 	if err != nil {
-		return "127.0.0.1", nil // fallback to localhost
+		fmt.Printf("获取网络接口失败: %v\n", err)
+		return nil, err
 	}
-	defer conn.Close()
 
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	return localAddr.IP.String(), nil
+	// 遍历每个网络接口，获取其IP地址
+	for _, iface := range interfaces {
+		// 过滤掉未启动的接口
+		if iface.Flags&net.FlagUp == 0 {
+			continue
+		}
+		// 过滤掉回环接口（可选）
+		if iface.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+
+		// 获取接口的所有地址
+		addrs, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+
+		// 打印接口信息和对应的IP地址
+		fmt.Printf("接口: %s (%s)\n", iface.Name, iface.HardwareAddr.String())
+		for _, addr := range addrs {
+			// 解析IP地址
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip == nil {
+				continue
+			}
+
+			// 区分IPv4和IPv6
+			if ip.To4() != nil {
+				ips = append(ips, ip.String())
+			}
+		}
+	}
+	sort.Strings(ips)
+	return ips, nil
 }

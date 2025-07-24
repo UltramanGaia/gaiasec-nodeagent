@@ -21,14 +21,14 @@ import (
 // NodeAgent 代表主要的Agent结构体
 // 包含Agent的所有配置信息和运行状态
 type NodeAgent struct {
-	ProjectID    string `json:"project_id"`    // 所属项目ID
-	NodeID       string `json:"node_id"`       // 节点唯一标识
-	ServerURL    string `json:"server_url"`    // 服务器WebSocket URL
-	SothothDir   string `json:"sothoth_dir"`   // Sothoth工作目录
-	ProxyMode    bool   `json:"proxy_mode"`    // 是否启用代理模式
-	AgentVersion string `json:"agent_version"` // Agent版本号
-	Hostname     string `json:"hostname"`      // 主机名
-	IPAddress    string `json:"ip_address"`    // IP地址
+	ProjectID    string
+	NodeID       string
+	ServerURL    string
+	SothothDir   string
+	ProxyMode    bool
+	AgentVersion string
+	Hostname     string
+	IPAddress    []string
 
 	wsclient  *wsclient.Client
 	udsserver *udsserver.Server
@@ -59,7 +59,7 @@ func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) 
 		return nil, fmt.Errorf("获取主机名失败: %v", err)
 	}
 
-	ipAddress, err := system.GetLocalIP()
+	ipAddress, err := system.GetLocalIps()
 	if err != nil {
 		return nil, fmt.Errorf("获取IP地址失败: %v", err)
 	}
