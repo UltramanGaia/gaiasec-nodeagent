@@ -123,7 +123,9 @@ func (na *NodeAgent) Start() error {
 
 func (na *NodeAgent) handleWsMessages() {
 	// 连接建立成功，上报节点信息
-	na.reportNodeLogin()
+	na.reportRegister()
+
+	go na.heartbeatLoop()
 
 	for {
 		messageType, message, err := na.wsclient.ReadMessage()
@@ -138,7 +140,7 @@ func (na *NodeAgent) handleWsMessages() {
 				log.Error("Reconnect failed")
 				return
 			}
-			na.reportNodeLogin()
+			na.reportRegister()
 			continue
 		}
 

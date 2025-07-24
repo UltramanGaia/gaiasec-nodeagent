@@ -12,7 +12,7 @@ func Tool(toolName string) (string, error) {
 		toolPath += ".exe"
 	}
 	if !Exists(toolPath) {
-		err := DownloadTool("jattach")
+		err := DownloadTool(toolName)
 		if err != nil {
 			return "", err
 		}

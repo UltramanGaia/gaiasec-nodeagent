@@ -37,3 +37,14 @@ func Exists(filePath string) bool {
 	}
 	return true
 }
+
+func IsDirEmpty(filePath string) bool {
+	f, err := os.Open(filePath)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	entries, _ := f.ReadDir(1)
+	return len(entries) == 0
+}

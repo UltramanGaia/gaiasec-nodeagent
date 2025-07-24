@@ -11,14 +11,14 @@ import (
 )
 
 // ListDirectory lists files and directories in the given path
-func ListDirectory(path string) ([]*pb.File, error) {
+func ListDirectory(path string) ([]*pb.FileNode, error) {
 	cleanPath := filepath.Clean(path)
 	entries, err := os.ReadDir(cleanPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory: %w", err)
 	}
 
-	var nodes []*pb.File
+	var nodes []*pb.FileNode
 	for _, entry := range entries {
 		node, err := createFileNode(cleanPath, entry)
 		if err != nil {
@@ -127,7 +127,7 @@ func Rename(oldPath, newPath string) error {
 }
 
 // GetFileInfo gets information about a specific file or directory
-func GetFileInfo(path string) (*pb.File, error) {
+func GetFileInfo(path string) (*pb.FileNode, error) {
 	cleanPath := filepath.Clean(path)
 	info, err := os.Stat(cleanPath)
 	if err != nil {
@@ -182,7 +182,7 @@ func writeFileContent(path string, content []byte) error {
 	return nil
 }
 
-func createFileNode(parentPath string, entry fs.DirEntry) (*pb.File, error) {
+func createFileNode(parentPath string, entry fs.DirEntry) (*pb.FileNode, error) {
 	info, err := entry.Info()
 	if err != nil {
 		return nil, err
@@ -192,7 +192,7 @@ func createFileNode(parentPath string, entry fs.DirEntry) (*pb.File, error) {
 	return createFileNodeFromInfo(fullPath, info)
 }
 
-func createFileNodeFromInfo(path string, info fs.FileInfo) (*pb.File, error) {
+func createFileNodeFromInfo(path string, info fs.FileInfo) (*pb.FileNode, error) {
 	fileType := pb.FileType_FILE
 	if info.IsDir() {
 		fileType = pb.FileType_DIRECTORY
@@ -204,7 +204,7 @@ func createFileNodeFromInfo(path string, info fs.FileInfo) (*pb.File, error) {
 		link, _ = os.Readlink(path)
 	}
 
-	return &pb.File{
+	return &pb.FileNode{
 		Name:         info.Name(),
 		Path:         path,
 		FileType:     fileType,

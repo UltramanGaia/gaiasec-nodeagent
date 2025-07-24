@@ -13,7 +13,6 @@ import (
 	"sothoth-nodeagent/pkg/util"
 	"strconv"
 	"strings"
-	"syscall"
 )
 
 // Deploy 部署插件到目标进程
@@ -27,7 +26,7 @@ func DeployPlugin(request *pb.DeployPluginRequest) error {
 	log.Printf("处理插件部署请求: %s 版本: %s 目标PID: %d", request.PluginName, request.PluginVersion, request.Pid)
 
 	// 检查插件是否已存在
-	if !util.Exists(pluginDir) {
+	if !util.Exists(pluginDir) || util.IsDirEmpty(pluginDir) {
 		log.Printf("插件不存在，开始下载: %s", pluginDir)
 
 		// 使用插件管理器下载插件
@@ -71,7 +70,7 @@ func parsePluginConfig(pluginPath string, agentId string, targetPID int) (*Plugi
 
 	cfg := config.GetInstance()
 	text := string(configData)
-	text = strings.ReplaceAll(text, "${ROOT}", pluginPath)
+	text = strings.ReplaceAll(text, "${ROOT}", strings.ReplaceAll(pluginPath, "\\", "/"))
 	text = strings.ReplaceAll(text, "${AGENTID}", agentId)
 	text = strings.ReplaceAll(text, "${PROCESSID}", strconv.Itoa(targetPID))
 	text = strings.ReplaceAll(text, "${SERVER}", cfg.ServerURL)
@@ -230,8 +229,11 @@ func isProcessExists(pid int) bool {
 	if err != nil {
 		return false
 	}
-
-	// 发送信号0检查进程是否存在
-	err = process.Signal(syscall.Signal(0))
-	return err == nil
+	if process == nil {
+		return false
+	}
+	return true
+	//// 发送信号0检查进程是否存在, windows下面好像有问题，去掉
+	//err = process.Signal(syscall.Signal(0))
+	//return err == nil
 }

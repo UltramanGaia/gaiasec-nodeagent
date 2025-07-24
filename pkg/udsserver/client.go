@@ -72,9 +72,9 @@ func (c *Client) ReadMessage() ([]byte, error) {
 		n, err := (*c.conn).Read(temp)
 		if err != nil {
 			if err != io.EOF {
-				fmt.Printf("读取数据错误: %v\n", err)
+				log.Error("读取数据错误: %v\n", err)
 			} else {
-				fmt.Printf("客户端 %s 断开连接\n", (*c.conn).RemoteAddr())
+				log.Error("客户端 %s 断开连接\n", (*c.conn).RemoteAddr())
 			}
 			return nil, err
 		}

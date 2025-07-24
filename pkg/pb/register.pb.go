@@ -79,6 +79,7 @@ type Register struct {
 	Ips           []string               `protobuf:"bytes,7,rep,name=ips,proto3" json:"ips,omitempty"`
 	Os            string                 `protobuf:"bytes,8,opt,name=os,proto3" json:"os,omitempty"`
 	Arch          string                 `protobuf:"bytes,9,opt,name=arch,proto3" json:"arch,omitempty"`
+	Pid           int32                  `protobuf:"varint,10,opt,name=pid,proto3" json:"pid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -176,11 +177,63 @@ func (x *Register) GetArch() string {
 	return ""
 }
 
+func (x *Register) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+// Agent注销消息
+type Unregister struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Unregister) Reset() {
+	*x = Unregister{}
+	mi := &file_register_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Unregister) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Unregister) ProtoMessage() {}
+
+func (x *Unregister) ProtoReflect() protoreflect.Message {
+	mi := &file_register_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Unregister.ProtoReflect.Descriptor instead.
+func (*Unregister) Descriptor() ([]byte, []int) {
+	return file_register_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Unregister) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
 var File_register_proto protoreflect.FileDescriptor
 
 const file_register_proto_rawDesc = "" +
 	"\n" +
-	"\x0eregister.proto\"\xf8\x01\n" +
+	"\x0eregister.proto\"\x8a\x02\n" +
 	"\bRegister\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -193,7 +246,12 @@ const file_register_proto_rawDesc = "" +
 	"\bhostname\x18\x06 \x01(\tR\bhostname\x12\x10\n" +
 	"\x03ips\x18\a \x03(\tR\x03ips\x12\x0e\n" +
 	"\x02os\x18\b \x01(\tR\x02os\x12\x12\n" +
-	"\x04arch\x18\t \x01(\tR\x04arch*+\n" +
+	"\x04arch\x18\t \x01(\tR\x04arch\x12\x10\n" +
+	"\x03pid\x18\n" +
+	" \x01(\x05R\x03pid\"\x1c\n" +
+	"\n" +
+	"Unregister\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id*+\n" +
 	"\tAgentType\x12\x0e\n" +
 	"\n" +
 	"NODE_AGENT\x10\x00\x12\x0e\n" +
@@ -215,10 +273,11 @@ func file_register_proto_rawDescGZIP() []byte {
 }
 
 var file_register_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_register_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_register_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_register_proto_goTypes = []any{
-	(AgentType)(0),   // 0: AgentType
-	(*Register)(nil), // 1: Register
+	(AgentType)(0),     // 0: AgentType
+	(*Register)(nil),   // 1: Register
+	(*Unregister)(nil), // 2: Unregister
 }
 var file_register_proto_depIdxs = []int32{
 	0, // 0: Register.agent_type:type_name -> AgentType
@@ -240,7 +299,7 @@ func file_register_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_register_proto_rawDesc), len(file_register_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -55,6 +55,7 @@ func DownloadTool(name string) error {
 	downloadURL := fmt.Sprintf("/plugins/nodeagent/%s-%s-%s", name, runtime.GOOS, runtime.GOARCH)
 	if runtime.GOOS == "windows" {
 		downloadURL += ".exe"
+		name += ".exe"
 	}
 
 	// 下载插件文件

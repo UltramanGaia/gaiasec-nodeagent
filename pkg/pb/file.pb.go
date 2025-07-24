@@ -24,25 +24,22 @@ const (
 type FileType int32
 
 const (
-	FileType_FILE_UNKNOWN FileType = 0
-	FileType_FILE         FileType = 1
-	FileType_DIRECTORY    FileType = 2
-	FileType_SYMLINK      FileType = 3
+	FileType_FILE      FileType = 0
+	FileType_DIRECTORY FileType = 1
+	FileType_SYMLINK   FileType = 2
 )
 
 // Enum value maps for FileType.
 var (
 	FileType_name = map[int32]string{
-		0: "FILE_UNKNOWN",
-		1: "FILE",
-		2: "DIRECTORY",
-		3: "SYMLINK",
+		0: "FILE",
+		1: "DIRECTORY",
+		2: "SYMLINK",
 	}
 	FileType_value = map[string]int32{
-		"FILE_UNKNOWN": 0,
-		"FILE":         1,
-		"DIRECTORY":    2,
-		"SYMLINK":      3,
+		"FILE":      0,
+		"DIRECTORY": 1,
+		"SYMLINK":   2,
 	}
 )
 
@@ -73,7 +70,7 @@ func (FileType) EnumDescriptor() ([]byte, []int) {
 	return file_file_proto_rawDescGZIP(), []int{0}
 }
 
-type File struct {
+type FileNode struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Path          string                 `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
@@ -86,20 +83,20 @@ type File struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *File) Reset() {
-	*x = File{}
+func (x *FileNode) Reset() {
+	*x = FileNode{}
 	mi := &file_file_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *File) String() string {
+func (x *FileNode) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*File) ProtoMessage() {}
+func (*FileNode) ProtoMessage() {}
 
-func (x *File) ProtoReflect() protoreflect.Message {
+func (x *FileNode) ProtoReflect() protoreflect.Message {
 	mi := &file_file_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -111,54 +108,54 @@ func (x *File) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use File.ProtoReflect.Descriptor instead.
-func (*File) Descriptor() ([]byte, []int) {
+// Deprecated: Use FileNode.ProtoReflect.Descriptor instead.
+func (*FileNode) Descriptor() ([]byte, []int) {
 	return file_file_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *File) GetName() string {
+func (x *FileNode) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *File) GetPath() string {
+func (x *FileNode) GetPath() string {
 	if x != nil {
 		return x.Path
 	}
 	return ""
 }
 
-func (x *File) GetFileType() FileType {
+func (x *FileNode) GetFileType() FileType {
 	if x != nil {
 		return x.FileType
 	}
-	return FileType_FILE_UNKNOWN
+	return FileType_FILE
 }
 
-func (x *File) GetSize() int64 {
+func (x *FileNode) GetSize() int64 {
 	if x != nil {
 		return x.Size
 	}
 	return 0
 }
 
-func (x *File) GetModifiedTime() int64 {
+func (x *FileNode) GetModifiedTime() int64 {
 	if x != nil {
 		return x.ModifiedTime
 	}
 	return 0
 }
 
-func (x *File) GetPermission() string {
+func (x *FileNode) GetPermission() string {
 	if x != nil {
 		return x.Permission
 	}
 	return ""
 }
 
-func (x *File) GetLink() string {
+func (x *FileNode) GetLink() string {
 	if x != nil {
 		return x.Link
 	}
@@ -212,7 +209,7 @@ func (x *FSListDirRequest) GetPath() string {
 type FSListDirResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
-	Files         []*File                `protobuf:"bytes,2,rep,name=files,proto3" json:"files,omitempty"`
+	Files         []*FileNode            `protobuf:"bytes,2,rep,name=files,proto3" json:"files,omitempty"`
 	Result        string                 `protobuf:"bytes,3,opt,name=result,proto3" json:"result,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -255,7 +252,7 @@ func (x *FSListDirResponse) GetPath() string {
 	return ""
 }
 
-func (x *FSListDirResponse) GetFiles() []*File {
+func (x *FSListDirResponse) GetFiles() []*FileNode {
 	if x != nil {
 		return x.Files
 	}
@@ -850,8 +847,8 @@ var File_file_proto protoreflect.FileDescriptor
 const file_file_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"file.proto\"\xc2\x01\n" +
-	"\x04File\x12\x12\n" +
+	"file.proto\"\xc6\x01\n" +
+	"\bFileNode\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04path\x18\x02 \x01(\tR\x04path\x12%\n" +
 	"\bfileType\x18\x03 \x01(\x0e2\t.FileTypeR\bfileType\x12\x12\n" +
@@ -862,10 +859,10 @@ const file_file_proto_rawDesc = "" +
 	"permission\x12\x12\n" +
 	"\x04link\x18\a \x01(\tR\x04link\"&\n" +
 	"\x10FSListDirRequest\x12\x12\n" +
-	"\x04path\x18\x01 \x01(\tR\x04path\"\\\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\"`\n" +
 	"\x11FSListDirResponse\x12\x12\n" +
-	"\x04path\x18\x01 \x01(\tR\x04path\x12\x1b\n" +
-	"\x05files\x18\x02 \x03(\v2\x05.FileR\x05files\x12\x16\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\x12\x1f\n" +
+	"\x05files\x18\x02 \x03(\v2\t.FileNodeR\x05files\x12\x16\n" +
 	"\x06result\x18\x03 \x01(\tR\x06result\"'\n" +
 	"\x11FSReadFileRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\"\x8b\x01\n" +
@@ -896,12 +893,11 @@ const file_file_proto_rawDesc = "" +
 	"\bold_path\x18\x01 \x01(\tR\aoldPath\x12\x19\n" +
 	"\bnew_path\x18\x02 \x01(\tR\anewPath\".\n" +
 	"\x14FSRenameFileResponse\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\tR\x06result*B\n" +
-	"\bFileType\x12\x10\n" +
-	"\fFILE_UNKNOWN\x10\x00\x12\b\n" +
-	"\x04FILE\x10\x01\x12\r\n" +
-	"\tDIRECTORY\x10\x02\x12\v\n" +
-	"\aSYMLINK\x10\x03B)\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result*0\n" +
+	"\bFileType\x12\b\n" +
+	"\x04FILE\x10\x00\x12\r\n" +
+	"\tDIRECTORY\x10\x01\x12\v\n" +
+	"\aSYMLINK\x10\x02B)\n" +
 	"\n" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 
@@ -921,7 +917,7 @@ var file_file_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_file_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_file_proto_goTypes = []any{
 	(FileType)(0),                // 0: FileType
-	(*File)(nil),                 // 1: File
+	(*FileNode)(nil),             // 1: FileNode
 	(*FSListDirRequest)(nil),     // 2: FSListDirRequest
 	(*FSListDirResponse)(nil),    // 3: FSListDirResponse
 	(*FSReadFileRequest)(nil),    // 4: FSReadFileRequest
@@ -938,8 +934,8 @@ var file_file_proto_goTypes = []any{
 	(*FSRenameFileResponse)(nil), // 15: FSRenameFileResponse
 }
 var file_file_proto_depIdxs = []int32{
-	0, // 0: File.fileType:type_name -> FileType
-	1, // 1: FSListDirResponse.files:type_name -> File
+	0, // 0: FileNode.fileType:type_name -> FileType
+	1, // 1: FSListDirResponse.files:type_name -> FileNode
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
