@@ -30,7 +30,7 @@ func (na *NodeAgent) handleFsListDir(message *pb.Base) {
 
 	data, err := proto.Marshal(response)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 	}
 
 	msg := pb.Base{
@@ -42,12 +42,12 @@ func (na *NodeAgent) handleFsListDir(message *pb.Base) {
 
 	bytes, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 		return
 	}
 	err = na.wsclient.SendMessage(bytes)
 	if err != nil {
-		log.Info("发送响应失败:", err)
+		log.Info("send resp error:", err)
 		return
 	}
 }
@@ -65,7 +65,7 @@ func (na *NodeAgent) handleFsReadFile(message *pb.Base) {
 	}
 	data, err := proto.Marshal(response)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 	}
 
 	msg := pb.Base{
@@ -77,12 +77,12 @@ func (na *NodeAgent) handleFsReadFile(message *pb.Base) {
 
 	bytes, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 		return
 	}
 	err = na.wsclient.SendMessage(bytes)
 	if err != nil {
-		log.Info("发送响应失败:", err)
+		log.Info("send resp error:", err)
 		return
 	}
 }
@@ -105,7 +105,7 @@ func (na *NodeAgent) handleFsWriteFile(message *pb.Base) {
 
 	data, err := proto.Marshal(response)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 	}
 
 	msg := pb.Base{
@@ -117,12 +117,12 @@ func (na *NodeAgent) handleFsWriteFile(message *pb.Base) {
 
 	bytes, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 		return
 	}
 	err = na.wsclient.SendMessage(bytes)
 	if err != nil {
-		log.Info("发送响应失败:", err)
+		log.Info("send resp error:", err)
 		return
 	}
 
@@ -146,7 +146,7 @@ func (na *NodeAgent) handleFsCreateFile(message *pb.Base) {
 
 	data, err := proto.Marshal(response)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 	}
 
 	msg := pb.Base{
@@ -158,12 +158,12 @@ func (na *NodeAgent) handleFsCreateFile(message *pb.Base) {
 
 	bytes, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 		return
 	}
 	err = na.wsclient.SendMessage(bytes)
 	if err != nil {
-		log.Info("发送响应失败:", err)
+		log.Info("send resp error:", err)
 		return
 	}
 }
@@ -187,7 +187,7 @@ func (na *NodeAgent) handleFsCreateDir(message *pb.Base) {
 
 	data, err := proto.Marshal(response)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 	}
 
 	msg := pb.Base{
@@ -199,12 +199,12 @@ func (na *NodeAgent) handleFsCreateDir(message *pb.Base) {
 
 	bytes, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 		return
 	}
 	err = na.wsclient.SendMessage(bytes)
 	if err != nil {
-		log.Info("发送响应失败:", err)
+		log.Info("send resp error:", err)
 		return
 	}
 }
@@ -227,7 +227,7 @@ func (na *NodeAgent) handleFsDelete(message *pb.Base) {
 
 	data, err := proto.Marshal(response)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 	}
 
 	msg := pb.Base{
@@ -239,12 +239,12 @@ func (na *NodeAgent) handleFsDelete(message *pb.Base) {
 
 	bytes, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 		return
 	}
 	err = na.wsclient.SendMessage(bytes)
 	if err != nil {
-		log.Info("发送响应失败:", err)
+		log.Info("send resp error:", err)
 		return
 	}
 }
@@ -267,7 +267,7 @@ func (na *NodeAgent) handleFsRename(message *pb.Base) {
 
 	data, err := proto.Marshal(response)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 	}
 
 	msg := pb.Base{
@@ -279,12 +279,12 @@ func (na *NodeAgent) handleFsRename(message *pb.Base) {
 
 	bytes, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Info("序列化响应失败:", err)
+		log.Info("Marshal error:", err)
 		return
 	}
 	err = na.wsclient.SendMessage(bytes)
 	if err != nil {
-		log.Info("发送响应失败:", err)
+		log.Info("send resp error:", err)
 		return
 	}
 

@@ -3,6 +3,7 @@ package system
 import (
 	"os/exec"
 	"runtime"
+	"sothoth-nodeagent/pkg/util"
 	"strings"
 	"time"
 )
@@ -52,10 +53,17 @@ func ExecuteCommand(command string) (*CommandResult, error) {
 			}
 		}
 
+		stdoutStr := stdout.String()
+		stderrStr := stderr.String()
+		if runtime.GOOS == "windows" {
+			stdoutStr, _ = util.GBKToUTF8(stdoutStr)
+			stderrStr, _ = util.GBKToUTF8(stderrStr)
+		}
+
 		return &CommandResult{
 			ExitCode:      exitCode,
-			Stdout:        stdout.String(),
-			Stderr:        stderr.String(),
+			Stdout:        stdoutStr,
+			Stderr:        stderrStr,
 			ExecutionTime: executionTime,
 		}, nil
 

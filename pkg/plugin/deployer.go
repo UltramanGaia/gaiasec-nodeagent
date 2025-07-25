@@ -3,7 +3,7 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,33 +17,33 @@ import (
 
 // Deploy 部署插件到目标进程
 func DeployPlugin(request *pb.DeployPluginRequest) error {
-	log.Printf("开始部署插件 %s 到进程 %d", request.PluginName, request.Pid)
+	log.Infof("Start deploy plugin %s to process %d", request.PluginName, request.Pid)
 
 	cfg := config.GetInstance()
 	// 创建插件目录
 	pluginDir := filepath.Join(cfg.SothothDir, "plugins", request.PluginName, request.PluginVersion)
 
-	log.Printf("处理插件部署请求: %s 版本: %s 目标PID: %d", request.PluginName, request.PluginVersion, request.Pid)
+	log.Infof("handle deploy: %s version: %s Target PID: %d", request.PluginName, request.PluginVersion, request.Pid)
 
 	// 检查插件是否已存在
 	if !util.Exists(pluginDir) || util.IsDirEmpty(pluginDir) {
-		log.Printf("插件不存在，开始下载: %s", pluginDir)
+		log.Infof("plugin does not exists, start download: %s", pluginDir)
 
 		// 使用插件管理器下载插件
 		err := util.DownloadPlugin(request.PluginName, request.PluginVersion)
 		if err != nil {
-			return fmt.Errorf("下载插件失败: %v", err)
+			return fmt.Errorf("download plugin error: %v", err)
 		}
 
-		log.Printf("插件下载完成: %s", request.PluginName)
+		log.Infof("download plugin success: %s", request.PluginName)
 	} else {
-		log.Printf("插件已存在，跳过下载: %s", pluginDir)
+		log.Infof("plugin exists, skip download: %s", pluginDir)
 	}
 
 	// 解析配置
 	pluginConfig, err := parsePluginConfig(pluginDir, request.AgentId, int(request.Pid))
 	if err != nil {
-		return fmt.Errorf("解析插件配置失败: %v", err)
+		return fmt.Errorf("parse plugin config error: %v", err)
 	}
 
 	// 根据部署方法选择不同的部署策略
@@ -55,7 +55,7 @@ func DeployPlugin(request *pb.DeployPluginRequest) error {
 	case "library_inject":
 		return deployByLibraryInject(pluginConfig, int(request.Pid))
 	default:
-		return fmt.Errorf("不支持的部署方法: %s", pluginConfig.Start.Type)
+		return fmt.Errorf("UNKNOWN DEPLOY METHOD: %s", pluginConfig.Start.Type)
 	}
 }
 
@@ -65,7 +65,7 @@ func parsePluginConfig(pluginPath string, agentId string, targetPID int) (*Plugi
 
 	configData, err := os.ReadFile(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("读取配置文件失败: %v", err)
+		return nil, fmt.Errorf("parse plugin config error: %v", err)
 	}
 
 	cfg := config.GetInstance()
@@ -79,7 +79,7 @@ func parsePluginConfig(pluginPath string, agentId string, targetPID int) (*Plugi
 	var pluginConfig PluginConfig
 	err = json.Unmarshal([]byte(text), &pluginConfig)
 	if err != nil {
-		return nil, fmt.Errorf("解析配置文件失败: %v", err)
+		return nil, fmt.Errorf("parse plugin config error: %v", err)
 	}
 
 	return &pluginConfig, nil
@@ -87,16 +87,16 @@ func parsePluginConfig(pluginPath string, agentId string, targetPID int) (*Plugi
 
 // deployByJVMAttach 通过JVM Attach API部署插件
 func deployByJVMAttach(pluginConfig *PluginConfig, targetPID int) error {
-	log.Printf("使用JVM Attach方式部署插件 %s", pluginConfig.Name)
+	log.Infof("JVM Attach deploy %s", pluginConfig.Name)
 
 	jattach, err := util.Tool("jattach")
 	if err != nil {
-		return fmt.Errorf("无法找到jattach工具: %v", err)
+		return fmt.Errorf("cannot not found jattach: %v", err)
 	}
 
 	// 检查目标进程是否存在
 	if !isProcessExists(targetPID) {
-		return fmt.Errorf("目标进程不存在: %d", targetPID)
+		return fmt.Errorf("target process does not exists: %d", targetPID)
 	}
 
 	agentJarPath := pluginConfig.Start.Path
@@ -104,7 +104,7 @@ func deployByJVMAttach(pluginConfig *PluginConfig, targetPID int) error {
 
 	// 检查Agent JAR文件是否存在
 	if _, err := os.Stat(agentJarPath); os.IsNotExist(err) {
-		return fmt.Errorf("Agent JAR文件不存在: %s", agentJarPath)
+		return fmt.Errorf("Agent JAR file not found: %s", agentJarPath)
 	}
 
 	cmd := exec.Command(jattach,
@@ -114,30 +114,30 @@ func deployByJVMAttach(pluginConfig *PluginConfig, targetPID int) error {
 		"false",
 		fmt.Sprintf("%s=%s", agentJarPath, agentOptions))
 
-	log.Printf("执行命令: %s", cmd.String())
+	log.Infof("Execute cmd: %s", cmd.String())
 
 	// 执行命令
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("jattach命令执行失败: %v, 输出: %s", err, string(output))
+		return fmt.Errorf("jattach execute failed: %v, Output: %s", err, string(output))
 	}
 
-	log.Printf("jattach输出: %s", string(output))
+	log.Infof("jattach output: %s", string(output))
 
-	log.Printf("插件 %s 通过JVM Attach部署成功", pluginConfig.Name)
+	log.Infof("plugin %s deploy success", pluginConfig.Name)
 	return nil
 }
 
 // deployByNewProcess 通过新进程部署插件
 func deployByNewProcess(pluginConfig *PluginConfig) error {
-	log.Printf("使用新进程方式部署插件 %s", pluginConfig.Name)
+	log.Infof("New Process deploy %s", pluginConfig.Name)
 
 	// 构建执行命令
 	executable := pluginConfig.Start.Path
 
 	// 检查可执行文件是否存在
 	if _, err := os.Stat(executable); os.IsNotExist(err) {
-		return fmt.Errorf("可执行文件不存在: %s", executable)
+		return fmt.Errorf("executable does not exist: %s", executable)
 	}
 
 	// 构建命令参数
@@ -146,38 +146,38 @@ func deployByNewProcess(pluginConfig *PluginConfig) error {
 	// 创建命令
 	cmd := exec.Command(args[0], args[1:]...)
 
-	log.Printf("启动新进程: %s", cmd.String())
+	log.Infof("start new process: %s", cmd.String())
 
 	// 启动进程
 	err := cmd.Start()
 	if err != nil {
-		return fmt.Errorf("启动进程失败: %v", err)
+		return fmt.Errorf("start process error: %v", err)
 	}
 
-	log.Printf("插件 %s 通过新进程部署成功", pluginConfig.Name)
+	log.Infof("plugin %s deploy success", pluginConfig.Name)
 	return nil
 }
 
 // deployByLibraryInject 通过库注入部署插件
 func deployByLibraryInject(pluginConfig *PluginConfig, targetPID int) error {
-	log.Printf("使用库注入方式部署插件 %s", pluginConfig.Name)
+	log.Infof("Library Inject deploy %s", pluginConfig.Name)
 
 	// 检查目标进程是否存在
 	if !isProcessExists(targetPID) {
-		return fmt.Errorf("目标进程不存在: %d", targetPID)
+		return fmt.Errorf("target process not found: %d", targetPID)
 	}
 
 	// 使用ptrace或其他方式注入库
 	// 这里简化实现，实际应该使用更复杂的注入技术
-	log.Printf("注入库文件 到进程 %d", targetPID)
+	log.Infof("inject library into process %d", targetPID)
 
-	log.Printf("插件 %s 通过库注入部署成功", pluginConfig.Name)
+	log.Infof("plugin %s deploy success", pluginConfig.Name)
 	return nil
 }
 
 // UndeployPlugin 停止插件
 func UndeployPlugin(pluginConfig *PluginConfig) error {
-	log.Printf("停止插件 %s", pluginConfig.Name)
+	log.Infof("stop plugin %s", pluginConfig.Name)
 
 	switch pluginConfig.Stop.Type {
 	case "javaagent":
@@ -187,7 +187,7 @@ func UndeployPlugin(pluginConfig *PluginConfig) error {
 	case "library_inject":
 		return stopLibraryInjectPlugin(pluginConfig)
 	default:
-		return fmt.Errorf("不支持的部署方法: %s", pluginConfig.Stop.Type)
+		return fmt.Errorf("UNKNOWN DEPLOY METHOD: %s", pluginConfig.Stop.Type)
 	}
 }
 
@@ -204,7 +204,7 @@ func stopJVMAttachPlugin(pluginConfig *PluginConfig) error {
 	}
 
 	// 这里简化实现
-	log.Printf("发送停止命令到插件 %s", pluginConfig.Name)
+	log.Infof("send stop command %s", pluginConfig.Name)
 
 	return nil
 }
@@ -212,14 +212,14 @@ func stopJVMAttachPlugin(pluginConfig *PluginConfig) error {
 // stopNewProcessPlugin 停止新进程插件
 func stopNewProcessPlugin(pluginConfig *PluginConfig) error {
 
-	log.Printf("进程 %s 已终止", pluginConfig.Name)
+	log.Infof("process %s terminated.", pluginConfig.Name)
 	return nil
 }
 
 // stopLibraryInjectPlugin 停止库注入插件
 func stopLibraryInjectPlugin(pluginConfig *PluginConfig) error {
 	// 对于库注入的插件，需要通过特定方式卸载
-	log.Printf("卸载注入的库 %s", pluginConfig.Name)
+	log.Infof("stop inject library %s", pluginConfig.Name)
 	return nil
 }
 

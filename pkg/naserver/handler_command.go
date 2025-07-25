@@ -1,48 +1,51 @@
 package naserver
 
-//// WebSocket版本的命令处理器
-//func (na *NodeAgent) handleExecuteCommandWS(msg WebSocketMessage) {
-//	data, ok := msg.Data.(map[string]interface{})
-//	if !ok {
-//		na.sendErrorResponse(msg.RequestID, "Invalid data format")
-//		return
-//	}
-//
-//	command, ok := data["command"].(string)
-//	if !ok {
-//		na.sendErrorResponse(msg.RequestID, "Missing command")
-//		return
-//	}
-//
-//	na.handleExecuteCommand(msg.RequestID, command)
-//}
+import (
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
+	"sothoth-nodeagent/pkg/pb"
+	"sothoth-nodeagent/pkg/system"
+)
 
-//// handleExecuteCommand 处理命令执行请求
-//// 执行指定的系统命令并返回执行结果
-////
-//// 参数：
-////
-////	requestID - 请求ID，用于关联响应
-////	command - 要执行的命令
-//func (na *NodeAgent) handleExecuteCommand(requestID, command string) {
-//	result, err := system.ExecuteCommand(command)
-//	if err != nil {
-//		log.Printf("执行命令失败: %v", err)
-//		result = &system.CommandResult{
-//			ExitCode:      -1,
-//			Stdout:        "",
-//			Stderr:        err.Error(),
-//			ExecutionTime: 0,
-//		}
-//	}
-//
-//	response := WebSocketMessage{
-//		Type:      model.COMMAND_RESULT,
-//		RequestID: requestID,
-//		Data:      result,
-//	}
-//
-//	if err := na.sendMessage(response); err != nil {
-//		log.Printf("发送命令执行结果失败: %v", err)
-//	}
-//}
+func (na *NodeAgent) handleExecuteCommand(message *pb.Base) {
+	log.Info("handleExecuteCommand")
+	request := &pb.ExecuteCommandRequest{}
+	if err := proto.Unmarshal(message.Data, request); err != nil {
+		log.Info("parse error:", err)
+		return
+	}
+	result, err := system.ExecuteCommand(request.Command)
+	if err != nil {
+		log.Info("execute command error:", err)
+		return
+	}
+
+	response := &pb.ExecuteCommandResponse{
+		ExitCode: int32(result.ExitCode),
+		Stdout:   result.Stdout,
+		Stderr:   result.Stderr,
+	}
+
+	data, err := proto.Marshal(response)
+	if err != nil {
+		log.Info("Marshal error:", err)
+		return
+	}
+
+	msg := pb.Base{
+		Type:    pb.MessageType_EXECUTE_COMMAND_RESPONSE,
+		Session: message.Session,
+		Data:    data,
+	}
+
+	bytes, err := proto.Marshal(&msg)
+	if err != nil {
+		log.Info("Marshal error:", err)
+		return
+	}
+	err = na.wsclient.SendMessage(bytes)
+	if err != nil {
+		log.Info("send resp error:", err)
+		return
+	}
+}

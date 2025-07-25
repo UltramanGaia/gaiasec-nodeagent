@@ -25,7 +25,7 @@ type Client struct {
 }
 
 func NewClient(uri string, retryNum int, pauseBeforeRetry int) (client *Client, err error) {
-	log.Info("Try to connect server: [" + uri + "]")
+	log.Info("try to connect server: [" + uri + "]")
 
 	client = &Client{
 		uri:              uri,
@@ -42,7 +42,7 @@ func (c *Client) Reconnect() error {
 	if !c.Running {
 		return fmt.Errorf("it is not Running")
 	}
-	log.Errorf("Trying to reconnect client: [" + c.uri + "]")
+	log.Errorf("trying to reconnect client: [" + c.uri + "]")
 	for i := 0; c.retryNum == 0 || i <= c.retryNum; i++ {
 		time.Sleep(time.Duration(c.pauseBeforeRetry) * time.Second)
 		client, _, err := websocket.DefaultDialer.Dial(c.uri, nil)

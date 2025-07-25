@@ -76,7 +76,7 @@ func startProc(args, env []string, logFile string) (*exec.Cmd, error) {
 	if logFile != "" {
 		stdout, err := os.OpenFile(logFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 		if err != nil {
-			log.Info(os.Getpid(), ": 打开日志文件错误:", err)
+			log.Info(os.Getpid(), ": open log file error:", err)
 			return nil, err
 		}
 		cmd.Stderr = stdout

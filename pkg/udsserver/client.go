@@ -30,9 +30,8 @@ func NewClient(conn *net.Conn, s *Server) (*Client, error) {
 
 // nodeagent下面的agent发送消息给其他agent，上报Server即可
 func (c *Client) HandleAgentMessage() {
-	var agentId string
 	defer func() {
-		c.unregister(agentId)
+		c.unregister(c.agentId)
 	}()
 
 	for {
@@ -49,17 +48,19 @@ func (c *Client) HandleAgentMessage() {
 				log.Error("Unmarshal message error: ", err)
 			}
 			if msg.GetType() != pb.MessageType_REGISTER { // 第一个消息必须是登录消息
-				log.Error("first message must be login message")
+				log.Error("first message must be register message")
 			}
-			loginMsg := &pb.Register{}
-			if err := proto.Unmarshal(msg.GetData(), loginMsg); err != nil {
+			registerMsg := &pb.Register{}
+			if err := proto.Unmarshal(msg.GetData(), registerMsg); err != nil {
 				log.Error("first message parse error: ", err)
 				return
 			}
-			c.agentId = loginMsg.Id
+			c.agentId = registerMsg.Id
 			c.server.Agent2SocketMap[c.agentId] = c
+			log.Infof("Agent %s register", registerMsg.Id)
 		}
 
+		log.Debug("Received message from agent, send to server")
 		// 直接将Agent侧收到的消息转发给Server即可
 		_ = c.server.WsClient.SendMessage(data)
 	}
@@ -72,9 +73,9 @@ func (c *Client) ReadMessage() ([]byte, error) {
 		n, err := (*c.conn).Read(temp)
 		if err != nil {
 			if err != io.EOF {
-				log.Error("读取数据错误: %v\n", err)
+				log.Error("read data error: %v\n", err)
 			} else {
-				log.Error("客户端 %s 断开连接\n", (*c.conn).RemoteAddr())
+				log.Error("client %s close\n", (*c.conn).RemoteAddr())
 			}
 			return nil, err
 		}

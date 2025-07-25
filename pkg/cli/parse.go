@@ -28,14 +28,14 @@ func init() {
 	cfg := config.GetInstance()
 
 	// 定义命令行参数
-	flag.StringVar(&cfg.ServerURL, "server", "", "Sothoth服务器WebSocket URL")
-	flag.StringVar(&cfg.ProjectID, "projectId", "", "项目ID")
-	flag.StringVar(&cfg.NodeID, "nodeId", "", "节点ID")
+	flag.StringVar(&cfg.ServerURL, "server", "", "Sothoth Server WebSocket URL")
+	flag.StringVar(&cfg.ProjectID, "projectId", "", "Project ID")
+	flag.StringVar(&cfg.NodeID, "nodeId", "", "Node ID")
 	flag.StringVar(&cfg.SothothDir, "sothothDir", "/sothoth", "Sothoth工作目录")
-	flag.BoolVar(&cfg.DaemonMode, "d", false, "以守护进程模式运行（后台运行）")
-	flag.BoolVar(&cfg.Proxy, "p", false, "启用代理模式")
-	flag.BoolVar(&cfg.Version, "version", false, "显示版本信息")
-	flag.StringVar(&cfg.Logflags, "logflags", "log.LstdFlags", "日志标志")
+	flag.BoolVar(&cfg.DaemonMode, "d", false, "daemon(background)")
+	flag.BoolVar(&cfg.Proxy, "p", false, "enable proxy mode")
+	flag.BoolVar(&cfg.Version, "version", false, "version")
+	flag.StringVar(&cfg.Logflags, "logflags", "log.LstdFlags", "logflag")
 }
 
 // ParseMain 解析命令行参数并启动NodeAgent
@@ -64,7 +64,7 @@ func ParseMain() {
 
 	// 检查nodeagent.pid文件，判断是否已经有进程在运行中
 	if checkRunning(cfg) {
-		log.Fatal("另一个Agent实例已在运行中。")
+		log.Fatal("Another agent is running.")
 		return
 	}
 
@@ -80,12 +80,12 @@ func ParseMain() {
 	// 创建NodeAgent实例
 	nodeAgent, err := naserver.NewNodeAgent(cfg.ProjectID, cfg.NodeID, cfg.ServerURL, cfg.SothothDir, cfg.Proxy)
 	if err != nil {
-		log.Fatalf("创建Agent失败: %v", err)
+		log.Fatalf("create Agent failed: %v", err)
 	}
 
 	// 启动Agent
 	if err := nodeAgent.Start(); err != nil {
-		log.Fatalf("Agent运行失败: %v", err)
+		log.Fatalf("Agent start failed: %v", err)
 	}
 
 	// 处理优雅关闭
@@ -93,7 +93,7 @@ func ParseMain() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	<-sigChan
-	log.Info("正在关闭Agent...")
+	log.Info("Stoping agent...")
 	nodeAgent.Stop()
 }
 
@@ -107,19 +107,19 @@ func EnvInit(cfg *config.Config) {
 	// 初始化各个目录
 	// 创建sothoth主目录，权限设置为777
 	if err := util.MkdirWithPerm(cfg.SothothDir, 0777); err != nil {
-		log.Fatalf("创建sothoth目录失败: %v", err)
+		log.Fatalf("create sothoth dir error: %v", err)
 	}
 
 	// 创建日志文件目录
 	logDir := filepath.Join(cfg.SothothDir, "logs/nodeagent/000000000000/")
 	if err := util.MkdirWithPerm(logDir, 0777); err != nil {
-		log.Fatalf("创建日志目录失败: %v", err)
+		log.Fatalf("create log dir error: %v", err)
 	}
 
 	// 创建临时文件目录
 	tmpDir := filepath.Join(cfg.SothothDir, "tmp")
 	if err := util.MkdirWithPerm(tmpDir, 0777); err != nil {
-		log.Fatalf("创建临时目录失败: %v", err)
+		log.Fatalf("create tmp dir error: %v", err)
 	}
 
 	// 初始化环境变量
@@ -133,18 +133,18 @@ func EnvInit(cfg *config.Config) {
 
 	for key, value := range envVars {
 		if err := os.Setenv(key, value); err != nil {
-			log.Printf("警告: 设置环境变量 %s 失败: %v", key, err)
+			log.Warnf("set env %s error: %v", key, err)
 		}
 	}
 
 	// TERM环境变量如果不存在再设置，如果已经设置了就不覆盖
 	if os.Getenv("TERM") == "" {
 		if err := os.Setenv("TERM", "xterm-256color"); err != nil {
-			log.Printf("警告: 设置TERM环境变量失败: %v", err)
+			log.Warnf("set env TERM error: %v", err)
 		}
 	}
 
-	log.Printf("环境初始化完成: sothoth_dir=%s", cfg.SothothDir)
+	log.Infof("EnvInit success: sothoth_dir=%s", cfg.SothothDir)
 }
 
 // checkRunning 检查是否已有NodeAgent实例在运行
@@ -178,6 +178,6 @@ func createPidFile(cfg *config.Config) {
 	pidFile := filepath.Join(cfg.SothothDir, "nodeagent.pid")
 	pid := os.Getpid()
 	if err := ioutil.WriteFile(pidFile, []byte(strconv.Itoa(pid)), 0644); err != nil {
-		log.Fatalf("创建PID文件失败: %v", err)
+		log.Fatalf("create pid file error: %v", err)
 	}
 }

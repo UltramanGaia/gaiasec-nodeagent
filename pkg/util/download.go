@@ -3,8 +3,8 @@ package util
 import (
 	"archive/zip"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -16,7 +16,7 @@ import (
 // DownloadPlugin 下载并解压插件
 func DownloadPlugin(name, version string) error {
 	cfg := config.GetInstance()
-	log.Printf("开始下载插件: %s 版本: %s", name, version)
+	log.Infof("start download plugin: %s version: %s", name, version)
 	// 构建下载URL
 	downloadURL := fmt.Sprintf("/plugins/%s/%s.zip", name, version)
 
@@ -24,33 +24,33 @@ func DownloadPlugin(name, version string) error {
 	pluginDir := filepath.Join(cfg.SothothDir, "plugins", name, version)
 	err := os.MkdirAll(pluginDir, 0755)
 	if err != nil {
-		return fmt.Errorf("创建插件目录失败: %v", err)
+		return fmt.Errorf("create plugin dir error: %v", err)
 	}
 
 	// 下载插件文件
 	zipPath := filepath.Join(pluginDir, "..", fmt.Sprintf("%s-%s.zip", name, version))
 	err = downloadFile(downloadURL, zipPath)
 	if err != nil {
-		return fmt.Errorf("下载插件文件失败: %v", err)
+		return fmt.Errorf("download plugin error: %v", err)
 	}
 
 	// 解压插件文件
 	err = extractZip(zipPath, pluginDir)
 	if err != nil {
-		return fmt.Errorf("解压插件文件失败: %v", err)
+		return fmt.Errorf("unzip plugin error: %v", err)
 	}
 
 	// 删除Zip文件
 	os.Remove(zipPath)
 
-	log.Printf("插件 %s 下载并解压完成", name)
+	log.Infof("plugin %s download and unzip success", name)
 	return nil
 }
 
 // DownloadTool 下载工具
 func DownloadTool(name string) error {
 	cfg := config.GetInstance()
-	log.Printf("开始下载工具: %s", name)
+	log.Infof("start download tool: %s", name)
 	// 构建下载URL
 	downloadURL := fmt.Sprintf("/plugins/nodeagent/%s-%s-%s", name, runtime.GOOS, runtime.GOARCH)
 	if runtime.GOOS == "windows" {
@@ -62,12 +62,12 @@ func DownloadTool(name string) error {
 	toolPath := filepath.Join(cfg.SothothDir, name)
 	err := downloadFile(downloadURL, toolPath)
 	if err != nil {
-		return fmt.Errorf("下载工具失败: %v", err)
+		return fmt.Errorf("download tool error: %v", err)
 	}
 
 	os.Chmod(toolPath, 0755)
 
-	log.Printf("工具 %s 下载完成", name)
+	log.Infof("tool %s download success", name)
 	return nil
 }
 
@@ -79,63 +79,63 @@ func downloadFile(url, filepath string) error {
 		url = "http://" + config.GetInstance().ServerURL + url
 	}
 
-	log.Printf("下载文件: %s", url)
+	log.Infof("download file: %s", url)
 
 	// 创建HTTP请求
 	resp, err := http.Get(url)
 	if err != nil {
-		return fmt.Errorf("HTTP请求失败: %v", err)
+		return fmt.Errorf("HTTP request failed: %v", err)
 	}
 	defer resp.Body.Close()
 
 	// 检查响应状态
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP响应错误: %d %s", resp.StatusCode, resp.Status)
+		return fmt.Errorf("HTTP response error: %d %s", resp.StatusCode, resp.Status)
 	}
 
 	// 创建目标文件
 	out, err := os.Create(filepath)
 	if err != nil {
-		return fmt.Errorf("创建文件失败: %v", err)
+		return fmt.Errorf("create file error: %v", err)
 	}
 	defer out.Close()
 
 	// 复制数据
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return fmt.Errorf("写入文件失败: %v", err)
+		return fmt.Errorf("write file error: %v", err)
 	}
 
-	log.Printf("文件下载完成: %s", filepath)
+	log.Infof("download file success: %s", filepath)
 	return nil
 }
 
 // extractZip 解压ZIP文件
 func extractZip(src, dest string) error {
-	log.Printf("解压文件: %s 到 %s", src, dest)
+	log.Infof("unzip file: %s to %s", src, dest)
 
 	// 打开ZIP文件
 	r, err := zip.OpenReader(src)
 	if err != nil {
-		return fmt.Errorf("打开ZIP文件失败: %v", err)
+		return fmt.Errorf("open zip file error: %v", err)
 	}
 	defer r.Close()
 
 	// 创建目标目录
 	err = os.MkdirAll(dest, 0755)
 	if err != nil {
-		return fmt.Errorf("创建目标目录失败: %v", err)
+		return fmt.Errorf("create target dir error: %v", err)
 	}
 
 	// 解压文件
 	for _, f := range r.File {
 		err := extractFile(f, dest)
 		if err != nil {
-			return fmt.Errorf("解压文件 %s 失败: %v", f.Name, err)
+			return fmt.Errorf("unzip file %s error: %v", f.Name, err)
 		}
 	}
 
-	log.Printf("ZIP文件解压完成")
+	log.Infof("unzip file success")
 	return nil
 }
 
@@ -146,7 +146,7 @@ func extractFile(f *zip.File, destDir string) error {
 
 	// 检查路径安全性（防止目录遍历攻击）
 	if !strings.HasPrefix(path, filepath.Clean(destDir)+string(os.PathSeparator)) {
-		return fmt.Errorf("无效的文件路径: %s", f.Name)
+		return fmt.Errorf("error path: %s", f.Name)
 	}
 
 	// 如果是目录，创建目录

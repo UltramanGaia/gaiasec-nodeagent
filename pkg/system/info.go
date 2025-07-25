@@ -41,9 +41,7 @@ func GetLocalIps() ([]string, error) {
 		if err != nil {
 			continue
 		}
-
-		// 打印接口信息和对应的IP地址
-		fmt.Printf("接口: %s (%s)\n", iface.Name, iface.HardwareAddr.String())
+		
 		for _, addr := range addrs {
 			// 解析IP地址
 			var ip net.IP

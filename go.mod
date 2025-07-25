@@ -7,6 +7,7 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/shirou/gopsutil/v3 v3.24.5
 	github.com/sirupsen/logrus v1.9.3
+	golang.org/x/text v0.27.0
 	google.golang.org/protobuf v1.36.6
 )
 

@@ -8,25 +8,19 @@ import (
 )
 
 func (na *NodeAgent) handleProcessRequest(message *pb.Base) {
-	log.Info("收到进程列表请求")
-	request := &pb.ProcessesRequest{}
-	if err := proto.Unmarshal(message.Data, request); err != nil {
-		log.Info("解析进程列表请求失败:", err)
-		return
-	}
+	log.Info("handleProcessRequest ")
 
 	processes, err := process.GetProcessList()
 	if err != nil {
 		log.Info("GetProcesses failed:", err)
 	}
 	response := &pb.ProcessesResponse{
-		TaskId:    request.TaskId,
 		Processes: processes,
 	}
 
 	data, err := proto.Marshal(response)
 	if err != nil {
-		log.Info("序列化进程列表响应失败:", err)
+		log.Info("Marshal error:", err)
 		return
 	}
 
@@ -38,12 +32,12 @@ func (na *NodeAgent) handleProcessRequest(message *pb.Base) {
 
 	bytes, err := proto.Marshal(&msg)
 	if err != nil {
-		log.Info("序列化进程列表响应失败:", err)
+		log.Info("Marshal error:", err)
 		return
 	}
 	err = na.wsclient.SendMessage(bytes)
 	if err != nil {
-		log.Info("发送进程列表响应失败:", err)
+		log.Info("Send error:", err)
 		return
 	}
 }
