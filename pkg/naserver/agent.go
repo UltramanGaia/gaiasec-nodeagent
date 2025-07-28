@@ -9,10 +9,9 @@ package naserver
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/proto"
 	"sothoth-nodeagent/pkg/pb"
+	"sothoth-nodeagent/pkg/proxy"
 	"sothoth-nodeagent/pkg/system"
 	"sothoth-nodeagent/pkg/udsserver"
 	"sothoth-nodeagent/pkg/wsclient"
@@ -27,14 +26,17 @@ type NodeAgent struct {
 	ServerURL    string
 	SothothDir   string
 	ProxyMode    bool
+	Sock5Addr    string
 	AgentVersion string
 	Hostname     string
 	IPAddress    []string
 
-	wsclient  *wsclient.Client
-	udsserver *udsserver.Server
-	running   bool          // 运行状态标志
-	stopChan  chan struct{} // 停止信号通道
+	wsClient    *wsclient.Client
+	udsServer   *udsserver.Server
+	proxyServer *proxy.Server // 代理
+
+	running  bool          // 运行状态标志
+	stopChan chan struct{} // 停止信号通道
 }
 
 // NewNodeAgent 创建一个新的NodeAgent实例
@@ -53,7 +55,7 @@ type NodeAgent struct {
 //
 //	*NodeAgent - 创建的Agent实例
 //	error - 创建过程中的错误
-func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) (*NodeAgent, error) {
+func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool, sock5Addr string) (*NodeAgent, error) {
 	serverURL := fmt.Sprintf("ws://%s/ws/agent?projectId=%s&connectId=%s", server, projectID, nodeID)
 	hostname, err := system.GetHostname()
 	if err != nil {
@@ -74,19 +76,26 @@ func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool) 
 		return nil, fmt.Errorf("创建UDS服务器失败: %v", err)
 	}
 
+	proxyServer, err := proxy.NewServer(wsClient, sock5Addr)
+	if err != nil {
+		return nil, fmt.Errorf("创建代理服务器失败: %v", err)
+	}
+
 	agent := &NodeAgent{
 		ProjectID:    projectID,
 		NodeID:       nodeID,
 		ServerURL:    serverURL,
 		SothothDir:   sothothDir,
 		ProxyMode:    proxyMode,
+		Sock5Addr:    sock5Addr,
 		AgentVersion: "1.0.0",
 		Hostname:     hostname,
 		IPAddress:    ipAddress,
 		running:      false,
 		stopChan:     make(chan struct{}),
-		wsclient:     wsClient,
-		udsserver:    udsServer,
+		wsClient:     wsClient,
+		udsServer:    udsServer,
+		proxyServer:  proxyServer,
 	}
 
 	return agent, nil
@@ -113,11 +122,15 @@ func (na *NodeAgent) Start() error {
 
 	na.running = true
 
-	na.wsclient.Start()
-	na.udsserver.Start()
+	na.wsClient.Start()
+	na.udsServer.Start()
+	// todo
 
 	go na.handleWsMessages()
 	go na.handleUdsMessages()
+	if na.Sock5Addr != "" {
+		go na.handleProxyMessages()
+	}
 
 	return nil
 }
@@ -129,14 +142,16 @@ func (na *NodeAgent) handleWsMessages() {
 	go na.heartbeatLoop()
 
 	for {
-		messageType, message, err := na.wsclient.ReadMessage()
+		// 解析基础消息
+		baseMessage := &pb.Base{}
+		err := na.wsClient.ReadMessage(baseMessage)
 		if err != nil {
-			if !na.wsclient.Running {
+			if !na.wsClient.Running {
 				return
 
 			}
 			log.Error("read:", err)
-			err = na.wsclient.Reconnect()
+			err = na.wsClient.Reconnect()
 			if err != nil {
 				log.Error("Reconnect failed, wait 5 mins")
 				time.Sleep(5 * time.Minute)
@@ -146,52 +161,54 @@ func (na *NodeAgent) handleWsMessages() {
 			continue
 		}
 
-		if messageType == websocket.BinaryMessage {
-			// 解析基础消息
-			baseMessage := &pb.Base{}
-			if err := proto.Unmarshal(message, baseMessage); err != nil {
-				log.Info("parse base error:", err)
-				continue
+		destination := baseMessage.Destination
+		if na.NodeID == destination {
+			log.Info("receive message, handle it.")
+			// 根据消息类型处理
+			switch baseMessage.Type {
+			case pb.MessageType_PROCESSES_REQUEST:
+				go na.handleProcessRequest(baseMessage)
+			case pb.MessageType_DEPLOY_PLUGIN_REQUEST:
+				go na.handleDeployPluginRequest(baseMessage)
+			case pb.MessageType_EXECUTE_COMMAND_REQUEST:
+				go na.handleExecuteCommand(baseMessage)
+			case pb.MessageType_FS_LIST_DIR_REQUEST:
+				go na.handleFsListDir(baseMessage)
+			case pb.MessageType_FS_READ_FILE_REQUEST:
+				go na.handleFsReadFile(baseMessage)
+			case pb.MessageType_FS_WRITE_FILE_REQUEST:
+				go na.handleFsWriteFile(baseMessage)
+			case pb.MessageType_FS_CREATE_FILE_REQUEST:
+				go na.handleFsCreateFile(baseMessage)
+			case pb.MessageType_FS_CREATE_DIR_REQUEST:
+				go na.handleFsCreateDir(baseMessage)
+			case pb.MessageType_FS_DELETE_REQUEST:
+				go na.handleFsDelete(baseMessage)
+			case pb.MessageType_FS_RENAME_REQUEST:
+				go na.handleFsRename(baseMessage)
+			case pb.MessageType_PROXY_HEARTBEAT: // heart beats
+			case pb.MessageType_PROXY_CLOSE: // closed by client
+				go na.handleProxyClose(baseMessage)
+			case pb.MessageType_PROXY_ESTABLISH: // establish
+				go na.handleProxyEstablish(baseMessage)
+			case pb.MessageType_PROXY_DATA:
+				go na.handleProxyData(baseMessage)
+			default:
+				log.Error("UNKNOWN MESSAGE TYPE")
 			}
-
-			destination := baseMessage.Destination
-			if na.NodeID == destination {
-				log.Info("receive message, handle it.")
-				// 根据消息类型处理
-				switch baseMessage.Type {
-				case pb.MessageType_PROCESSES_REQUEST:
-					go na.handleProcessRequest(baseMessage)
-				case pb.MessageType_DEPLOY_PLUGIN_REQUEST:
-					go na.handleDeployPluginRequest(baseMessage)
-				case pb.MessageType_EXECUTE_COMMAND_REQUEST:
-					go na.handleExecuteCommand(baseMessage)
-				case pb.MessageType_FS_LIST_DIR_REQUEST:
-					go na.handleFsListDir(baseMessage)
-				case pb.MessageType_FS_READ_FILE_REQUEST:
-					go na.handleFsReadFile(baseMessage)
-				case pb.MessageType_FS_WRITE_FILE_REQUEST:
-					go na.handleFsWriteFile(baseMessage)
-				case pb.MessageType_FS_CREATE_FILE_REQUEST:
-					go na.handleFsCreateFile(baseMessage)
-				case pb.MessageType_FS_CREATE_DIR_REQUEST:
-					go na.handleFsCreateDir(baseMessage)
-				case pb.MessageType_FS_DELETE_REQUEST:
-					go na.handleFsDelete(baseMessage)
-				case pb.MessageType_FS_RENAME_REQUEST:
-					go na.handleFsRename(baseMessage)
-				default:
-					log.Error("UNKNOWN MESSAGE TYPE")
-				}
-			} else {
-				log.Info("receive message, route it.")
-				na.routeToAgent(baseMessage)
-			}
+		} else {
+			log.Info("receive message, route it.")
+			na.routeToAgent(baseMessage)
 		}
 	}
 }
 
 func (na *NodeAgent) handleUdsMessages() {
-	na.udsserver.HandleAgentMessage()
+	na.udsServer.HandleAgentMessage()
+}
+
+func (na *NodeAgent) handleProxyMessages() {
+	na.proxyServer.HandleSocks5Message()
 }
 
 // Stop 优雅地停止Agent
@@ -202,8 +219,8 @@ func (na *NodeAgent) handleUdsMessages() {
 func (na *NodeAgent) Stop() {
 	na.running = false
 
-	na.udsserver.Stop()
-	na.wsclient.Stop()
+	na.udsServer.Stop()
+	na.wsClient.Stop()
 
 	log.Infof("Node Agent stop.")
 }
@@ -211,5 +228,5 @@ func (na *NodeAgent) Stop() {
 // 转发给特定目标，从WsServer收到消息，通过uds转发给下面的 agent
 func (na *NodeAgent) routeToAgent(message *pb.Base) {
 	log.Info("route message to agent: " + message.Destination)
-	na.udsserver.HandleMessage(message)
+	na.udsServer.HandleMessage(message)
 }

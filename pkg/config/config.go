@@ -14,6 +14,7 @@ type Config struct {
 	Proxy      bool
 	Version    bool
 	Logflags   string
+	Socks5Addr string
 }
 
 var (

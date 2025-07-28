@@ -51,6 +51,12 @@ const (
 	MessageType_FS_DELETE_RESPONSE      MessageType = 31
 	MessageType_FS_RENAME_REQUEST       MessageType = 32
 	MessageType_FS_RENAME_RESPONSE      MessageType = 33
+	// 代理
+	MessageType_PROXY_VERSION   MessageType = 40 // version
+	MessageType_PROXY_HEARTBEAT MessageType = 41 // heart_beat
+	MessageType_PROXY_CLOSE     MessageType = 42 // finish
+	MessageType_PROXY_DATA      MessageType = 43 // data
+	MessageType_PROXY_ESTABLISH MessageType = 44 // establish
 	// Java Agent
 	MessageType_WEB_ROUTES_REQUEST  MessageType = 50
 	MessageType_WEB_ROUTES_RESPONSE MessageType = 51
@@ -86,6 +92,11 @@ var (
 		31: "FS_DELETE_RESPONSE",
 		32: "FS_RENAME_REQUEST",
 		33: "FS_RENAME_RESPONSE",
+		40: "PROXY_VERSION",
+		41: "PROXY_HEARTBEAT",
+		42: "PROXY_CLOSE",
+		43: "PROXY_DATA",
+		44: "PROXY_ESTABLISH",
 		50: "WEB_ROUTES_REQUEST",
 		51: "WEB_ROUTES_RESPONSE",
 		80: "PUSH",
@@ -117,6 +128,11 @@ var (
 		"FS_DELETE_RESPONSE":       31,
 		"FS_RENAME_REQUEST":        32,
 		"FS_RENAME_RESPONSE":       33,
+		"PROXY_VERSION":            40,
+		"PROXY_HEARTBEAT":          41,
+		"PROXY_CLOSE":              42,
+		"PROXY_DATA":               43,
+		"PROXY_ESTABLISH":          44,
 		"WEB_ROUTES_REQUEST":       50,
 		"WEB_ROUTES_RESPONSE":      51,
 		"PUSH":                     80,
@@ -155,7 +171,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xa4\x05\n" +
+	"\x12message_type.proto*\x82\x06\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -183,7 +199,13 @@ const file_message_type_proto_rawDesc = "" +
 	"\x11FS_DELETE_REQUEST\x10\x1e\x12\x16\n" +
 	"\x12FS_DELETE_RESPONSE\x10\x1f\x12\x15\n" +
 	"\x11FS_RENAME_REQUEST\x10 \x12\x16\n" +
-	"\x12FS_RENAME_RESPONSE\x10!\x12\x16\n" +
+	"\x12FS_RENAME_RESPONSE\x10!\x12\x11\n" +
+	"\rPROXY_VERSION\x10(\x12\x13\n" +
+	"\x0fPROXY_HEARTBEAT\x10)\x12\x0f\n" +
+	"\vPROXY_CLOSE\x10*\x12\x0e\n" +
+	"\n" +
+	"PROXY_DATA\x10+\x12\x13\n" +
+	"\x0fPROXY_ESTABLISH\x10,\x12\x16\n" +
 	"\x12WEB_ROUTES_REQUEST\x102\x12\x17\n" +
 	"\x13WEB_ROUTES_RESPONSE\x103\x12\b\n" +
 	"\x04PUSH\x10P\x12\b\n" +

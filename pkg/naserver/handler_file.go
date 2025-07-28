@@ -45,7 +45,7 @@ func (na *NodeAgent) handleFsListDir(message *pb.Base) {
 		log.Info("Marshal error:", err)
 		return
 	}
-	err = na.wsclient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(bytes)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -80,7 +80,7 @@ func (na *NodeAgent) handleFsReadFile(message *pb.Base) {
 		log.Info("Marshal error:", err)
 		return
 	}
-	err = na.wsclient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(bytes)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -120,7 +120,7 @@ func (na *NodeAgent) handleFsWriteFile(message *pb.Base) {
 		log.Info("Marshal error:", err)
 		return
 	}
-	err = na.wsclient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(bytes)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -161,7 +161,7 @@ func (na *NodeAgent) handleFsCreateFile(message *pb.Base) {
 		log.Info("Marshal error:", err)
 		return
 	}
-	err = na.wsclient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(bytes)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -202,7 +202,7 @@ func (na *NodeAgent) handleFsCreateDir(message *pb.Base) {
 		log.Info("Marshal error:", err)
 		return
 	}
-	err = na.wsclient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(bytes)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -242,7 +242,7 @@ func (na *NodeAgent) handleFsDelete(message *pb.Base) {
 		log.Info("Marshal error:", err)
 		return
 	}
-	err = na.wsclient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(bytes)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -282,7 +282,7 @@ func (na *NodeAgent) handleFsRename(message *pb.Base) {
 		log.Info("Marshal error:", err)
 		return
 	}
-	err = na.wsclient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(bytes)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return

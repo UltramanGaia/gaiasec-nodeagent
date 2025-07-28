@@ -21,7 +21,7 @@ func (na *NodeAgent) heartbeatLoop() {
 			heartbeat := pb.Heartbeat{
 				Id: na.NodeID,
 			}
-			err := na.wsclient.Send(pb.MessageType_HEARTBEAT, &heartbeat)
+			err := na.wsClient.Send(pb.MessageType_HEARTBEAT, &heartbeat)
 			if err != nil {
 				log.Errorf("Heartbeat error: %v", err)
 				return

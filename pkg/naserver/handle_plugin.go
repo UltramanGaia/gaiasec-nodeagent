@@ -26,7 +26,7 @@ func (na *NodeAgent) handleDeployPluginRequest(message *pb.Base) {
 			Pid:           request.Pid,
 			Result:        fmt.Sprintf("deploy plugin failed: %v", err),
 		}
-		na.wsclient.Send(pb.MessageType_DEPLOY_PLUGIN_RESPONSE, response)
+		na.wsClient.Send(pb.MessageType_DEPLOY_PLUGIN_RESPONSE, response)
 		return
 	} else {
 		log.Info("deploy plugin success")
@@ -37,7 +37,7 @@ func (na *NodeAgent) handleDeployPluginRequest(message *pb.Base) {
 			Pid:           request.Pid,
 			Result:        "deploy plugin success",
 		}
-		na.wsclient.Send(pb.MessageType_DEPLOY_PLUGIN_RESPONSE, response)
+		na.wsClient.Send(pb.MessageType_DEPLOY_PLUGIN_RESPONSE, response)
 	}
 
 }

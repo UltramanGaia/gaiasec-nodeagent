@@ -36,6 +36,7 @@ func init() {
 	flag.BoolVar(&cfg.Proxy, "p", false, "enable proxy mode")
 	flag.BoolVar(&cfg.Version, "version", false, "version")
 	flag.StringVar(&cfg.Logflags, "logflags", "log.LstdFlags", "logflag")
+	flag.StringVar(&cfg.Socks5Addr, "socks5", "", "socks5 proxy addr, eg. 127.0.0.1:1080")
 }
 
 // ParseMain 解析命令行参数并启动NodeAgent
@@ -78,7 +79,7 @@ func ParseMain() {
 	createPidFile(cfg)
 
 	// 创建NodeAgent实例
-	nodeAgent, err := naserver.NewNodeAgent(cfg.ProjectID, cfg.NodeID, cfg.ServerURL, cfg.SothothDir, cfg.Proxy)
+	nodeAgent, err := naserver.NewNodeAgent(cfg.ProjectID, cfg.NodeID, cfg.ServerURL, cfg.SothothDir, cfg.Proxy, cfg.Socks5Addr)
 	if err != nil {
 		log.Fatalf("create Agent failed: %v", err)
 	}
@@ -89,12 +90,22 @@ func ParseMain() {
 	}
 
 	// 处理优雅关闭
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	<-sigChan
-	log.Info("Stoping agent...")
-	nodeAgent.Stop()
+	firstInterrupt := true
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	for { // accept multiple signal
+		select {
+		case <-signalChan:
+			if firstInterrupt {
+				log.Println("press CTRL+C to force exit")
+				firstInterrupt = false
+				log.Info("Stoping agent...")
+				nodeAgent.Stop()
+			} else {
+				os.Exit(0)
+			}
+		}
+	}
 }
 
 // EnvInit 初始化NodeAgent运行环境

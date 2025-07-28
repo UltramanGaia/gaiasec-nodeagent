@@ -1,10 +1,12 @@
 package wsclient
 
 import (
+	"context"
 	"fmt"
-	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
+	"nhooyr.io/websocket"
+	"nhooyr.io/websocket/wspb"
 	"os"
 	"sothoth-nodeagent/pkg/config"
 	"sothoth-nodeagent/pkg/pb"
@@ -13,8 +15,10 @@ import (
 )
 
 type Client struct {
+	ctx              context.Context
+	cancel           context.CancelFunc
 	uri              string
-	conn             *websocket.Conn
+	Conn             *websocket.Conn
 	writeLock        sync.RWMutex
 	id               int
 	namespace        string
@@ -26,8 +30,11 @@ type Client struct {
 
 func NewClient(uri string, retryNum int, pauseBeforeRetry int) (client *Client, err error) {
 	log.Info("try to connect server: [" + uri + "]")
+	ctx, cancel := context.WithCancel(context.Background())
 
 	client = &Client{
+		ctx:              ctx,
+		cancel:           cancel,
 		uri:              uri,
 		id:               0,
 		retryNum:         retryNum,
@@ -45,10 +52,10 @@ func (c *Client) Reconnect() error {
 	log.Errorf("trying to reconnect client: [" + c.uri + "]")
 	for i := 0; c.retryNum == 0 || i <= c.retryNum; i++ {
 		time.Sleep(time.Duration(c.pauseBeforeRetry) * time.Second)
-		client, _, err := websocket.DefaultDialer.Dial(c.uri, nil)
+		client, _, err := websocket.Dial(c.ctx, c.uri, nil)
 		if err == nil {
 			log.Info("Reconnect success")
-			c.conn = client
+			c.Conn = client
 			return nil
 		}
 	}
@@ -57,35 +64,40 @@ func (c *Client) Reconnect() error {
 
 func (c *Client) Start() {
 	c.Running = true
-	conn, _, err := websocket.DefaultDialer.Dial(c.uri, nil)
+	conn, _, err := websocket.Dial(c.ctx, c.uri, nil)
 	if err != nil {
 		log.Error("dial:", err)
 		os.Exit(-1)
 	}
-	conn.SetReadLimit(0) // 禁用读超时
-	c.conn = conn
+	// read messages from webSocket
+	conn.SetReadLimit(1 << 23) // 8 MiB
+	c.Conn = conn
 }
 
 func (c *Client) Stop() {
 	c.Running = false
-	if c.conn != nil {
-		_ = c.conn.Close()
-		c.conn = nil
+	c.cancel()
+	if c.Conn != nil {
+		_ = c.Conn.Close(websocket.StatusNormalClosure, "")
+		c.Conn = nil
 	}
 }
 
 func (c *Client) SendMessage(data []byte) error {
-	c.writeLock.Lock()
-	defer c.writeLock.Unlock()
-	w, err := c.conn.NextWriter(websocket.BinaryMessage)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(data)
-	if err != nil {
-		return err
-	}
-	return w.Close()
+	//c.writeLock.Lock()
+	//defer c.writeLock.Unlock()
+
+	return c.Conn.Write(c.ctx, websocket.MessageBinary, data)
+
+	//w, err := c.Conn.NextWriter(websocket.BinaryMessage)
+	//if err != nil {
+	//	return err
+	//}
+	//_, err = w.Write(data)
+	//if err != nil {
+	//	return err
+	//}
+	//return w.Close()
 }
 
 func (c *Client) Send(msgType pb.MessageType, m proto.Message) error {
@@ -99,13 +111,35 @@ func (c *Client) Send(msgType pb.MessageType, m proto.Message) error {
 		Data: data,
 	}
 
-	bytes, err := proto.Marshal(&msg)
+	err = wspb.Write(c.ctx, c.Conn, &msg)
+	return err
+}
+
+// write message to websocket, the data is fixed format @ProxyData
+// id: connection id
+// data: data to be written
+func (c *Client) WriteProxyMessage(ctx context.Context, id string, tag pb.PROXY_DATA_TYPE, bytes []byte) error {
+
+	m := &pb.ProxyData{
+		ProxyDataType: tag,
+		Data:          bytes,
+	}
+
+	data, err := proto.Marshal(m)
 	if err != nil {
 		return err
 	}
-	return c.SendMessage(bytes)
+
+	base := &pb.Base{
+		Type:    pb.MessageType_PROXY_DATA,
+		Session: id,
+		Data:    data,
+	}
+
+	return wspb.Write(ctx, c.Conn, base)
 }
 
-func (c *Client) ReadMessage() (messageType int, p []byte, err error) {
-	return c.conn.ReadMessage()
+func (c *Client) ReadMessage(v *pb.Base) (err error) {
+	//msg := pb.Base{}
+	return wspb.Read(c.ctx, c.Conn, v)
 }

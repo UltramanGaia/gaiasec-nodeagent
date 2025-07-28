@@ -21,7 +21,7 @@ func (na *NodeAgent) reportRegister() {
 		Pid:          int32(os.Getpid()),
 	}
 
-	err := na.wsclient.Send(pb.MessageType_REGISTER, &nodeLogin)
+	err := na.wsClient.Send(pb.MessageType_REGISTER, &nodeLogin)
 	if err != nil {
 		log.Errorf("failed to send node login: %v", err)
 		return

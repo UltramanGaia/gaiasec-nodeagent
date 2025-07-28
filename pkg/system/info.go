@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"net"
 	"os"
 	"sort"
@@ -21,7 +20,6 @@ func GetLocalIps() ([]string, error) {
 	ips := []string{}
 	interfaces, err := net.Interfaces()
 	if err != nil {
-		fmt.Printf("获取网络接口失败: %v\n", err)
 		return nil, err
 	}
 
@@ -41,7 +39,7 @@ func GetLocalIps() ([]string, error) {
 		if err != nil {
 			continue
 		}
-		
+
 		for _, addr := range addrs {
 			// 解析IP地址
 			var ip net.IP

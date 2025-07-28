@@ -35,7 +35,7 @@ func (na *NodeAgent) handleProcessRequest(message *pb.Base) {
 		log.Info("Marshal error:", err)
 		return
 	}
-	err = na.wsclient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(bytes)
 	if err != nil {
 		log.Info("Send error:", err)
 		return
