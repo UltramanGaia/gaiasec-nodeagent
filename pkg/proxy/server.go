@@ -209,9 +209,14 @@ func (e *DefaultProxyEst) establish(s *Server, id string, addr string, source st
 	s.addNewProxy(&ProxyServer{Id: id, ProxyIns: e})
 	defer s.RemoveProxy(id)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-	if err := s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_DATA, []byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, source, destination); err != nil {
+	bytes := []byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+	m := &pb.ProxyData{
+		ProxyDataType: pb.PROXY_DATA_TYPE_DATA,
+		Data:          bytes,
+	}
+
+	err = s.WsClient.SendMessage(m, pb.MessageType_PROXY_DATA, id, source, destination)
+	if err != nil {
 		return err
 	}
 

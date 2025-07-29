@@ -28,24 +28,7 @@ func (na *NodeAgent) handleFsListDir(message *pb.Base) {
 		Result: "ok",
 	}
 
-	data, err := proto.Marshal(response)
-	if err != nil {
-		log.Info("Marshal error:", err)
-	}
-
-	msg := pb.Base{
-		Type:        pb.MessageType_FS_LIST_DIR_RESPONSE,
-		Destination: message.Source,
-		Session:     message.Session,
-		Data:        data,
-	}
-
-	bytes, err := proto.Marshal(&msg)
-	if err != nil {
-		log.Info("Marshal error:", err)
-		return
-	}
-	err = na.wsClient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(response, pb.MessageType_FS_LIST_DIR_RESPONSE, na.NodeID, message.Source, message.Session)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -63,24 +46,7 @@ func (na *NodeAgent) handleFsReadFile(message *pb.Base) {
 	if err != nil {
 		log.Info("ReadFile failed:", err)
 	}
-	data, err := proto.Marshal(response)
-	if err != nil {
-		log.Info("Marshal error:", err)
-	}
-
-	msg := pb.Base{
-		Type:        pb.MessageType_FS_READ_FILE_RESPONSE,
-		Destination: message.Source,
-		Session:     message.Session,
-		Data:        data,
-	}
-
-	bytes, err := proto.Marshal(&msg)
-	if err != nil {
-		log.Info("Marshal error:", err)
-		return
-	}
-	err = na.wsClient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(response, pb.MessageType_FS_READ_FILE_RESPONSE, na.NodeID, message.Source, message.Session)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -103,24 +69,7 @@ func (na *NodeAgent) handleFsWriteFile(message *pb.Base) {
 		Result: "ok",
 	}
 
-	data, err := proto.Marshal(response)
-	if err != nil {
-		log.Info("Marshal error:", err)
-	}
-
-	msg := pb.Base{
-		Type:        pb.MessageType_FS_WRITE_FILE_RESPONSE,
-		Destination: message.Source,
-		Session:     message.Session,
-		Data:        data,
-	}
-
-	bytes, err := proto.Marshal(&msg)
-	if err != nil {
-		log.Info("Marshal error:", err)
-		return
-	}
-	err = na.wsClient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(response, pb.MessageType_FS_WRITE_FILE_RESPONSE, na.NodeID, message.Source, message.Session)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -144,24 +93,26 @@ func (na *NodeAgent) handleFsCreateFile(message *pb.Base) {
 		Result: "ok",
 	}
 
-	data, err := proto.Marshal(response)
-	if err != nil {
-		log.Info("Marshal error:", err)
-	}
+	//data, err := proto.Marshal(response)
+	//if err != nil {
+	//	log.Info("Marshal error:", err)
+	//}
+	//
+	//msg := pb.Base{
+	//	Type:        pb.MessageType_FS_CREATE_FILE_RESPONSE,
+	//	Source:      na.NodeID,
+	//	Destination: message.Source,
+	//	Session:     message.Session,
+	//	Data:        data,
+	//}
+	//
+	//bytes, err := proto.Marshal(&msg)
+	//if err != nil {
+	//	log.Info("Marshal error:", err)
+	//	return
+	//}
 
-	msg := pb.Base{
-		Type:        pb.MessageType_FS_CREATE_FILE_RESPONSE,
-		Destination: message.Source,
-		Session:     message.Session,
-		Data:        data,
-	}
-
-	bytes, err := proto.Marshal(&msg)
-	if err != nil {
-		log.Info("Marshal error:", err)
-		return
-	}
-	err = na.wsClient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(response, pb.MessageType_FS_CREATE_FILE_RESPONSE, na.NodeID, message.Source, message.Session)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -185,24 +136,7 @@ func (na *NodeAgent) handleFsCreateDir(message *pb.Base) {
 		Result: "ok",
 	}
 
-	data, err := proto.Marshal(response)
-	if err != nil {
-		log.Info("Marshal error:", err)
-	}
-
-	msg := pb.Base{
-		Type:        pb.MessageType_FS_CREATE_DIR_RESPONSE,
-		Destination: message.Source,
-		Session:     message.Session,
-		Data:        data,
-	}
-
-	bytes, err := proto.Marshal(&msg)
-	if err != nil {
-		log.Info("Marshal error:", err)
-		return
-	}
-	err = na.wsClient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(response, pb.MessageType_FS_CREATE_DIR_RESPONSE, na.NodeID, message.Source, message.Session)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -225,24 +159,7 @@ func (na *NodeAgent) handleFsDelete(message *pb.Base) {
 		Result: "ok",
 	}
 
-	data, err := proto.Marshal(response)
-	if err != nil {
-		log.Info("Marshal error:", err)
-	}
-
-	msg := pb.Base{
-		Type:        pb.MessageType_FS_DELETE_RESPONSE,
-		Destination: message.Source,
-		Session:     message.Session,
-		Data:        data,
-	}
-
-	bytes, err := proto.Marshal(&msg)
-	if err != nil {
-		log.Info("Marshal error:", err)
-		return
-	}
-	err = na.wsClient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(response, pb.MessageType_FS_DELETE_RESPONSE, na.NodeID, message.Source, message.Session)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return
@@ -265,24 +182,7 @@ func (na *NodeAgent) handleFsRename(message *pb.Base) {
 		Result: "ok",
 	}
 
-	data, err := proto.Marshal(response)
-	if err != nil {
-		log.Info("Marshal error:", err)
-	}
-
-	msg := pb.Base{
-		Type:        pb.MessageType_FS_RENAME_RESPONSE,
-		Destination: message.Source,
-		Session:     message.Session,
-		Data:        data,
-	}
-
-	bytes, err := proto.Marshal(&msg)
-	if err != nil {
-		log.Info("Marshal error:", err)
-		return
-	}
-	err = na.wsClient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(response, pb.MessageType_FS_RENAME_RESPONSE, na.NodeID, message.Source, message.Session)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return

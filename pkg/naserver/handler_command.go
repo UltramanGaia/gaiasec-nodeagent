@@ -26,24 +26,7 @@ func (na *NodeAgent) handleExecuteCommand(message *pb.Base) {
 		Stderr:   result.Stderr,
 	}
 
-	data, err := proto.Marshal(response)
-	if err != nil {
-		log.Info("Marshal error:", err)
-		return
-	}
-
-	msg := pb.Base{
-		Type:    pb.MessageType_EXECUTE_COMMAND_RESPONSE,
-		Session: message.Session,
-		Data:    data,
-	}
-
-	bytes, err := proto.Marshal(&msg)
-	if err != nil {
-		log.Info("Marshal error:", err)
-		return
-	}
-	err = na.wsClient.SendMessage(bytes)
+	err = na.wsClient.SendMessage(response, pb.MessageType_EXECUTE_COMMAND_RESPONSE, message.Destination, message.Source, message.Session)
 	if err != nil {
 		log.Info("send resp error:", err)
 		return

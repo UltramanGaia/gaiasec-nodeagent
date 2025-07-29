@@ -70,7 +70,7 @@ func (c *Client) Start() {
 		os.Exit(-1)
 	}
 	// read messages from webSocket
-	conn.SetReadLimit(1 << 23) // 8 MiB
+	conn.SetReadLimit(1 << 25)
 	c.Conn = conn
 }
 
@@ -83,21 +83,28 @@ func (c *Client) Stop() {
 	}
 }
 
-func (c *Client) SendMessage(data []byte) error {
+func (c *Client) SendMessageBytes(data []byte) error {
 	//c.writeLock.Lock()
 	//defer c.writeLock.Unlock()
-
 	return c.Conn.Write(c.ctx, websocket.MessageBinary, data)
+}
 
-	//w, err := c.Conn.NextWriter(websocket.BinaryMessage)
-	//if err != nil {
-	//	return err
-	//}
-	//_, err = w.Write(data)
-	//if err != nil {
-	//	return err
-	//}
-	//return w.Close()
+func (c *Client) SendMessage(m proto.Message, msgType pb.MessageType, source string, destination string, sessionId string) error {
+	data, err := proto.Marshal(m)
+	if err != nil {
+		return err
+	}
+
+	msg := pb.Base{
+		Type:        msgType,
+		Source:      source,
+		Destination: destination,
+		Session:     sessionId,
+		Data:        data,
+	}
+
+	err = wspb.Write(c.ctx, c.Conn, &msg)
+	return err
 }
 
 func (c *Client) Send(msgType pb.MessageType, m proto.Message) error {
@@ -113,32 +120,6 @@ func (c *Client) Send(msgType pb.MessageType, m proto.Message) error {
 
 	err = wspb.Write(c.ctx, c.Conn, &msg)
 	return err
-}
-
-// write message to websocket, the data is fixed format @ProxyData
-// id: connection id
-// data: data to be written
-func (c *Client) WriteProxyMessage(ctx context.Context, id string, tag pb.PROXY_DATA_TYPE, bytes []byte, source string, destination string) error {
-
-	m := &pb.ProxyData{
-		ProxyDataType: tag,
-		Data:          bytes,
-	}
-
-	data, err := proto.Marshal(m)
-	if err != nil {
-		return err
-	}
-
-	base := &pb.Base{
-		Type:        pb.MessageType_PROXY_DATA,
-		Source:      source,
-		Destination: destination,
-		Session:     id,
-		Data:        data,
-	}
-
-	return wspb.Write(ctx, c.Conn, base)
 }
 
 func (c *Client) ReadMessage(v *pb.Base) (err error) {

@@ -191,7 +191,7 @@ func (na *NodeAgent) handleWsMessages() {
 				go na.handleProxyClose(baseMessage)
 			case pb.MessageType_PROXY_ESTABLISH: // establish
 				go na.handleProxyEstablish(baseMessage)
-			case pb.MessageType_PROXY_DATA:
+			case pb.MessageType_PROXY_DATA: // 这个是需要判断服务端或者客户端的
 				go na.handleProxyData(baseMessage)
 			default:
 				log.Error("UNKNOWN MESSAGE TYPE")

@@ -62,7 +62,7 @@ func (c *Client) HandleAgentMessage() {
 
 		log.Debug("Received message from agent, send to server")
 		// 直接将Agent侧收到的消息转发给Server即可
-		_ = c.server.WsClient.SendMessage(data)
+		_ = c.server.WsClient.SendMessageBytes(data)
 	}
 }
 
