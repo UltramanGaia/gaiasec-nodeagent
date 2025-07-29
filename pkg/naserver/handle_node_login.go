@@ -4,11 +4,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"runtime"
+	"sothoth-nodeagent/pkg/constant"
 	"sothoth-nodeagent/pkg/pb"
+	"sothoth-nodeagent/pkg/util"
 )
 
 func (na *NodeAgent) reportRegister() {
-	nodeLogin := pb.Register{
+	nodeLogin := &pb.Register{
 		Id:           na.NodeID,
 		ProjectId:    na.ProjectID,
 		ParentId:     "",
@@ -21,7 +23,7 @@ func (na *NodeAgent) reportRegister() {
 		Pid:          int32(os.Getpid()),
 	}
 
-	err := na.wsClient.Send(pb.MessageType_REGISTER, &nodeLogin)
+	err := na.wsClient.SendMessage(nodeLogin, pb.MessageType_REGISTER, na.NodeID, constant.SERVER_ID, util.GenerateID())
 	if err != nil {
 		log.Errorf("failed to send node login: %v", err)
 		return

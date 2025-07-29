@@ -26,7 +26,11 @@ func (na *NodeAgent) handleDeployPluginRequest(message *pb.Base) {
 			Pid:           request.Pid,
 			Result:        fmt.Sprintf("deploy plugin failed: %v", err),
 		}
-		na.wsClient.Send(pb.MessageType_DEPLOY_PLUGIN_RESPONSE, response)
+		err = na.wsClient.SendMessage(response, pb.MessageType_DEPLOY_PLUGIN_RESPONSE, na.NodeID, message.Source, message.Session)
+		if err != nil {
+			log.Info("send resp error:", err)
+			return
+		}
 		return
 	} else {
 		log.Info("deploy plugin success")
@@ -37,7 +41,11 @@ func (na *NodeAgent) handleDeployPluginRequest(message *pb.Base) {
 			Pid:           request.Pid,
 			Result:        "deploy plugin success",
 		}
-		na.wsClient.Send(pb.MessageType_DEPLOY_PLUGIN_RESPONSE, response)
+		err = na.wsClient.SendMessage(response, pb.MessageType_DEPLOY_PLUGIN_RESPONSE, na.NodeID, message.Source, message.Session)
+		if err != nil {
+			log.Info("send resp error:", err)
+			return
+		}
 	}
 
 }

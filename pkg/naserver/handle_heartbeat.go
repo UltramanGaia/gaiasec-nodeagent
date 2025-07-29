@@ -2,7 +2,9 @@ package naserver
 
 import (
 	log "github.com/sirupsen/logrus"
+	"sothoth-nodeagent/pkg/constant"
 	"sothoth-nodeagent/pkg/pb"
+	"sothoth-nodeagent/pkg/util"
 	"time"
 )
 
@@ -18,10 +20,10 @@ func (na *NodeAgent) heartbeatLoop() {
 				return
 			}
 
-			heartbeat := pb.Heartbeat{
+			heartbeat := &pb.Heartbeat{
 				Id: na.NodeID,
 			}
-			err := na.wsClient.Send(pb.MessageType_HEARTBEAT, &heartbeat)
+			err := na.wsClient.SendMessage(heartbeat, pb.MessageType_HEARTBEAT, na.NodeID, constant.SERVER_ID, util.GenerateID())
 			if err != nil {
 				log.Errorf("Heartbeat error: %v", err)
 				return

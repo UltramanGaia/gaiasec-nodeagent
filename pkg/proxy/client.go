@@ -65,7 +65,7 @@ func (client *Client) Reply(conn net.Conn) (string, string, error) {
 // create a new proxy with unique id
 func (client *Client) NewProxy(username string, onData func(string, ServerData),
 	onClosed func(string, bool), onError func(string, error)) *ProxyClient {
-	id := util.RenerateID()
+	id := util.GenerateID()
 	cfg := config.GetInstance()
 	proxyInstance := ProxyClient{Id: id, Source: cfg.NodeID, Destination: username, onData: onData, onClosed: onClosed, onError: onError}
 

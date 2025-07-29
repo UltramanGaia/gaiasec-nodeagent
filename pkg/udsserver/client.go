@@ -7,7 +7,9 @@ import (
 	"google.golang.org/protobuf/proto"
 	"io"
 	"net"
+	"sothoth-nodeagent/pkg/constant"
 	"sothoth-nodeagent/pkg/pb"
+	"sothoth-nodeagent/pkg/util"
 	"sync"
 )
 
@@ -115,14 +117,13 @@ func (c *Client) ReadMessage() ([]byte, error) {
 }
 
 func (c *Client) unregister(agentId string) {
-
 	if agentId != "" {
 		log.Infof("Agent %s logout", agentId)
-		agentLogout := pb.Unregister{
+		agentLogout := &pb.Unregister{
 			Id: agentId,
 		}
 
-		err := c.server.WsClient.Send(pb.MessageType_UNREGISTER, &agentLogout)
+		err := c.server.WsClient.SendMessage(agentLogout, pb.MessageType_UNREGISTER, agentId, constant.SERVER_ID, util.GenerateID())
 		if err != nil {
 			log.Error("Emit logout error: ", err)
 		}
