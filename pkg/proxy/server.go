@@ -1,18 +1,13 @@
 package proxy
 
 import (
-	"bufio"
-	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
-	"net/http"
 	"nhooyr.io/websocket/wspb"
 	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/util"
 	"sothoth-nodeagent/pkg/wsclient"
 	"sync"
 	"time"
@@ -32,7 +27,7 @@ type Server struct {
 
 type ProxyServer struct {
 	Id       string // id of proxy connection
-	ProxyIns ProxyEstablish
+	ProxyIns *DefaultProxyEst
 }
 
 type ProxyRegister struct {
@@ -104,18 +99,6 @@ type Connector struct {
 	Conn io.ReadWriteCloser
 }
 
-// interface of establishing proxy connection with target
-type ProxyEstablish interface {
-	establish(server *Server, id string, addr string, data []byte, source string, destination string) error
-
-	// data from client todo data with type
-	onData(data ClientData) error
-
-	// close connection
-	// tell: whether to send close message to proxy client
-	Close(tell bool) error
-}
-
 type ClientData ServerData
 
 var ConnCloseByClient = errors.New("conn closed by client")
@@ -152,10 +135,9 @@ func HandleProxyData(server *Server, msg *pb.Base) error {
 }
 
 func establishProxy(server *Server, proxyMeta ProxyRegister, source string, destination string) {
-	var e ProxyEstablish
-	e = makeHttpProxyInstance()
+	e := &DefaultProxyEst{}
 
-	err := e.establish(server, proxyMeta.id, proxyMeta.addr, proxyMeta.withData, source, destination)
+	err := e.establish(server, proxyMeta.id, proxyMeta.addr, source, destination)
 	if err == nil {
 		server.tellClosed(proxyMeta.id, source, destination) // tell client to close connection.
 	} else if err != ConnCloseByClient {
@@ -191,7 +173,7 @@ func (e *DefaultProxyEst) Close(tell bool) error {
 }
 
 // data: data send in establish step (can be nil).
-func (e *DefaultProxyEst) establish(s *Server, id string, addr string, data []byte, source string, destination string) error {
+func (e *DefaultProxyEst) establish(s *Server, id string, addr string, source string, destination string) error {
 	conn, err := net.DialTimeout("tcp", addr, time.Second*8) // todo config timeout
 	if err != nil {
 		return err
@@ -225,82 +207,6 @@ func (e *DefaultProxyEst) establish(s *Server, id string, addr string, data []by
 	// s.RemoveProxy(proxy.Id)
 	// tellClosed is called outside this func.
 	return d.err
-}
-
-type HttpProxyEst struct {
-	bodyReadCloser *BufferedWR
-}
-
-func makeHttpProxyInstance() *HttpProxyEst {
-	buf := NewBufferWR()
-	return &HttpProxyEst{bodyReadCloser: buf}
-}
-
-func (h *HttpProxyEst) onData(data ClientData) error {
-	if data.Tag == pb.PROXY_DATA_TYPE_NO_MORE {
-		return h.bodyReadCloser.Close() // close due to no more data.
-	}
-	if _, err := h.bodyReadCloser.Write(data.Data); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (h *HttpProxyEst) Close(tell bool) error {
-	return h.bodyReadCloser.Close() // close from client
-}
-
-func (h *HttpProxyEst) establish(s *Server, id string, addr string, header []byte, source string, destination string) error {
-	if header == nil {
-		s.tellClosed(id, source, destination)
-		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-		defer cancel()
-		_ = s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_ESTABLISH_ERROR, nil, source, destination)
-		return errors.New("http header empty")
-	}
-
-	closed := make(chan bool)
-	client := make(chan ClientData, 2) // for http at most 2 data buffers are needed(http body, TagNoMore tag).
-	defer close(closed)
-	defer close(client)
-
-	s.addNewProxy(&ProxyServer{Id: id, ProxyIns: h})
-	defer s.RemoveProxy(id)
-	defer func() {
-		if !h.bodyReadCloser.isClosed() { // if it is not closed by client.
-			s.tellClosed(id, source, destination) // todo
-		}
-	}()
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-	if err := s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_ESTABLISH_OK, nil, source, destination); err != nil {
-		return err
-	}
-
-	// get http request by header bytes.
-	bufferHeader := bufio.NewReader(bytes.NewBuffer(header))
-	req, err := http.ReadRequest(bufferHeader)
-	if err != nil {
-		return err
-	}
-	req.Body = h.bodyReadCloser
-
-	// read request and copy response back
-	resp, err := http.DefaultTransport.RoundTrip(req)
-	if err != nil {
-		return fmt.Errorf("transport error: %w", err)
-	}
-	defer resp.Body.Close()
-
-	writer := NewWebSocketWriter(s.WsClient, id, context.Background(), source, destination)
-	var headerBuffer bytes.Buffer
-	util.HttpRespHeader(&headerBuffer, resp)
-	writer.Write(headerBuffer.Bytes())
-	if _, err := io.Copy(writer, resp.Body); err != nil {
-		return fmt.Errorf("http body copy error: %w", err)
-	}
-	return nil
 }
 
 // tell the client the connection has been closed
