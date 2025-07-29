@@ -14,18 +14,17 @@ import (
 )
 
 type Client struct {
-	conn      *net.TCPConn
-	server    *Server
-	proxies   map[string]*ProxyClient // all proxies on this websocket.
-	proxyMu   sync.RWMutex            // mutex to operate proxies map.
+	conn   *net.TCPConn
+	server *Server
+
+	proxyMu   sync.RWMutex // mutex to operate proxies map.
 	writeLock sync.RWMutex
 }
 
 func NewClient(conn *net.TCPConn, s *Server) (*Client, error) {
 	return &Client{
-		conn:    conn,
-		server:  s,
-		proxies: make(map[string]*ProxyClient),
+		conn:   conn,
+		server: s,
 	}, nil
 }
 
@@ -73,7 +72,7 @@ func (client *Client) NewProxy(username string, onData func(string, ServerData),
 	client.proxyMu.Lock()
 	defer client.proxyMu.Unlock()
 
-	client.proxies[id] = &proxyInstance
+	client.server.proxies[id] = &proxyInstance
 	return &proxyInstance
 }
 
@@ -136,7 +135,7 @@ func (client *Client) transData(conn *net.TCPConn, username string, addr string)
 func (client *Client) GetProxyById(id string) *ProxyClient {
 	client.proxyMu.RLock()
 	defer client.proxyMu.RUnlock()
-	if proxyInstance, ok := client.proxies[id]; ok {
+	if proxyInstance, ok := client.server.proxies[id]; ok {
 		return proxyInstance
 	}
 	return nil
@@ -162,7 +161,7 @@ func (client *Client) TellClose(id string, source string, destination string) er
 func (client *Client) RemoveProxy(id string) {
 	client.proxyMu.Lock()
 	defer client.proxyMu.Unlock()
-	if _, ok := client.proxies[id]; ok {
-		delete(client.proxies, id)
+	if _, ok := client.server.proxies[id]; ok {
+		delete(client.server.proxies, id)
 	}
 }

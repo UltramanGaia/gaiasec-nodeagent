@@ -19,7 +19,9 @@ import (
 type Server struct {
 	WsClient *wsclient.Client
 	// Registered proxy connections.
-	ConnPool  map[string]*ProxyServer
+	ConnPool map[string]*ProxyServer
+
+	proxies   map[string]*ProxyClient // all proxies on this websocket.
 	sock5Addr string
 	listener  net.Listener
 	mu        sync.RWMutex
@@ -40,6 +42,7 @@ func NewServer(client *wsclient.Client, address string) (*Server, error) {
 	server := &Server{
 		WsClient: client,
 		ConnPool: make(map[string]*ProxyServer),
+		proxies:  make(map[string]*ProxyClient),
 	}
 	if address != "" {
 		log.Infof("Socks5 server: %s", address)
@@ -95,6 +98,15 @@ func (s *Server) GetProxyById(id string) *ProxyServer {
 	return nil
 }
 
+func (s *Server) GetProxyClientById(id string) *ProxyClient {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if proxy, ok := s.proxies[id]; ok {
+		return proxy
+	}
+	return nil
+}
+
 type Connector struct {
 	Conn io.ReadWriteCloser
 }
@@ -127,9 +139,18 @@ func HandleProxyData(server *Server, msg *pb.Base) error {
 		return err
 	}
 
-	if proxy := server.GetProxyById(id); proxy != nil {
+	proxy := server.GetProxyById(id) // 作为服务端
+	if proxy != nil {
 		// write income data from websocket to TCP connection
 		return proxy.ProxyIns.onData(ClientData{Tag: requestMsg.ProxyDataType, Data: requestMsg.Data})
+	} else {
+		// 作为客户端
+		proxyClient := server.GetProxyClientById(id)
+		if proxyClient != nil {
+			// write income data from websocket to TCP connection
+			proxyClient.onData(id, ServerData{Tag: requestMsg.ProxyDataType, Data: requestMsg.Data})
+			return nil
+		}
 	}
 	return nil
 }
