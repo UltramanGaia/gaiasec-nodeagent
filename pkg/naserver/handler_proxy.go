@@ -8,7 +8,7 @@ import (
 // 代理相关处理方法
 func (na *NodeAgent) handleProxyClose(message *pb.Base) {
 	id := message.Session
-	proxyInstance := na.proxyServer.GetProxyById(id)
+	proxyInstance := na.proxyServer.GetProxyServerById(id)
 	if proxyInstance != nil {
 		proxyInstance.ProxyIns.Close(false) // todo remove proxy here
 	}

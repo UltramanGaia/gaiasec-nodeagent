@@ -27,17 +27,6 @@ type Server struct {
 	mu        sync.RWMutex
 }
 
-type ProxyServer struct {
-	Id       string // id of proxy connection
-	ProxyIns *DefaultProxyEst
-}
-
-type ProxyRegister struct {
-	id       string
-	addr     string
-	withData []byte
-}
-
 func NewServer(client *wsclient.Client, address string) (*Server, error) {
 	server := &Server{
 		WsClient: client,
@@ -67,7 +56,6 @@ func (s *Server) Close() {
 
 func (s *Server) HandleSocks5Message() {
 	// 客户端连接sock5, 代理发包到对应agent
-
 	if s.listener != nil {
 		for {
 			conn, err := s.listener.Accept()
@@ -89,7 +77,7 @@ func (s *Server) HandleSocks5Message() {
 	}
 }
 
-func (s *Server) GetProxyById(id string) *ProxyServer {
+func (s *Server) GetProxyServerById(id string) *ProxyServer {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	if proxy, ok := s.ConnPool[id]; ok {
@@ -107,10 +95,6 @@ func (s *Server) GetProxyClientById(id string) *ProxyClient {
 	return nil
 }
 
-type Connector struct {
-	Conn io.ReadWriteCloser
-}
-
 type ClientData ServerData
 
 var ConnCloseByClient = errors.New("conn closed by client")
@@ -123,11 +107,7 @@ func HandleProxyEstablish(server *Server, msg *pb.Base) error {
 		return err
 	}
 
-	var estData []byte = nil
-	if proxyEstMsg.WithData {
-		estData = proxyEstMsg.Data
-	}
-	go establishProxy(server, ProxyRegister{id, proxyEstMsg.Addr, estData}, msg.Destination, msg.Source)
+	go establishProxy(server, id, proxyEstMsg.Addr, msg.Destination, msg.Source)
 	return nil
 }
 
@@ -139,7 +119,7 @@ func HandleProxyData(server *Server, msg *pb.Base) error {
 		return err
 	}
 
-	proxy := server.GetProxyById(id) // 作为服务端
+	proxy := server.GetProxyServerById(id) // 作为服务端
 	if proxy != nil {
 		// write income data from websocket to TCP connection
 		return proxy.ProxyIns.onData(ClientData{Tag: requestMsg.ProxyDataType, Data: requestMsg.Data})
@@ -155,46 +135,45 @@ func HandleProxyData(server *Server, msg *pb.Base) error {
 	return nil
 }
 
-func establishProxy(server *Server, proxyMeta ProxyRegister, source string, destination string) {
-	e := &DefaultProxyEst{}
+func establishProxy(server *Server, sessionId string, addr string, source string, destination string) {
+	e := &DefaultProxyEstablish{}
 
-	err := e.establish(server, proxyMeta.id, proxyMeta.addr, source, destination)
+	err := e.establish(server, sessionId, addr, source, destination)
 	if err == nil {
-		server.tellClosed(proxyMeta.id, source, destination) // tell client to close connection.
+		server.tellClosed(sessionId, source, destination) // tell client to close connection.
 	} else if err != ConnCloseByClient {
 		log.Error(err) // todo error handle better way
-		server.tellClosed(proxyMeta.id, source, destination)
+		server.tellClosed(sessionId, source, destination)
 	}
 	return
-	//	log.WithField("size", s.GetConnectorSize()).Trace("connection size changed.")
 }
 
-// data type used in DefaultProxyEst to pass data to channel
+// data type used in DefaultProxyEstablish to pass data to channel
 type ChanDone struct {
 	tell bool
 	err  error
 }
 
-// interface implementation for socks5 and https proxy.
-type DefaultProxyEst struct {
+// interface implementation for socks5 proxy.
+type DefaultProxyEstablish struct {
 	done    chan ChanDone
 	tcpConn net.Conn
 }
 
-func (e *DefaultProxyEst) onData(data ClientData) error {
+func (e *DefaultProxyEstablish) onData(data ClientData) error {
 	if _, err := e.tcpConn.Write(data.Data); err != nil {
 		e.done <- ChanDone{true, err}
 	}
 	return nil
 }
 
-func (e *DefaultProxyEst) Close(tell bool) error {
+func (e *DefaultProxyEstablish) Close(tell bool) error {
 	e.done <- ChanDone{tell, ConnCloseByClient}
 	return nil // todo error
 }
 
 // data: data send in establish step (can be nil).
-func (e *DefaultProxyEst) establish(s *Server, id string, addr string, source string, destination string) error {
+func (e *DefaultProxyEstablish) establish(s *Server, id string, addr string, source string, destination string) error {
 	conn, err := net.DialTimeout("tcp", addr, time.Second*8) // todo config timeout
 	if err != nil {
 		return err

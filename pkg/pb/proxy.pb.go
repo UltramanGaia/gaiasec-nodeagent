@@ -76,8 +76,6 @@ func (PROXY_DATA_TYPE) EnumDescriptor() ([]byte, []int) {
 type ProxyEstablishMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Addr          string                 `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
-	WithData      bool                   `protobuf:"varint,2,opt,name=with_data,json=withData,proto3" json:"with_data,omitempty"`
-	Data          []byte                 `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -117,20 +115,6 @@ func (x *ProxyEstablishMessage) GetAddr() string {
 		return x.Addr
 	}
 	return ""
-}
-
-func (x *ProxyEstablishMessage) GetWithData() bool {
-	if x != nil {
-		return x.WithData
-	}
-	return false
-}
-
-func (x *ProxyEstablishMessage) GetData() []byte {
-	if x != nil {
-		return x.Data
-	}
-	return nil
 }
 
 type ProxyData struct {
@@ -189,11 +173,9 @@ var File_proxy_proto protoreflect.FileDescriptor
 
 const file_proxy_proto_rawDesc = "" +
 	"\n" +
-	"\vproxy.proto\"\\\n" +
+	"\vproxy.proto\"+\n" +
 	"\x15ProxyEstablishMessage\x12\x12\n" +
-	"\x04addr\x18\x01 \x01(\tR\x04addr\x12\x1b\n" +
-	"\twith_data\x18\x02 \x01(\bR\bwithData\x12\x12\n" +
-	"\x04data\x18\x03 \x01(\fR\x04data\"Y\n" +
+	"\x04addr\x18\x01 \x01(\tR\x04addr\"Y\n" +
 	"\tProxyData\x128\n" +
 	"\x0fproxy_data_type\x18\x01 \x01(\x0e2\x10.PROXY_DATA_TYPER\rproxyDataType\x12\x12\n" +
 	"\x04data\x18\x04 \x01(\fR\x04data*O\n" +

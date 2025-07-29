@@ -1,7 +1,10 @@
 package proxy
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
+	"errors"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
@@ -9,6 +12,7 @@ import (
 	"sothoth-nodeagent/pkg/config"
 	"sothoth-nodeagent/pkg/pb"
 	"sothoth-nodeagent/pkg/util"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -43,18 +47,95 @@ func (client *Client) HandleSocks5Conn() {
 	}
 }
 
-// parse target address and proxy type, and response to socks5/https client
-func (client *Client) Reply(conn net.Conn) (string, string, error) {
-	var buffer [1024]byte
-
-	n, err := conn.Read(buffer[:])
+func parseHeader(conn net.Conn) (string, string, error) {
+	// response to socks5 client
+	// see rfc 1982 for more details (https://tools.ietf.org/html/rfc1928)
+	n, err := conn.Write([]byte{0x05, 0x02}) // version and USERNAME/PASSWORD
 	if err != nil {
 		return "", "", err
 	}
 
-	proxyInstance := &Socks5Client{}
+	// step 1
+	var buffer [1024]byte
+	n, err = conn.Read(buffer[:])
+	if err != nil {
+		return "", "", err
+	}
+	//method := buffer[0]
+	userLen := int(buffer[1])
+	username := string(buffer[2 : userLen+2])
+	passLen := int(buffer[userLen+2])
+	password := string(buffer[userLen+3 : userLen+3+passLen])
+	log.Infof("username: %s, password: %s", username, password)
+
+	// see rfc 1982 for more details (https://tools.ietf.org/html/rfc1928)
+	n, err = conn.Write([]byte{0x05, 0x00}) // version and no authentication required
+	if err != nil {
+		return "", "", err
+	}
+
+	// step2: process client Requests and does Reply
+	/**
+	  +----+-----+-------+------+----------+----------+
+	  |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
+	  +----+-----+-------+------+----------+----------+
+	  | 1  |  1  | X'00' |  1   | Variable |    2     |
+	  +----+-----+-------+------+----------+----------+
+	*/
+
+	n, err = conn.Read(buffer[:])
+	if err != nil {
+		return "", "", err
+	}
+	if n < 6 {
+		return "", "", errors.New("not a socks protocol")
+	}
+
+	var host string
+	switch buffer[3] {
+	case 0x01:
+		// ipv4 address
+		ipv4 := make([]byte, 4)
+		if _, err := io.ReadAtLeast(bytes.NewReader(buffer[4:]), ipv4, len(ipv4)); err != nil {
+			return "", "", err
+		}
+		host = net.IP(ipv4).String()
+	case 0x04:
+		// ipv6
+		ipv6 := make([]byte, 16)
+		if _, err := io.ReadAtLeast(bytes.NewReader(buffer[4:]), ipv6, len(ipv6)); err != nil {
+			return "", "", err
+		}
+		host = net.IP(ipv6).String()
+	case 0x03:
+		// domain
+		addrLen := int(buffer[4])
+		domain := make([]byte, addrLen)
+		if _, err := io.ReadAtLeast(bytes.NewReader(buffer[5:]), domain, addrLen); err != nil {
+			return "", "", err
+		}
+		host = string(domain)
+	}
+
+	port := make([]byte, 2)
+	err = binary.Read(bytes.NewReader(buffer[n-2:n]), binary.BigEndian, &port)
+	if err != nil {
+		return "", "", err
+	}
+
+	return username, net.JoinHostPort(host, strconv.Itoa((int(port[0])<<8)|int(port[1]))), nil
+}
+
+// parse target address and proxy type, and response to socks5/https client
+func (client *Client) Reply(conn net.Conn) (string, string, error) {
+	var buffer [1024]byte
+	_, err := conn.Read(buffer[:])
+	if err != nil {
+		return "", "", err
+	}
+
 	// set address and type
-	username, proxyAddr, err := proxyInstance.ParseHeader(conn, buffer[:n])
+	username, proxyAddr, err := parseHeader(conn)
 	if err != nil {
 		return "", "", err
 	}
@@ -82,7 +163,6 @@ func (client *Client) transData(conn *net.TCPConn, username string, addr string)
 		err  error
 	}
 	done := make(chan Done, 2)
-	// defer close(done)
 
 	// create a with proxy with callback func
 	proxyInstance := client.NewProxy(username, func(id string, data ServerData) {
@@ -153,8 +233,6 @@ func (client *Client) TellClose(id string, source string, destination string) er
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 	return wspb.Write(ctx, client.server.WsClient.Conn, base)
-
-	return nil
 }
 
 // remove current proxy by id
@@ -164,4 +242,9 @@ func (client *Client) RemoveProxy(id string) {
 	if _, ok := client.server.proxies[id]; ok {
 		delete(client.server.proxies, id)
 	}
+}
+
+type ServerData struct {
+	Tag  pb.PROXY_DATA_TYPE
+	Data []byte
 }
