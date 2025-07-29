@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"nhooyr.io/websocket/wspb"
+	"sothoth-nodeagent/pkg/config"
 	"sothoth-nodeagent/pkg/pb"
 	"sothoth-nodeagent/pkg/util"
 	"sync"
@@ -32,48 +33,42 @@ func (client *Client) HandleSocks5Conn() {
 	// defer c.Close()
 	defer client.conn.Close()
 	// In reply, we can get proxy type, target address and first send data.
-	firstSendData, addr, err := client.Reply(client.conn)
+	username, addr, err := client.Reply(client.conn)
 	if err != nil {
 		log.Error("reply error: ", err)
 	}
 
 	// on connection established, copy data now.
-	if err := client.transData(client.conn, firstSendData, addr); err != nil {
+	if err := client.transData(client.conn, username, addr); err != nil {
 		log.Error("trans error: ", err)
 	}
 }
 
 // parse target address and proxy type, and response to socks5/https client
-func (client *Client) Reply(conn net.Conn) ([]byte, string, error) {
+func (client *Client) Reply(conn net.Conn) (string, string, error) {
 	var buffer [1024]byte
-	var addr string
 
 	n, err := conn.Read(buffer[:])
 	if err != nil {
-		return nil, "", err
+		return "", "", err
 	}
 
 	proxyInstance := &Socks5Client{}
 	// set address and type
-	if proxyAddr, err := proxyInstance.ParseHeader(conn, buffer[:n]); err != nil {
-		return nil, "", err
-	} else {
-		addr = proxyAddr
+	username, proxyAddr, err := proxyInstance.ParseHeader(conn, buffer[:n])
+	if err != nil {
+		return "", "", err
 	}
-	// set data sent in establish step.
-	if firstSendData, err := proxyInstance.EstablishData(buffer[:n]); err != nil {
-		return nil, "", err
-	} else {
-		// firstSendData can be nil, which means there is no data to be send during connection establishing.
-		return firstSendData, addr, nil
-	}
+
+	return username, proxyAddr, nil
 }
 
 // create a new proxy with unique id
-func (client *Client) NewProxy(onData func(string, ServerData),
+func (client *Client) NewProxy(username string, onData func(string, ServerData),
 	onClosed func(string, bool), onError func(string, error)) *ProxyClient {
 	id := util.RenerateID()
-	proxyInstance := ProxyClient{Id: id, onData: onData, onClosed: onClosed, onError: onError}
+	cfg := config.GetInstance()
+	proxyInstance := ProxyClient{Id: id, Source: cfg.NodeID, Destination: username, onData: onData, onClosed: onClosed, onError: onError}
 
 	client.proxyMu.Lock()
 	defer client.proxyMu.Unlock()
@@ -82,7 +77,7 @@ func (client *Client) NewProxy(onData func(string, ServerData),
 	return &proxyInstance
 }
 
-func (client *Client) transData(conn *net.TCPConn, firstSendData []byte, addr string) error {
+func (client *Client) transData(conn *net.TCPConn, username string, addr string) error {
 	type Done struct {
 		tell bool
 		err  error
@@ -91,7 +86,7 @@ func (client *Client) transData(conn *net.TCPConn, firstSendData []byte, addr st
 	// defer close(done)
 
 	// create a with proxy with callback func
-	proxyInstance := client.NewProxy(func(id string, data ServerData) {
+	proxyInstance := client.NewProxy(username, func(id string, data ServerData) {
 		if _, err := conn.Write(data.Data); err != nil {
 			done <- Done{true, err}
 		}
@@ -104,9 +99,9 @@ func (client *Client) transData(conn *net.TCPConn, firstSendData []byte, addr st
 	})
 
 	// tell server to establish connection
-	if err := proxyInstance.Establish(client, firstSendData, addr); err != nil {
+	if err := proxyInstance.Establish(client, addr); err != nil {
 		client.RemoveProxy(proxyInstance.Id)
-		err := client.TellClose(proxyInstance.Id)
+		err := client.TellClose(proxyInstance.Id, proxyInstance.Source, proxyInstance.Destination)
 		if err != nil {
 			log.Error("close error", err)
 		}
@@ -128,7 +123,7 @@ func (client *Client) transData(conn *net.TCPConn, firstSendData []byte, addr st
 	d := <-done
 	client.RemoveProxy(proxyInstance.Id)
 	if d.tell {
-		if err := client.TellClose(proxyInstance.Id); err != nil {
+		if err := client.TellClose(proxyInstance.Id, proxyInstance.Source, proxyInstance.Destination); err != nil {
 			return err
 		}
 	}
@@ -148,11 +143,12 @@ func (client *Client) GetProxyById(id string) *ProxyClient {
 }
 
 // tell the remote proxy server to close this connection.
-func (client *Client) TellClose(id string) error {
+func (client *Client) TellClose(id string, source string, destination string) error {
 	// send finish flag to client
 	base := &pb.Base{
 		Type:        pb.MessageType_PROXY_CLOSE,
-		Destination: "ad04dcc63c83",
+		Source:      source,
+		Destination: destination,
 		Session:     id,
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)

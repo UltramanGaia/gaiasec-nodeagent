@@ -106,7 +106,7 @@ type Connector struct {
 
 // interface of establishing proxy connection with target
 type ProxyEstablish interface {
-	establish(server *Server, id string, addr string, data []byte) error
+	establish(server *Server, id string, addr string, data []byte, source string, destination string) error
 
 	// data from client todo data with type
 	onData(data ClientData) error
@@ -132,7 +132,7 @@ func HandleProxyEstablish(server *Server, msg *pb.Base) error {
 	if proxyEstMsg.WithData {
 		estData = proxyEstMsg.Data
 	}
-	go establishProxy(server, ProxyRegister{id, proxyEstMsg.Addr, estData})
+	go establishProxy(server, ProxyRegister{id, proxyEstMsg.Addr, estData}, msg.Destination, msg.Source)
 	return nil
 }
 
@@ -151,16 +151,16 @@ func HandleProxyData(server *Server, msg *pb.Base) error {
 	return nil
 }
 
-func establishProxy(server *Server, proxyMeta ProxyRegister) {
+func establishProxy(server *Server, proxyMeta ProxyRegister, source string, destination string) {
 	var e ProxyEstablish
 	e = makeHttpProxyInstance()
 
-	err := e.establish(server, proxyMeta.id, proxyMeta.addr, proxyMeta.withData)
+	err := e.establish(server, proxyMeta.id, proxyMeta.addr, proxyMeta.withData, source, destination)
 	if err == nil {
-		server.tellClosed(proxyMeta.id) // tell client to close connection.
+		server.tellClosed(proxyMeta.id, source, destination) // tell client to close connection.
 	} else if err != ConnCloseByClient {
 		log.Error(err) // todo error handle better way
-		server.tellClosed(proxyMeta.id)
+		server.tellClosed(proxyMeta.id, source, destination)
 	}
 	return
 	//	log.WithField("size", s.GetConnectorSize()).Trace("connection size changed.")
@@ -191,7 +191,7 @@ func (e *DefaultProxyEst) Close(tell bool) error {
 }
 
 // data: data send in establish step (can be nil).
-func (e *DefaultProxyEst) establish(s *Server, id string, addr string, data []byte) error {
+func (e *DefaultProxyEst) establish(s *Server, id string, addr string, data []byte, source string, destination string) error {
 	conn, err := net.DialTimeout("tcp", addr, time.Second*8) // todo config timeout
 	if err != nil {
 		return err
@@ -250,9 +250,9 @@ func (h *HttpProxyEst) Close(tell bool) error {
 	return h.bodyReadCloser.Close() // close from client
 }
 
-func (h *HttpProxyEst) establish(s *Server, id string, addr string, header []byte) error {
+func (h *HttpProxyEst) establish(s *Server, id string, addr string, header []byte, source string, destination string) error {
 	if header == nil {
-		s.tellClosed(id)
+		s.tellClosed(id, source, destination)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
 		_ = s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_ESTABLISH_ERROR, nil)
@@ -268,7 +268,7 @@ func (h *HttpProxyEst) establish(s *Server, id string, addr string, header []byt
 	defer s.RemoveProxy(id)
 	defer func() {
 		if !h.bodyReadCloser.isClosed() { // if it is not closed by client.
-			s.tellClosed(id) // todo
+			s.tellClosed(id, source, destination) // todo
 		}
 	}()
 
@@ -304,11 +304,13 @@ func (h *HttpProxyEst) establish(s *Server, id string, addr string, header []byt
 }
 
 // tell the client the connection has been closed
-func (s *Server) tellClosed(id string) error {
+func (s *Server) tellClosed(id string, source string, destination string) error {
 	// send finish flag to client
 	base := &pb.Base{
-		Type:    pb.MessageType_PROXY_CLOSE,
-		Session: id,
+		Type:        pb.MessageType_PROXY_CLOSE,
+		Source:      source,
+		Destination: destination,
+		Session:     id,
 	}
 	// fixme lock or NextWriter
 	err := wspb.Write(context.TODO(), s.WsClient.Conn, base)
