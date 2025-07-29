@@ -13,16 +13,13 @@ import (
 	"sothoth-nodeagent/pkg/pb"
 	"sothoth-nodeagent/pkg/util"
 	"strconv"
-	"sync"
 	"time"
 )
 
 type Client struct {
 	conn   *net.TCPConn
+	target string
 	server *Server
-
-	proxyMu   sync.RWMutex // mutex to operate proxies map.
-	writeLock sync.RWMutex
 }
 
 func NewClient(conn *net.TCPConn, s *Server) (*Client, error) {
@@ -36,13 +33,14 @@ func (client *Client) HandleSocks5Conn() {
 	// defer c.Close()
 	defer client.conn.Close()
 	// In reply, we can get proxy type, target address and first send data.
-	username, addr, err := client.Reply(client.conn)
+	username, addr, err := client.reply()
 	if err != nil {
 		log.Error("reply error: ", err)
 	}
+	client.target = username
 
 	// on connection established, copy data now.
-	if err := client.transData(client.conn, username, addr); err != nil {
+	if err := client.transData(addr); err != nil {
 		log.Error("trans error: ", err)
 	}
 }
@@ -66,7 +64,7 @@ func parseHeader(conn net.Conn) (string, string, error) {
 	username := string(buffer[2 : userLen+2])
 	passLen := int(buffer[userLen+2])
 	password := string(buffer[userLen+3 : userLen+3+passLen])
-	log.Infof("username: %s, password: %s", username, password)
+	log.Debugf("socks5 client connect, target agent is: %s (%s)", username, password)
 
 	// see rfc 1982 for more details (https://tools.ietf.org/html/rfc1928)
 	n, err = conn.Write([]byte{0x05, 0x00}) // version and no authentication required
@@ -74,7 +72,7 @@ func parseHeader(conn net.Conn) (string, string, error) {
 		return "", "", err
 	}
 
-	// step2: process client Requests and does Reply
+	// step2: process client Requests and does reply
 	/**
 	  +----+-----+-------+------+----------+----------+
 	  |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
@@ -127,7 +125,8 @@ func parseHeader(conn net.Conn) (string, string, error) {
 }
 
 // parse target address and proxy type, and response to socks5/https client
-func (client *Client) Reply(conn net.Conn) (string, string, error) {
+func (client *Client) reply() (string, string, error) {
+	conn := client.conn
 	var buffer [1024]byte
 	_, err := conn.Read(buffer[:])
 	if err != nil {
@@ -150,14 +149,12 @@ func (client *Client) NewProxy(username string, onData func(string, ServerData),
 	cfg := config.GetInstance()
 	proxyInstance := ProxyClient{Id: id, Source: cfg.NodeID, Destination: username, onData: onData, onClosed: onClosed, onError: onError}
 
-	client.proxyMu.Lock()
-	defer client.proxyMu.Unlock()
-
-	client.server.proxies[id] = &proxyInstance
+	client.server.addNewProxyClient(&proxyInstance)
 	return &proxyInstance
 }
 
-func (client *Client) transData(conn *net.TCPConn, username string, addr string) error {
+func (client *Client) transData(addr string) error {
+	conn := client.conn
 	type Done struct {
 		tell bool
 		err  error
@@ -165,7 +162,7 @@ func (client *Client) transData(conn *net.TCPConn, username string, addr string)
 	done := make(chan Done, 2)
 
 	// create a with proxy with callback func
-	proxyInstance := client.NewProxy(username, func(id string, data ServerData) {
+	proxyClient := client.NewProxy(client.target, func(id string, data ServerData) {
 		if _, err := conn.Write(data.Data); err != nil {
 			done <- Done{true, err}
 		}
@@ -178,9 +175,9 @@ func (client *Client) transData(conn *net.TCPConn, username string, addr string)
 	})
 
 	// tell server to establish connection
-	if err := proxyInstance.Establish(client, addr); err != nil {
-		client.RemoveProxy(proxyInstance.Id)
-		err := client.TellClose(proxyInstance.Id, proxyInstance.Source, proxyInstance.Destination)
+	if err := proxyClient.Establish(client, addr); err != nil {
+		client.server.removeProxyClient(proxyClient.Id)
+		err := client.tellClose(proxyClient.Id, proxyClient.Source, proxyClient.Destination)
 		if err != nil {
 			log.Error("close error", err)
 		}
@@ -189,7 +186,7 @@ func (client *Client) transData(conn *net.TCPConn, username string, addr string)
 
 	// trans incoming data from proxy client application.
 	ctx, cancel := context.WithCancel(context.Background())
-	writer := NewWebSocketWriterWithMutex(client.server.WsClient, proxyInstance.Id, ctx, proxyInstance.Source, proxyInstance.Destination)
+	writer := NewWebSocketWriterWithMutex(client.server.WsClient, proxyClient.Id, ctx, proxyClient.Source, proxyClient.Destination)
 	go func() {
 		_, err := io.Copy(writer, conn)
 		if err != nil {
@@ -200,9 +197,9 @@ func (client *Client) transData(conn *net.TCPConn, username string, addr string)
 	defer writer.CloseWsWriter(cancel) // cancel data writing
 
 	d := <-done
-	client.RemoveProxy(proxyInstance.Id)
+	client.server.removeProxyClient(proxyClient.Id)
 	if d.tell {
-		if err := client.TellClose(proxyInstance.Id, proxyInstance.Source, proxyInstance.Destination); err != nil {
+		if err := client.tellClose(proxyClient.Id, proxyClient.Source, proxyClient.Destination); err != nil {
 			return err
 		}
 	}
@@ -212,17 +209,8 @@ func (client *Client) transData(conn *net.TCPConn, username string, addr string)
 	return nil
 }
 
-func (client *Client) GetProxyById(id string) *ProxyClient {
-	client.proxyMu.RLock()
-	defer client.proxyMu.RUnlock()
-	if proxyInstance, ok := client.server.proxies[id]; ok {
-		return proxyInstance
-	}
-	return nil
-}
-
 // tell the remote proxy server to close this connection.
-func (client *Client) TellClose(id string, source string, destination string) error {
+func (client *Client) tellClose(id string, source string, destination string) error {
 	// send finish flag to client
 	base := &pb.Base{
 		Type:        pb.MessageType_PROXY_CLOSE,
@@ -233,15 +221,6 @@ func (client *Client) TellClose(id string, source string, destination string) er
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 	return wspb.Write(ctx, client.server.WsClient.Conn, base)
-}
-
-// remove current proxy by id
-func (client *Client) RemoveProxy(id string) {
-	client.proxyMu.Lock()
-	defer client.proxyMu.Unlock()
-	if _, ok := client.server.proxies[id]; ok {
-		delete(client.server.proxies, id)
-	}
 }
 
 type ServerData struct {

@@ -163,7 +163,7 @@ func (na *NodeAgent) handleWsMessages() {
 
 		destination := baseMessage.Destination
 		if na.NodeID == destination {
-			log.Info("receive message, handle it.")
+			log.Debug("receive message, handle it.")
 			// 根据消息类型处理
 			switch baseMessage.Type {
 			case pb.MessageType_PROCESSES_REQUEST:

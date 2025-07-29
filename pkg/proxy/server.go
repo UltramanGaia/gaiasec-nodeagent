@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
 	"io"
 	"net"
 	"nhooyr.io/websocket/wspb"
@@ -11,27 +12,26 @@ import (
 	"sothoth-nodeagent/pkg/wsclient"
 	"sync"
 	"time"
-
-	"google.golang.org/protobuf/proto"
 )
 
 // Hub maintains the set of active proxy clients in server side for a user
 type Server struct {
 	WsClient *wsclient.Client
 	// Registered proxy connections.
-	ConnPool map[string]*ProxyServer
+	proxyServers   map[string]*ProxyServer // 作为服务端，处理其他节点过来的代理请求
+	proxyServersMu sync.RWMutex
+	proxyClients   map[string]*ProxyClient // 作为客户端，处理来自本节点的代理请求
+	proxyClientsMu sync.RWMutex
 
-	proxies   map[string]*ProxyClient // all proxies on this websocket.
 	sock5Addr string
 	listener  net.Listener
-	mu        sync.RWMutex
 }
 
 func NewServer(client *wsclient.Client, address string) (*Server, error) {
 	server := &Server{
-		WsClient: client,
-		ConnPool: make(map[string]*ProxyServer),
-		proxies:  make(map[string]*ProxyClient),
+		WsClient:     client,
+		proxyServers: make(map[string]*ProxyServer),
+		proxyClients: make(map[string]*ProxyClient),
 	}
 	if address != "" {
 		log.Infof("Socks5 server: %s", address)
@@ -46,11 +46,11 @@ func NewServer(client *wsclient.Client, address string) (*Server, error) {
 
 func (s *Server) Close() {
 	// if there are connections, close them.
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	for id, proxy := range s.ConnPool {
+	s.proxyServersMu.Lock()
+	defer s.proxyServersMu.Unlock()
+	for id, proxy := range s.proxyServers {
 		proxy.ProxyIns.Close(false)
-		delete(s.ConnPool, id)
+		delete(s.proxyServers, id)
 	}
 }
 
@@ -75,24 +75,6 @@ func (s *Server) HandleSocks5Message() {
 			go client.HandleSocks5Conn()
 		}
 	}
-}
-
-func (s *Server) GetProxyServerById(id string) *ProxyServer {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	if proxy, ok := s.ConnPool[id]; ok {
-		return proxy
-	}
-	return nil
-}
-
-func (s *Server) GetProxyClientById(id string) *ProxyClient {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	if proxy, ok := s.proxies[id]; ok {
-		return proxy
-	}
-	return nil
 }
 
 type ClientData ServerData
@@ -185,8 +167,8 @@ func (e *DefaultProxyEstablish) establish(s *Server, id string, addr string, sou
 	//defer close(done)
 
 	// todo check exists
-	s.addNewProxy(&ProxyServer{Id: id, ProxyIns: e})
-	defer s.RemoveProxy(id)
+	s.addNewProxyServer(&ProxyServer{Id: id, ProxyIns: e})
+	defer s.removeProxyServer(id)
 
 	bytes := []byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	m := &pb.ProxyData{
@@ -209,7 +191,7 @@ func (e *DefaultProxyEstablish) establish(s *Server, id string, addr string, sou
 	}()
 
 	d := <-e.done
-	// s.RemoveProxy(proxy.Id)
+	// s.removeProxyServer(proxy.Id)
 	// tellClosed is called outside this func.
 	return d.err
 }
@@ -233,16 +215,48 @@ func (s *Server) tellClosed(id string, source string, destination string) error 
 }
 
 // add a tcp connection to connection pool.
-func (s *Server) addNewProxy(proxyInstance *ProxyServer) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.ConnPool[proxyInstance.Id] = proxyInstance
+func (s *Server) addNewProxyServer(proxyInstance *ProxyServer) {
+	s.proxyServersMu.Lock()
+	defer s.proxyServersMu.Unlock()
+	s.proxyServers[proxyInstance.Id] = proxyInstance
 }
 
-func (s *Server) RemoveProxy(id string) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if _, ok := s.ConnPool[id]; ok {
-		delete(s.ConnPool, id)
+func (s *Server) GetProxyServerById(id string) *ProxyServer {
+	s.proxyServersMu.RLock()
+	defer s.proxyServersMu.RUnlock()
+	if proxy, ok := s.proxyServers[id]; ok {
+		return proxy
+	}
+	return nil
+}
+
+func (s *Server) removeProxyServer(id string) {
+	s.proxyServersMu.Lock()
+	defer s.proxyServersMu.Unlock()
+	if _, ok := s.proxyServers[id]; ok {
+		delete(s.proxyServers, id)
+	}
+}
+
+func (s *Server) addNewProxyClient(proxyInstance *ProxyClient) {
+	s.proxyClientsMu.Lock()
+	defer s.proxyClientsMu.Unlock()
+	s.proxyClients[proxyInstance.Id] = proxyInstance
+}
+
+func (s *Server) GetProxyClientById(id string) *ProxyClient {
+	s.proxyClientsMu.RLock()
+	defer s.proxyClientsMu.RUnlock()
+	if proxy, ok := s.proxyClients[id]; ok {
+		return proxy
+	}
+	return nil
+}
+
+func (s *Server) removeProxyClient(id string) {
+	s.proxyClientsMu.Lock()
+	defer s.proxyClientsMu.Unlock()
+	if _, ok := s.proxyClients[id]; ok {
+		delete(s.proxyClients, id)
 	}
 }
