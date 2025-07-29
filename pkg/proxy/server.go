@@ -215,7 +215,7 @@ func (e *DefaultProxyEst) establish(s *Server, id string, addr string, source st
 		Data:          bytes,
 	}
 
-	err = s.WsClient.SendMessage(m, pb.MessageType_PROXY_DATA, id, source, destination)
+	err = s.WsClient.SendMessage(m, pb.MessageType_PROXY_DATA, source, destination, id)
 	if err != nil {
 		return err
 	}

@@ -48,7 +48,7 @@ func (writer *WebSocketWriter) Write(buffer []byte) (n int, err error) {
 		Data:          buffer,
 	}
 
-	err = writer.Client.SendMessage(m, pb.MessageType_PROXY_DATA, writer.Id, writer.Source, writer.Destination)
+	err = writer.Client.SendMessage(m, pb.MessageType_PROXY_DATA, writer.Source, writer.Destination, writer.Id)
 	if err != nil {
 		return 0, err
 	} else {
