@@ -24,19 +24,21 @@ func (wsc *ConcurrentWebSocket) WSClose() error {
 }
 
 type webSocketWriter struct {
-	Client *wsclient.Client
-	Id     string // connection id.
-	Ctx    context.Context
-	Type   int // type of trans data.
-	Mu     *sync.Mutex
+	Client      *wsclient.Client
+	Id          string // connection id.
+	Source      string
+	Destination string
+	Ctx         context.Context
+	Type        int // type of trans data.
+	Mu          *sync.Mutex
 }
 
-func NewWebSocketWriter(client *wsclient.Client, id string, ctx context.Context) *webSocketWriter {
-	return &webSocketWriter{Client: client, Id: id, Ctx: ctx}
+func NewWebSocketWriter(client *wsclient.Client, id string, ctx context.Context, source string, destination string) *webSocketWriter {
+	return &webSocketWriter{Client: client, Id: id, Ctx: ctx, Source: source, Destination: destination}
 }
 
-func NewWebSocketWriterWithMutex(client *wsclient.Client, id string, ctx context.Context) *webSocketWriter {
-	return &webSocketWriter{Client: client, Id: id, Ctx: ctx, Mu: &sync.Mutex{}}
+func NewWebSocketWriterWithMutex(client *wsclient.Client, id string, ctx context.Context, source string, destination string) *webSocketWriter {
+	return &webSocketWriter{Client: client, Id: id, Ctx: ctx, Mu: &sync.Mutex{}, Source: source, Destination: destination}
 }
 
 func (writer *webSocketWriter) CloseWsWriter(cancel context.CancelFunc) {
@@ -56,7 +58,7 @@ func (writer *webSocketWriter) Write(buffer []byte) (n int, err error) {
 	if writer.Ctx.Err() != nil {
 		return 0, writer.Ctx.Err()
 	}
-	if err := writer.Client.WriteProxyMessage(writer.Ctx, writer.Id, pb.PROXY_DATA_TYPE_DATA, buffer); err != nil {
+	if err := writer.Client.WriteProxyMessage(writer.Ctx, writer.Id, pb.PROXY_DATA_TYPE_DATA, buffer, writer.Source, writer.Destination); err != nil {
 		return 0, err
 	} else {
 		return len(buffer), nil

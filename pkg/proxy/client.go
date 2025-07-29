@@ -110,7 +110,7 @@ func (client *Client) transData(conn *net.TCPConn, username string, addr string)
 
 	// trans incoming data from proxy client application.
 	ctx, cancel := context.WithCancel(context.Background())
-	writer := NewWebSocketWriterWithMutex(client.server.WsClient, proxyInstance.Id, ctx)
+	writer := NewWebSocketWriterWithMutex(client.server.WsClient, proxyInstance.Id, ctx, proxyInstance.Source, proxyInstance.Destination)
 	go func() {
 		_, err := io.Copy(writer, conn)
 		if err != nil {

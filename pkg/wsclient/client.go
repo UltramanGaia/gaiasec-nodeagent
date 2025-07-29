@@ -118,7 +118,7 @@ func (c *Client) Send(msgType pb.MessageType, m proto.Message) error {
 // write message to websocket, the data is fixed format @ProxyData
 // id: connection id
 // data: data to be written
-func (c *Client) WriteProxyMessage(ctx context.Context, id string, tag pb.PROXY_DATA_TYPE, bytes []byte) error {
+func (c *Client) WriteProxyMessage(ctx context.Context, id string, tag pb.PROXY_DATA_TYPE, bytes []byte, source string, destination string) error {
 
 	m := &pb.ProxyData{
 		ProxyDataType: tag,
@@ -131,9 +131,11 @@ func (c *Client) WriteProxyMessage(ctx context.Context, id string, tag pb.PROXY_
 	}
 
 	base := &pb.Base{
-		Type:    pb.MessageType_PROXY_DATA,
-		Session: id,
-		Data:    data,
+		Type:        pb.MessageType_PROXY_DATA,
+		Source:      source,
+		Destination: destination,
+		Session:     id,
+		Data:        data,
 	}
 
 	return wspb.Write(ctx, c.Conn, base)

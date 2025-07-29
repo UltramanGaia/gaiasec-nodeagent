@@ -208,12 +208,12 @@ func (e *DefaultProxyEst) establish(s *Server, id string, addr string, data []by
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	if err := s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_DATA, []byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}); err != nil {
+	if err := s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_DATA, []byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, source, destination); err != nil {
 		return err
 	}
 
 	go func() {
-		writer := NewWebSocketWriter(s.WsClient, id, context.Background())
+		writer := NewWebSocketWriter(s.WsClient, id, context.Background(), source, destination)
 		if _, err := io.Copy(writer, conn); err != nil {
 			log.Error("copy error,", err)
 			e.done <- ChanDone{true, err}
@@ -255,7 +255,7 @@ func (h *HttpProxyEst) establish(s *Server, id string, addr string, header []byt
 		s.tellClosed(id, source, destination)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
-		_ = s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_ESTABLISH_ERROR, nil)
+		_ = s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_ESTABLISH_ERROR, nil, source, destination)
 		return errors.New("http header empty")
 	}
 
@@ -274,7 +274,7 @@ func (h *HttpProxyEst) establish(s *Server, id string, addr string, header []byt
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
-	if err := s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_ESTABLISH_OK, nil); err != nil {
+	if err := s.WsClient.WriteProxyMessage(ctx, id, pb.PROXY_DATA_TYPE_ESTABLISH_OK, nil, source, destination); err != nil {
 		return err
 	}
 
@@ -293,7 +293,7 @@ func (h *HttpProxyEst) establish(s *Server, id string, addr string, header []byt
 	}
 	defer resp.Body.Close()
 
-	writer := NewWebSocketWriter(s.WsClient, id, context.Background())
+	writer := NewWebSocketWriter(s.WsClient, id, context.Background(), source, destination)
 	var headerBuffer bytes.Buffer
 	util.HttpRespHeader(&headerBuffer, resp)
 	writer.Write(headerBuffer.Bytes())

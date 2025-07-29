@@ -89,7 +89,7 @@ func (client *Socks5Client) ParseHeader(conn net.Conn, header []byte) (string, s
 	username := string(buffer[2 : userLen+2])
 	passLen := int(buffer[userLen+2])
 	password := string(buffer[userLen+3 : userLen+3+passLen])
-	log.Info("username: %s, password: %s", username, password)
+	log.Infof("username: %s, password: %s", username, password)
 
 	// see rfc 1982 for more details (https://tools.ietf.org/html/rfc1928)
 	n, err = conn.Write([]byte{0x05, 0x00}) // version and no authentication required
