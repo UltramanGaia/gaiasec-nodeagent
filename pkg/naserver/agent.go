@@ -10,7 +10,10 @@ package naserver
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"sothoth-nodeagent/pkg/config"
+	"sothoth-nodeagent/pkg/constant"
 	"sothoth-nodeagent/pkg/pb"
+	"sothoth-nodeagent/pkg/process"
 	"sothoth-nodeagent/pkg/proxy"
 	"sothoth-nodeagent/pkg/system"
 	"sothoth-nodeagent/pkg/udsserver"
@@ -27,6 +30,7 @@ type NodeAgent struct {
 	SothothDir   string
 	ProxyMode    bool
 	Sock5Addr    string
+	AutoHook     bool
 	AgentVersion string
 	Hostname     string
 	IPAddress    []string
@@ -55,8 +59,10 @@ type NodeAgent struct {
 //
 //	*NodeAgent - 创建的Agent实例
 //	error - 创建过程中的错误
-func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool, sock5Addr string) (*NodeAgent, error) {
-	serverURL := fmt.Sprintf("ws://%s/ws/agent?projectId=%s&connectId=%s", server, projectID, nodeID)
+func NewNodeAgent() (*NodeAgent, error) {
+	cfg := config.GetInstance()
+
+	serverURL := fmt.Sprintf("ws://%s/ws/agent?projectId=%s&connectId=%s", cfg.Server, cfg.ProjectID, cfg.NodeID)
 	hostname, err := system.GetHostname()
 	if err != nil {
 		return nil, fmt.Errorf("获取主机名失败: %v", err)
@@ -67,7 +73,7 @@ func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool, 
 		return nil, fmt.Errorf("获取IP地址失败: %v", err)
 	}
 
-	wsClient, err := wsclient.NewClient(serverURL, 10, 30)
+	wsClient, err := wsclient.NewClient(serverURL, 10, 10)
 	if err != nil {
 		return nil, fmt.Errorf("创建WebSocket客户端失败: %v", err)
 	}
@@ -76,18 +82,19 @@ func NewNodeAgent(projectID, nodeID, server, sothothDir string, proxyMode bool, 
 		return nil, fmt.Errorf("创建UDS服务器失败: %v", err)
 	}
 
-	proxyServer, err := proxy.NewServer(wsClient, sock5Addr)
+	proxyServer, err := proxy.NewServer(wsClient, cfg.Socks5Addr)
 	if err != nil {
 		return nil, fmt.Errorf("创建代理服务器失败: %v", err)
 	}
 
 	agent := &NodeAgent{
-		ProjectID:    projectID,
-		NodeID:       nodeID,
+		ProjectID:    cfg.ProjectID,
+		NodeID:       cfg.NodeID,
 		ServerURL:    serverURL,
-		SothothDir:   sothothDir,
-		ProxyMode:    proxyMode,
-		Sock5Addr:    sock5Addr,
+		SothothDir:   cfg.SothothDir,
+		ProxyMode:    cfg.ProxyMode,
+		Sock5Addr:    cfg.Socks5Addr,
+		AutoHook:     cfg.AutoHook,
 		AgentVersion: "1.0.0",
 		Hostname:     hostname,
 		IPAddress:    ipAddress,
@@ -132,6 +139,10 @@ func (na *NodeAgent) Start() error {
 		go na.handleProxyMessages()
 	}
 
+	if na.AutoHook {
+		go na.monitorProcess()
+	}
+
 	return nil
 }
 
@@ -148,7 +159,6 @@ func (na *NodeAgent) handleWsMessages() {
 		if err != nil {
 			if !na.wsClient.Running {
 				return
-
 			}
 			log.Error("read:", err)
 			err = na.wsClient.Reconnect()
@@ -194,6 +204,8 @@ func (na *NodeAgent) handleWsMessages() {
 				go na.handleProxyDataToServer(baseMessage)
 			case pb.MessageType_PROXY_DATA_TO_CLIENT:
 				go na.handleProxyDataToClient(baseMessage)
+			case pb.MessageType_TERMINAL_CREATE_REQUEST:
+				go na.handlePtyCreate(baseMessage)
 			default:
 				log.Error("UNKNOWN MESSAGE TYPE")
 			}
@@ -230,4 +242,28 @@ func (na *NodeAgent) Stop() {
 func (na *NodeAgent) routeToAgent(message *pb.Base) {
 	log.Info("route message to agent: " + message.Destination)
 	na.udsServer.HandleMessage(message)
+}
+
+func (na *NodeAgent) monitorProcess() {
+	for {
+		if !na.running {
+			return
+		}
+
+		processes, err := process.GetProcessList()
+		if err != nil {
+			log.Info("GetProcesses failed:", err)
+		}
+		response := &pb.ProcessesResponse{
+			Processes: processes,
+		}
+
+		err = na.wsClient.SendMessage(response, pb.MessageType_PROCESSES_RESPONSE, na.NodeID, constant.SERVER_ID, constant.SESSIOND_ID_EMPTY)
+		if err != nil {
+			log.Info("Send error:", err)
+			return
+		}
+
+		time.Sleep(1 * time.Minute)
+	}
 }

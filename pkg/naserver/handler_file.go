@@ -93,25 +93,6 @@ func (na *NodeAgent) handleFsCreateFile(message *pb.Base) {
 		Result: "ok",
 	}
 
-	//data, err := proto.Marshal(response)
-	//if err != nil {
-	//	log.Info("Marshal error:", err)
-	//}
-	//
-	//msg := pb.Base{
-	//	Type:        pb.MessageType_FS_CREATE_FILE_RESPONSE,
-	//	Source:      na.NodeID,
-	//	Destination: message.Source,
-	//	Session:     message.Session,
-	//	Data:        data,
-	//}
-	//
-	//bytes, err := proto.Marshal(&msg)
-	//if err != nil {
-	//	log.Info("Marshal error:", err)
-	//	return
-	//}
-
 	err = na.wsClient.SendMessage(response, pb.MessageType_FS_CREATE_FILE_RESPONSE, na.NodeID, message.Source, message.Session)
 	if err != nil {
 		log.Info("send resp error:", err)

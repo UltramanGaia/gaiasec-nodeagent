@@ -73,7 +73,7 @@ func parsePluginConfig(pluginPath string, agentId string, targetPID int) (*Plugi
 	text = strings.ReplaceAll(text, "${ROOT}", strings.ReplaceAll(pluginPath, "\\", "/"))
 	text = strings.ReplaceAll(text, "${AGENTID}", agentId)
 	text = strings.ReplaceAll(text, "${PROCESSID}", strconv.Itoa(targetPID))
-	text = strings.ReplaceAll(text, "${SERVER}", cfg.ServerURL)
+	text = strings.ReplaceAll(text, "${SERVER}", cfg.Server)
 	text = strings.ReplaceAll(text, "${ARCH}", runtime.GOARCH)
 
 	var pluginConfig PluginConfig

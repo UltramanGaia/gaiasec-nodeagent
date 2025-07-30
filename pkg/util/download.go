@@ -76,7 +76,7 @@ func downloadFile(url, filepath string) error {
 	// 处理相对URL
 	if strings.HasPrefix(url, "/") {
 		// 这里应该从配置中获取服务器地址，暂时硬编码
-		url = "http://" + config.GetInstance().ServerURL + url
+		url = "http://" + config.GetInstance().Server + url
 	}
 
 	log.Infof("download file: %s", url)

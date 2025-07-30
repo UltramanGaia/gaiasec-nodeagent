@@ -28,15 +28,16 @@ func init() {
 	cfg := config.GetInstance()
 
 	// 定义命令行参数
-	flag.StringVar(&cfg.ServerURL, "server", "", "Sothoth Server WebSocket URL")
+	flag.StringVar(&cfg.Server, "server", "", "Sothoth Server WebSocket URL")
 	flag.StringVar(&cfg.ProjectID, "projectId", "", "Project ID")
 	flag.StringVar(&cfg.NodeID, "nodeId", "", "Node ID")
 	flag.StringVar(&cfg.SothothDir, "sothothDir", "/sothoth", "Sothoth工作目录")
 	flag.BoolVar(&cfg.DaemonMode, "d", false, "daemon(background)")
-	flag.BoolVar(&cfg.Proxy, "p", false, "enable proxy mode")
+	flag.BoolVar(&cfg.ProxyMode, "p", false, "enable proxy mode")
 	flag.BoolVar(&cfg.Version, "version", false, "version")
 	flag.StringVar(&cfg.Logflags, "logflags", "log.LstdFlags", "logflag")
 	flag.StringVar(&cfg.Socks5Addr, "socks5", "", "socks5 proxy addr, eg. 127.0.0.1:1080")
+	flag.BoolVar(&cfg.AutoHook, "autohook", false, "monitor and auto hook all match process")
 }
 
 // ParseMain 解析命令行参数并启动NodeAgent
@@ -56,7 +57,7 @@ func ParseMain() {
 	}
 
 	// 验证必需的命令行参数
-	if cfg.ProjectID == "" || cfg.NodeID == "" || cfg.ServerURL == "" {
+	if cfg.ProjectID == "" || cfg.NodeID == "" || cfg.Server == "" {
 		log.Fatal("Usage: sothoth-nodeagent -projectId <PROJECT_ID> -nodeId <NODE_ID> -server <SERVER_URL> [-sothothDir <DIR>] [-d] [-p]")
 	}
 
@@ -79,7 +80,7 @@ func ParseMain() {
 	createPidFile(cfg)
 
 	// 创建NodeAgent实例
-	nodeAgent, err := naserver.NewNodeAgent(cfg.ProjectID, cfg.NodeID, cfg.ServerURL, cfg.SothothDir, cfg.Proxy, cfg.Socks5Addr)
+	nodeAgent, err := naserver.NewNodeAgent()
 	if err != nil {
 		log.Fatalf("create Agent failed: %v", err)
 	}

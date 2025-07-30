@@ -56,6 +56,11 @@ const (
 	MessageType_PROXY_DATA_TO_SERVER MessageType = 41 // data  nodeagent -> server
 	MessageType_PROXY_DATA_TO_CLIENT MessageType = 42 // data  nodeagent -> client
 	MessageType_PROXY_CLOSE          MessageType = 43 // finish
+	// Terminal
+	MessageType_TERMINAL_CREATE_REQUEST  MessageType = 45
+	MessageType_TERMINAL_CREATE_RESPONSE MessageType = 46
+	MessageType_TERMINAL_CLOSE           MessageType = 47
+	MessageType_TERMINAL_ERROR           MessageType = 48
 	// Java Agent
 	MessageType_WEB_ROUTES_REQUEST  MessageType = 50
 	MessageType_WEB_ROUTES_RESPONSE MessageType = 51
@@ -95,6 +100,10 @@ var (
 		41: "PROXY_DATA_TO_SERVER",
 		42: "PROXY_DATA_TO_CLIENT",
 		43: "PROXY_CLOSE",
+		45: "TERMINAL_CREATE_REQUEST",
+		46: "TERMINAL_CREATE_RESPONSE",
+		47: "TERMINAL_CLOSE",
+		48: "TERMINAL_ERROR",
 		50: "WEB_ROUTES_REQUEST",
 		51: "WEB_ROUTES_RESPONSE",
 		80: "PUSH",
@@ -130,6 +139,10 @@ var (
 		"PROXY_DATA_TO_SERVER":     41,
 		"PROXY_DATA_TO_CLIENT":     42,
 		"PROXY_CLOSE":              43,
+		"TERMINAL_CREATE_REQUEST":  45,
+		"TERMINAL_CREATE_RESPONSE": 46,
+		"TERMINAL_CLOSE":           47,
+		"TERMINAL_ERROR":           48,
 		"WEB_ROUTES_REQUEST":       50,
 		"WEB_ROUTES_RESPONSE":      51,
 		"PUSH":                     80,
@@ -168,7 +181,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xfe\x05\n" +
+	"\x12message_type.proto*\xe1\x06\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -200,7 +213,11 @@ const file_message_type_proto_rawDesc = "" +
 	"\x0fPROXY_ESTABLISH\x10(\x12\x18\n" +
 	"\x14PROXY_DATA_TO_SERVER\x10)\x12\x18\n" +
 	"\x14PROXY_DATA_TO_CLIENT\x10*\x12\x0f\n" +
-	"\vPROXY_CLOSE\x10+\x12\x16\n" +
+	"\vPROXY_CLOSE\x10+\x12\x1b\n" +
+	"\x17TERMINAL_CREATE_REQUEST\x10-\x12\x1c\n" +
+	"\x18TERMINAL_CREATE_RESPONSE\x10.\x12\x12\n" +
+	"\x0eTERMINAL_CLOSE\x10/\x12\x12\n" +
+	"\x0eTERMINAL_ERROR\x100\x12\x16\n" +
 	"\x12WEB_ROUTES_REQUEST\x102\x12\x17\n" +
 	"\x13WEB_ROUTES_RESPONSE\x103\x12\b\n" +
 	"\x04PUSH\x10P\x12\b\n" +

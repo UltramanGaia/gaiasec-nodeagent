@@ -75,9 +75,9 @@ func (c *Client) ReadMessage() ([]byte, error) {
 		n, err := (*c.conn).Read(temp)
 		if err != nil {
 			if err != io.EOF {
-				log.Error("read data error: %v\n", err)
+				log.Errorf("read data error: %v\n", err)
 			} else {
-				log.Error("client %s close\n", (*c.conn).RemoteAddr())
+				log.Errorf("client %s close\n", (*c.conn).RemoteAddr())
 			}
 			return nil, err
 		}

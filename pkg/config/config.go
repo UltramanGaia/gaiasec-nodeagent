@@ -6,15 +6,16 @@ import (
 
 // Config holds all configuration parameters
 type Config struct {
-	ServerURL  string
+	Server     string
 	ProjectID  string
 	NodeID     string
 	SothothDir string
 	DaemonMode bool
-	Proxy      bool
+	ProxyMode  bool
 	Version    bool
 	Logflags   string
 	Socks5Addr string
+	AutoHook   bool
 }
 
 var (
