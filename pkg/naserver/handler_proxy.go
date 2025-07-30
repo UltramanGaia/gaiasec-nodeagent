@@ -12,6 +12,10 @@ func (na *NodeAgent) handleProxyClose(message *pb.Base) {
 	if proxyServer != nil {
 		proxyServer.Close(false) // todo remove proxy here
 	}
+	proxyClient := na.proxyServer.GetProxyClientById(id)
+	if proxyClient != nil {
+		proxyClient.Close(false) // todo remove proxy here
+	}
 }
 
 func (na *NodeAgent) handleProxyEstablish(message *pb.Base) {

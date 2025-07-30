@@ -29,13 +29,13 @@ func NewClient(conn *net.TCPConn, s *Server) (*Client, error) {
 	}, nil
 }
 
-func (client *Client) HandleSocks5Conn() {
+func (client *Client) handleSocks5Conn() {
 	// defer c.Close()
 	defer client.conn.Close()
-	// In reply, we can get proxy type, target address and first send data.
-	username, addr, err := client.reply()
+	// In negotiate, we can get proxy type, target address and first send data.
+	username, addr, err := client.negotiate()
 	if err != nil {
-		log.Error("reply error: ", err)
+		log.Error("negotiate error: ", err)
 	}
 	client.target = username
 
@@ -72,7 +72,7 @@ func parseHeader(conn net.Conn) (string, string, error) {
 		return "", "", err
 	}
 
-	// step2: process client Requests and does reply
+	// step2: process client Requests and does negotiate
 	/**
 	  +----+-----+-------+------+----------+----------+
 	  |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
@@ -124,8 +124,8 @@ func parseHeader(conn net.Conn) (string, string, error) {
 	return username, net.JoinHostPort(host, strconv.Itoa((int(port[0])<<8)|int(port[1]))), nil
 }
 
-// parse target address and proxy type, and response to socks5/https client
-func (client *Client) reply() (string, string, error) {
+// 协商、认证、获取目标地址
+func (client *Client) negotiate() (string, string, error) {
 	conn := client.conn
 	var buffer [1024]byte
 	_, err := conn.Read(buffer[:])
@@ -186,7 +186,7 @@ func (client *Client) transData(addr string) error {
 
 	// trans incoming data from proxy client application.
 	ctx, cancel := context.WithCancel(context.Background())
-	writer := NewWebSocketWriterWithMutex(client.server.WsClient, proxyClient.Id, ctx, proxyClient.Source, proxyClient.Destination, pb.MessageType_PROXY_DATA_TO_SERVER)
+	writer := NewWSWriter(client.server.WsClient, proxyClient.Id, ctx, proxyClient.Source, proxyClient.Destination, pb.MessageType_PROXY_DATA_TO_SERVER)
 	go func() {
 		_, err := io.Copy(writer, conn)
 		if err != nil {

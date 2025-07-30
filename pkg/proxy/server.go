@@ -70,7 +70,7 @@ func (s *Server) HandleSocks5Message() {
 				log.Errorf("Error creating client: %s", err)
 				continue
 			}
-			go client.HandleSocks5Conn()
+			go client.handleSocks5Conn()
 		}
 	}
 }

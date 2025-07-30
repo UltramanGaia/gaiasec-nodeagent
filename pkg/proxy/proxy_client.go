@@ -14,9 +14,14 @@ type ProxyClient struct {
 
 // tell wssocks proxy server to establish a proxy connection by sending server
 // proxy address, type, initial data.
-func (p *ProxyClient) Establish(client *Client, addr string) error {
+func (pc *ProxyClient) Establish(client *Client, addr string) error {
 	m := &pb.ProxyEstablishMessage{
 		Addr: addr,
 	}
-	return client.server.WsClient.SendMessage(m, pb.MessageType_PROXY_ESTABLISH, p.Source, p.Destination, p.Id)
+	return client.server.WsClient.SendMessage(m, pb.MessageType_PROXY_ESTABLISH, pc.Source, pc.Destination, pc.Id)
+}
+
+func (pc *ProxyClient) Close(tell bool) error {
+	pc.onClosed(pc.Id, tell)
+	return nil // todo error
 }
