@@ -5,13 +5,11 @@ import (
 	"errors"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
-	"io"
 	"net"
 	"nhooyr.io/websocket/wspb"
 	"sothoth-nodeagent/pkg/pb"
 	"sothoth-nodeagent/pkg/wsclient"
 	"sync"
-	"time"
 )
 
 // Hub maintains the set of active proxy clients in server side for a user
@@ -49,7 +47,7 @@ func (s *Server) Close() {
 	s.proxyServersMu.Lock()
 	defer s.proxyServersMu.Unlock()
 	for id, proxy := range s.proxyServers {
-		proxy.ProxyIns.Close(false)
+		proxy.Close(false)
 		delete(s.proxyServers, id)
 	}
 }
@@ -93,7 +91,7 @@ func HandleProxyEstablish(server *Server, msg *pb.Base) error {
 	return nil
 }
 
-func HandleProxyData(server *Server, msg *pb.Base) error {
+func HandleProxyDataToServer(server *Server, msg *pb.Base) error {
 	id := msg.Session
 	requestMsg := &pb.ProxyData{}
 	err := proto.Unmarshal(msg.Data, requestMsg)
@@ -104,23 +102,34 @@ func HandleProxyData(server *Server, msg *pb.Base) error {
 	proxy := server.GetProxyServerById(id) // 作为服务端
 	if proxy != nil {
 		// write income data from websocket to TCP connection
-		return proxy.ProxyIns.onData(ClientData{Tag: requestMsg.ProxyDataType, Data: requestMsg.Data})
-	} else {
-		// 作为客户端
-		proxyClient := server.GetProxyClientById(id)
-		if proxyClient != nil {
-			// write income data from websocket to TCP connection
-			proxyClient.onData(id, ServerData{Tag: requestMsg.ProxyDataType, Data: requestMsg.Data})
-			return nil
-		}
+		return proxy.onData(ClientData{Tag: requestMsg.ProxyDataType, Data: requestMsg.Data})
 	}
 	return nil
 }
 
-func establishProxy(server *Server, sessionId string, addr string, source string, destination string) {
-	e := &DefaultProxyEstablish{}
+func HandleProxyDataToClient(server *Server, msg *pb.Base) error {
+	id := msg.Session
+	requestMsg := &pb.ProxyData{}
+	err := proto.Unmarshal(msg.Data, requestMsg)
+	if err != nil {
+		return err
+	}
 
-	err := e.establish(server, sessionId, addr, source, destination)
+	// 作为客户端
+	proxyClient := server.GetProxyClientById(id)
+	if proxyClient != nil {
+		// write income data from websocket to TCP connection
+		proxyClient.onData(id, ServerData{Tag: requestMsg.ProxyDataType, Data: requestMsg.Data})
+		return nil
+	}
+
+	return nil
+}
+
+func establishProxy(server *Server, sessionId string, addr string, source string, destination string) {
+	e := &ProxyServer{Id: sessionId}
+
+	err := e.establish(server, addr, source, destination)
 	if err == nil {
 		server.tellClosed(sessionId, source, destination) // tell client to close connection.
 	} else if err != ConnCloseByClient {
@@ -134,66 +143,6 @@ func establishProxy(server *Server, sessionId string, addr string, source string
 type ChanDone struct {
 	tell bool
 	err  error
-}
-
-// interface implementation for socks5 proxy.
-type DefaultProxyEstablish struct {
-	done    chan ChanDone
-	tcpConn net.Conn
-}
-
-func (e *DefaultProxyEstablish) onData(data ClientData) error {
-	if _, err := e.tcpConn.Write(data.Data); err != nil {
-		e.done <- ChanDone{true, err}
-	}
-	return nil
-}
-
-func (e *DefaultProxyEstablish) Close(tell bool) error {
-	e.done <- ChanDone{tell, ConnCloseByClient}
-	return nil // todo error
-}
-
-// data: data send in establish step (can be nil).
-func (e *DefaultProxyEstablish) establish(s *Server, id string, addr string, source string, destination string) error {
-	conn, err := net.DialTimeout("tcp", addr, time.Second*8) // todo config timeout
-	if err != nil {
-		return err
-	}
-	e.tcpConn = conn
-	defer conn.Close()
-
-	e.done = make(chan ChanDone, 2)
-	//defer close(done)
-
-	// todo check exists
-	s.addNewProxyServer(&ProxyServer{Id: id, ProxyIns: e})
-	defer s.removeProxyServer(id)
-
-	bytes := []byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-	m := &pb.ProxyData{
-		ProxyDataType: pb.PROXY_DATA_TYPE_DATA,
-		Data:          bytes,
-	}
-
-	err = s.WsClient.SendMessage(m, pb.MessageType_PROXY_DATA, source, destination, id)
-	if err != nil {
-		return err
-	}
-
-	go func() {
-		writer := NewWebSocketWriter(s.WsClient, id, context.Background(), source, destination)
-		if _, err := io.Copy(writer, conn); err != nil {
-			log.Error("copy error,", err)
-			e.done <- ChanDone{true, err}
-		}
-		e.done <- ChanDone{true, nil}
-	}()
-
-	d := <-e.done
-	// s.removeProxyServer(proxy.Id)
-	// tellClosed is called outside this func.
-	return d.err
 }
 
 // tell the client the connection has been closed

@@ -7,7 +7,7 @@ import (
 )
 
 func (na *NodeAgent) handleProcessRequest(message *pb.Base) {
-	log.Info("handleProcessRequest ")
+	log.Info("handleProcessRequest")
 
 	processes, err := process.GetProcessList()
 	if err != nil {

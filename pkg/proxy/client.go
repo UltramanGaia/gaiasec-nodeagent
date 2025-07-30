@@ -67,7 +67,7 @@ func parseHeader(conn net.Conn) (string, string, error) {
 	log.Debugf("socks5 client connect, target agent is: %s (%s)", username, password)
 
 	// see rfc 1982 for more details (https://tools.ietf.org/html/rfc1928)
-	n, err = conn.Write([]byte{0x05, 0x00}) // version and no authentication required
+	n, err = conn.Write([]byte{0x01, 0x00}) // version and no authentication required
 	if err != nil {
 		return "", "", err
 	}
