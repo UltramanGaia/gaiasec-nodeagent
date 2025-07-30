@@ -55,7 +55,7 @@ func (e *ProxyServer) establish(s *Server, addr string, source string, destinati
 	}
 
 	go func() {
-		writer := NewWebSocketWriter(s.WsClient, e.Id, context.Background(), source, destination)
+		writer := NewWebSocketWriter(s.WsClient, e.Id, context.Background(), source, destination, pb.MessageType_PROXY_DATA_TO_CLIENT)
 		if _, err := io.Copy(writer, conn); err != nil {
 			log.Debug("copy error,", err)
 			e.done <- ChanDone{true, err}

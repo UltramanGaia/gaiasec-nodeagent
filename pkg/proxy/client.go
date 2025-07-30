@@ -186,7 +186,7 @@ func (client *Client) transData(addr string) error {
 
 	// trans incoming data from proxy client application.
 	ctx, cancel := context.WithCancel(context.Background())
-	writer := NewWebSocketWriterWithMutex(client.server.WsClient, proxyClient.Id, ctx, proxyClient.Source, proxyClient.Destination)
+	writer := NewWebSocketWriterWithMutex(client.server.WsClient, proxyClient.Id, ctx, proxyClient.Source, proxyClient.Destination, pb.MessageType_PROXY_DATA_TO_SERVER)
 	go func() {
 		_, err := io.Copy(writer, conn)
 		if err != nil {
