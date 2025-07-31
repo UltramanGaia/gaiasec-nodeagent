@@ -132,15 +132,18 @@ type WebFrameworkType int32
 
 const (
 	WebFrameworkType_SPRINGMVC WebFrameworkType = 0
+	WebFrameworkType_STRUTS    WebFrameworkType = 1
 )
 
 // Enum value maps for WebFrameworkType.
 var (
 	WebFrameworkType_name = map[int32]string{
 		0: "SPRINGMVC",
+		1: "STRUTS",
 	}
 	WebFrameworkType_value = map[string]int32{
 		"SPRINGMVC": 0,
+		"STRUTS":    1,
 	}
 )
 
@@ -473,9 +476,11 @@ const file_web_routes_proto_rawDesc = "" +
 	"\vINTERCEPTOR\x10\x02\x12\x0e\n" +
 	"\n" +
 	"CONTROLLER\x10\x03\x12\x13\n" +
-	"\x0fHENDLER_ADAPTER\x10\x04*!\n" +
+	"\x0fHENDLER_ADAPTER\x10\x04*-\n" +
 	"\x10WebFrameworkType\x12\r\n" +
-	"\tSPRINGMVC\x10\x00B)\n" +
+	"\tSPRINGMVC\x10\x00\x12\n" +
+	"\n" +
+	"\x06STRUTS\x10\x01B)\n" +
 	"\n" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 

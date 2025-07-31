@@ -51,6 +51,7 @@ const (
 	MessageType_FS_DELETE_RESPONSE      MessageType = 31
 	MessageType_FS_RENAME_REQUEST       MessageType = 32
 	MessageType_FS_RENAME_RESPONSE      MessageType = 33
+	MessageType_FS_DOWNLOAD_REQUEST     MessageType = 34
 	// 代理
 	MessageType_PROXY_ESTABLISH      MessageType = 40 // establish
 	MessageType_PROXY_DATA_TO_SERVER MessageType = 41 // data  nodeagent -> server
@@ -64,6 +65,7 @@ const (
 	// Java Agent
 	MessageType_WEB_ROUTES_REQUEST  MessageType = 50
 	MessageType_WEB_ROUTES_RESPONSE MessageType = 51
+	MessageType_SCA_RESPONSE        MessageType = 52
 	MessageType_PUSH                MessageType = 80
 	MessageType_PULL                MessageType = 81
 )
@@ -96,6 +98,7 @@ var (
 		31: "FS_DELETE_RESPONSE",
 		32: "FS_RENAME_REQUEST",
 		33: "FS_RENAME_RESPONSE",
+		34: "FS_DOWNLOAD_REQUEST",
 		40: "PROXY_ESTABLISH",
 		41: "PROXY_DATA_TO_SERVER",
 		42: "PROXY_DATA_TO_CLIENT",
@@ -106,6 +109,7 @@ var (
 		48: "TERMINAL_ERROR",
 		50: "WEB_ROUTES_REQUEST",
 		51: "WEB_ROUTES_RESPONSE",
+		52: "SCA_RESPONSE",
 		80: "PUSH",
 		81: "PULL",
 	}
@@ -135,6 +139,7 @@ var (
 		"FS_DELETE_RESPONSE":       31,
 		"FS_RENAME_REQUEST":        32,
 		"FS_RENAME_RESPONSE":       33,
+		"FS_DOWNLOAD_REQUEST":      34,
 		"PROXY_ESTABLISH":          40,
 		"PROXY_DATA_TO_SERVER":     41,
 		"PROXY_DATA_TO_CLIENT":     42,
@@ -145,6 +150,7 @@ var (
 		"TERMINAL_ERROR":           48,
 		"WEB_ROUTES_REQUEST":       50,
 		"WEB_ROUTES_RESPONSE":      51,
+		"SCA_RESPONSE":             52,
 		"PUSH":                     80,
 		"PULL":                     81,
 	}
@@ -181,7 +187,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xe1\x06\n" +
+	"\x12message_type.proto*\x8c\a\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -209,7 +215,8 @@ const file_message_type_proto_rawDesc = "" +
 	"\x11FS_DELETE_REQUEST\x10\x1e\x12\x16\n" +
 	"\x12FS_DELETE_RESPONSE\x10\x1f\x12\x15\n" +
 	"\x11FS_RENAME_REQUEST\x10 \x12\x16\n" +
-	"\x12FS_RENAME_RESPONSE\x10!\x12\x13\n" +
+	"\x12FS_RENAME_RESPONSE\x10!\x12\x17\n" +
+	"\x13FS_DOWNLOAD_REQUEST\x10\"\x12\x13\n" +
 	"\x0fPROXY_ESTABLISH\x10(\x12\x18\n" +
 	"\x14PROXY_DATA_TO_SERVER\x10)\x12\x18\n" +
 	"\x14PROXY_DATA_TO_CLIENT\x10*\x12\x0f\n" +
@@ -219,7 +226,8 @@ const file_message_type_proto_rawDesc = "" +
 	"\x0eTERMINAL_CLOSE\x10/\x12\x12\n" +
 	"\x0eTERMINAL_ERROR\x100\x12\x16\n" +
 	"\x12WEB_ROUTES_REQUEST\x102\x12\x17\n" +
-	"\x13WEB_ROUTES_RESPONSE\x103\x12\b\n" +
+	"\x13WEB_ROUTES_RESPONSE\x103\x12\x10\n" +
+	"\fSCA_RESPONSE\x104\x12\b\n" +
 	"\x04PUSH\x10P\x12\b\n" +
 	"\x04PULL\x10QB)\n" +
 	"\n" +

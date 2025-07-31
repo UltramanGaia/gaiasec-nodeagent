@@ -842,6 +842,50 @@ func (x *FSRenameFileResponse) GetResult() string {
 	return ""
 }
 
+type FSDownloadFileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FSDownloadFileRequest) Reset() {
+	*x = FSDownloadFileRequest{}
+	mi := &file_file_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FSDownloadFileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FSDownloadFileRequest) ProtoMessage() {}
+
+func (x *FSDownloadFileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_file_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FSDownloadFileRequest.ProtoReflect.Descriptor instead.
+func (*FSDownloadFileRequest) Descriptor() ([]byte, []int) {
+	return file_file_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *FSDownloadFileRequest) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
 var File_file_proto protoreflect.FileDescriptor
 
 const file_file_proto_rawDesc = "" +
@@ -893,7 +937,9 @@ const file_file_proto_rawDesc = "" +
 	"\bold_path\x18\x01 \x01(\tR\aoldPath\x12\x19\n" +
 	"\bnew_path\x18\x02 \x01(\tR\anewPath\".\n" +
 	"\x14FSRenameFileResponse\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\tR\x06result*0\n" +
+	"\x06result\x18\x01 \x01(\tR\x06result\"+\n" +
+	"\x15FSDownloadFileRequest\x12\x12\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path*0\n" +
 	"\bFileType\x12\b\n" +
 	"\x04FILE\x10\x00\x12\r\n" +
 	"\tDIRECTORY\x10\x01\x12\v\n" +
@@ -914,24 +960,25 @@ func file_file_proto_rawDescGZIP() []byte {
 }
 
 var file_file_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_file_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_file_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_file_proto_goTypes = []any{
-	(FileType)(0),                // 0: FileType
-	(*FileNode)(nil),             // 1: FileNode
-	(*FSListDirRequest)(nil),     // 2: FSListDirRequest
-	(*FSListDirResponse)(nil),    // 3: FSListDirResponse
-	(*FSReadFileRequest)(nil),    // 4: FSReadFileRequest
-	(*FSReadFileResponse)(nil),   // 5: FSReadFileResponse
-	(*FSWriteFileRequest)(nil),   // 6: FSWriteFileRequest
-	(*FSWriteFileResponse)(nil),  // 7: FSWriteFileResponse
-	(*FSCreateFileRequest)(nil),  // 8: FSCreateFileRequest
-	(*FSCreateFileResponse)(nil), // 9: FSCreateFileResponse
-	(*FSCreateDirRequest)(nil),   // 10: FSCreateDirRequest
-	(*FSCreateDirResponse)(nil),  // 11: FSCreateDirResponse
-	(*FSDeleteFileRequest)(nil),  // 12: FSDeleteFileRequest
-	(*FSDeleteFileResponse)(nil), // 13: FSDeleteFileResponse
-	(*FSRenameFileRequest)(nil),  // 14: FSRenameFileRequest
-	(*FSRenameFileResponse)(nil), // 15: FSRenameFileResponse
+	(FileType)(0),                 // 0: FileType
+	(*FileNode)(nil),              // 1: FileNode
+	(*FSListDirRequest)(nil),      // 2: FSListDirRequest
+	(*FSListDirResponse)(nil),     // 3: FSListDirResponse
+	(*FSReadFileRequest)(nil),     // 4: FSReadFileRequest
+	(*FSReadFileResponse)(nil),    // 5: FSReadFileResponse
+	(*FSWriteFileRequest)(nil),    // 6: FSWriteFileRequest
+	(*FSWriteFileResponse)(nil),   // 7: FSWriteFileResponse
+	(*FSCreateFileRequest)(nil),   // 8: FSCreateFileRequest
+	(*FSCreateFileResponse)(nil),  // 9: FSCreateFileResponse
+	(*FSCreateDirRequest)(nil),    // 10: FSCreateDirRequest
+	(*FSCreateDirResponse)(nil),   // 11: FSCreateDirResponse
+	(*FSDeleteFileRequest)(nil),   // 12: FSDeleteFileRequest
+	(*FSDeleteFileResponse)(nil),  // 13: FSDeleteFileResponse
+	(*FSRenameFileRequest)(nil),   // 14: FSRenameFileRequest
+	(*FSRenameFileResponse)(nil),  // 15: FSRenameFileResponse
+	(*FSDownloadFileRequest)(nil), // 16: FSDownloadFileRequest
 }
 var file_file_proto_depIdxs = []int32{
 	0, // 0: FileNode.fileType:type_name -> FileType
@@ -954,7 +1001,7 @@ func file_file_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_file_proto_rawDesc), len(file_file_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   15,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

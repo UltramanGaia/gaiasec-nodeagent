@@ -3,6 +3,12 @@ package naserver
 import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
+	"io"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"sothoth-nodeagent/pkg/config"
 	"sothoth-nodeagent/pkg/filesystem"
 	"sothoth-nodeagent/pkg/pb"
 )
@@ -169,4 +175,51 @@ func (na *NodeAgent) handleFsRename(message *pb.Base) {
 		return
 	}
 
+}
+
+func (na *NodeAgent) handleFsDownload(message *pb.Base) {
+	log.Info("handle file system download file")
+	request := &pb.FSDownloadFileRequest{}
+	if err := proto.Unmarshal(message.Data, request); err != nil {
+		log.Info("unmarshal error:", err)
+		return
+	}
+
+	r, w := io.Pipe()
+	m := multipart.NewWriter(w)
+	defer r.Close()
+	go func() {
+		defer w.Close()
+		defer m.Close()
+		part, err := m.CreateFormFile("file", message.Session)
+		if err != nil {
+			log.Info("create form file error:", err)
+			return
+		}
+		file, err := os.Open(request.Path)
+		if err != nil {
+			log.Info("open file error:", err)
+			return
+		}
+		defer file.Close()
+		if _, err = io.Copy(part, file); err != nil {
+			log.Info("copy file error:", err)
+		}
+	}()
+
+	cfg := config.GetInstance()
+
+	res, err := http.Post("http://"+cfg.Server+"/remote/filesystem/upload", m.FormDataContentType(), r)
+	if err != nil {
+		log.Info("post error:", err)
+		return
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Info("read body error:", err)
+		return
+	}
+	log.Info("upload file response:", string(body))
 }
