@@ -263,7 +263,6 @@ func (na *NodeAgent) monitorProcess() {
 		err = na.wsClient.SendMessage(response, pb.MessageType_PROCESSES_RESPONSE, na.NodeID, constant.SERVER_ID, constant.SESSIOND_ID_EMPTY)
 		if err != nil {
 			log.Info("Send error:", err)
-			return
 		}
 
 		time.Sleep(1 * time.Minute)

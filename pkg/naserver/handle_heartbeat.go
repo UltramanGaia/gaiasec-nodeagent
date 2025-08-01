@@ -26,7 +26,6 @@ func (na *NodeAgent) heartbeatLoop() {
 			err := na.wsClient.SendMessage(heartbeat, pb.MessageType_HEARTBEAT, na.NodeID, constant.SERVER_ID, util.GenerateID())
 			if err != nil {
 				log.Errorf("Heartbeat error: %v", err)
-				return
 			}
 		case <-na.stopChan:
 			return

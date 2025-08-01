@@ -63,11 +63,14 @@ const (
 	MessageType_TERMINAL_CLOSE           MessageType = 47
 	MessageType_TERMINAL_ERROR           MessageType = 48
 	// Java Agent
-	MessageType_WEB_ROUTES_REQUEST  MessageType = 50
-	MessageType_WEB_ROUTES_RESPONSE MessageType = 51
-	MessageType_SCA_RESPONSE        MessageType = 52
-	MessageType_PUSH                MessageType = 80
-	MessageType_PULL                MessageType = 81
+	MessageType_WEB_ROUTES_REQUEST   MessageType = 50
+	MessageType_WEB_ROUTES_RESPONSE  MessageType = 51
+	MessageType_SCA_RESPONSE         MessageType = 52
+	MessageType_IAST_NORMAL_REPORT   MessageType = 53
+	MessageType_IAST_SAAS_REPORT     MessageType = 54
+	MessageType_IAST_HARDCODE_REPORT MessageType = 55
+	MessageType_PUSH                 MessageType = 80
+	MessageType_PULL                 MessageType = 81
 )
 
 // Enum value maps for MessageType.
@@ -110,6 +113,9 @@ var (
 		50: "WEB_ROUTES_REQUEST",
 		51: "WEB_ROUTES_RESPONSE",
 		52: "SCA_RESPONSE",
+		53: "IAST_NORMAL_REPORT",
+		54: "IAST_SAAS_REPORT",
+		55: "IAST_HARDCODE_REPORT",
 		80: "PUSH",
 		81: "PULL",
 	}
@@ -151,6 +157,9 @@ var (
 		"WEB_ROUTES_REQUEST":       50,
 		"WEB_ROUTES_RESPONSE":      51,
 		"SCA_RESPONSE":             52,
+		"IAST_NORMAL_REPORT":       53,
+		"IAST_SAAS_REPORT":         54,
+		"IAST_HARDCODE_REPORT":     55,
 		"PUSH":                     80,
 		"PULL":                     81,
 	}
@@ -187,7 +196,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\x8c\a\n" +
+	"\x12message_type.proto*\xd4\a\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -227,7 +236,10 @@ const file_message_type_proto_rawDesc = "" +
 	"\x0eTERMINAL_ERROR\x100\x12\x16\n" +
 	"\x12WEB_ROUTES_REQUEST\x102\x12\x17\n" +
 	"\x13WEB_ROUTES_RESPONSE\x103\x12\x10\n" +
-	"\fSCA_RESPONSE\x104\x12\b\n" +
+	"\fSCA_RESPONSE\x104\x12\x16\n" +
+	"\x12IAST_NORMAL_REPORT\x105\x12\x14\n" +
+	"\x10IAST_SAAS_REPORT\x106\x12\x18\n" +
+	"\x14IAST_HARDCODE_REPORT\x107\x12\b\n" +
 	"\x04PUSH\x10P\x12\b\n" +
 	"\x04PULL\x10QB)\n" +
 	"\n" +
