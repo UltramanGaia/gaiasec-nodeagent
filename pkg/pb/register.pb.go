@@ -24,8 +24,9 @@ const (
 type AgentType int32
 
 const (
-	AgentType_NODE_AGENT AgentType = 0
-	AgentType_JAVA_AGENT AgentType = 1
+	AgentType_NODE_AGENT    AgentType = 0
+	AgentType_JAVA_AGENT    AgentType = 1
+	AgentType_GAIASEC_AGENT AgentType = 2
 )
 
 // Enum value maps for AgentType.
@@ -33,10 +34,12 @@ var (
 	AgentType_name = map[int32]string{
 		0: "NODE_AGENT",
 		1: "JAVA_AGENT",
+		2: "GAIASEC_AGENT",
 	}
 	AgentType_value = map[string]int32{
-		"NODE_AGENT": 0,
-		"JAVA_AGENT": 1,
+		"NODE_AGENT":    0,
+		"JAVA_AGENT":    1,
+		"GAIASEC_AGENT": 2,
 	}
 )
 
@@ -80,6 +83,7 @@ type Register struct {
 	Os            string                 `protobuf:"bytes,8,opt,name=os,proto3" json:"os,omitempty"`
 	Arch          string                 `protobuf:"bytes,9,opt,name=arch,proto3" json:"arch,omitempty"`
 	Pid           int32                  `protobuf:"varint,10,opt,name=pid,proto3" json:"pid,omitempty"`
+	Name          string                 `protobuf:"bytes,11,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -184,6 +188,13 @@ func (x *Register) GetPid() int32 {
 	return 0
 }
 
+func (x *Register) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 // Agent注销消息
 type Unregister struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -233,7 +244,7 @@ var File_register_proto protoreflect.FileDescriptor
 
 const file_register_proto_rawDesc = "" +
 	"\n" +
-	"\x0eregister.proto\"\x8a\x02\n" +
+	"\x0eregister.proto\"\x9e\x02\n" +
 	"\bRegister\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -248,15 +259,17 @@ const file_register_proto_rawDesc = "" +
 	"\x02os\x18\b \x01(\tR\x02os\x12\x12\n" +
 	"\x04arch\x18\t \x01(\tR\x04arch\x12\x10\n" +
 	"\x03pid\x18\n" +
-	" \x01(\x05R\x03pid\"\x1c\n" +
+	" \x01(\x05R\x03pid\x12\x12\n" +
+	"\x04name\x18\v \x01(\tR\x04name\"\x1c\n" +
 	"\n" +
 	"Unregister\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id*+\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id*>\n" +
 	"\tAgentType\x12\x0e\n" +
 	"\n" +
 	"NODE_AGENT\x10\x00\x12\x0e\n" +
 	"\n" +
-	"JAVA_AGENT\x10\x01B)\n" +
+	"JAVA_AGENT\x10\x01\x12\x11\n" +
+	"\rGAIASEC_AGENT\x10\x02B)\n" +
 	"\n" +
 	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
 

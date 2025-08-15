@@ -13,6 +13,7 @@ import (
 	"sothoth-nodeagent/pkg/util"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // Deploy 部署插件到目标进程
@@ -25,19 +26,10 @@ func DeployPlugin(request *pb.DeployPluginRequest) error {
 
 	log.Infof("handle deploy: %s version: %s Target PID: %d", request.PluginName, request.PluginVersion, request.Pid)
 
-	// 检查插件是否已存在
-	if !util.Exists(pluginDir) || util.IsDirEmpty(pluginDir) {
-		log.Infof("plugin does not exists, start download: %s", pluginDir)
-
-		// 使用插件管理器下载插件
-		err := util.DownloadPlugin(request.PluginName, request.PluginVersion)
-		if err != nil {
-			return fmt.Errorf("download plugin error: %v", err)
-		}
-
-		log.Infof("download plugin success: %s", request.PluginName)
-	} else {
-		log.Infof("plugin exists, skip download: %s", pluginDir)
+	// 确保插件存在
+	err := ensurePlugin(pluginDir, request.PluginName, request.PluginVersion)
+	if err != nil {
+		return err
 	}
 
 	// 解析配置
@@ -57,6 +49,28 @@ func DeployPlugin(request *pb.DeployPluginRequest) error {
 	default:
 		return fmt.Errorf("UNKNOWN DEPLOY METHOD: %s", pluginConfig.Start.Type)
 	}
+}
+
+var downloadPluginMutex sync.Mutex
+
+func ensurePlugin(pluginDir string, name string, version string) error {
+	downloadPluginMutex.Lock()
+	defer downloadPluginMutex.Unlock()
+	// 检查插件是否已存在
+	if !util.Exists(pluginDir) || util.IsDirEmpty(pluginDir) {
+		log.Infof("plugin does not exists, start download: %s", pluginDir)
+
+		// 使用插件管理器下载插件
+		err := util.DownloadPlugin(name, version)
+		if err != nil {
+			return fmt.Errorf("download plugin error: %v", err)
+		}
+
+		log.Infof("download plugin success: %s", name)
+	} else {
+		log.Infof("plugin exists, skip download: %s", pluginDir)
+	}
+	return nil
 }
 
 // parsePluginConfig 解析插件配置文件
