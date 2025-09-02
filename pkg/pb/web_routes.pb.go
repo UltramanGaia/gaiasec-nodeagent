@@ -181,6 +181,8 @@ type WebProcessor struct {
 	Methods       []string               `protobuf:"bytes,3,rep,name=methods,proto3" json:"methods,omitempty"`
 	Patterns      []string               `protobuf:"bytes,4,rep,name=patterns,proto3" json:"patterns,omitempty"`
 	Handler       string                 `protobuf:"bytes,5,opt,name=handler,proto3" json:"handler,omitempty"`
+	Description   string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
+	InputSchema   string                 `protobuf:"bytes,7,opt,name=input_schema,json=inputSchema,proto3" json:"input_schema,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -246,6 +248,20 @@ func (x *WebProcessor) GetPatterns() []string {
 func (x *WebProcessor) GetHandler() string {
 	if x != nil {
 		return x.Handler
+	}
+	return ""
+}
+
+func (x *WebProcessor) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *WebProcessor) GetInputSchema() string {
+	if x != nil {
+		return x.InputSchema
 	}
 	return ""
 }
@@ -435,13 +451,15 @@ var File_web_routes_proto protoreflect.FileDescriptor
 
 const file_web_routes_proto_rawDesc = "" +
 	"\n" +
-	"\x10web_routes.proto\"\xac\x01\n" +
+	"\x10web_routes.proto\"\xf1\x01\n" +
 	"\fWebProcessor\x128\n" +
 	"\x0eprocessor_type\x18\x01 \x01(\x0e2\x11.WebProcessorTypeR\rprocessorType\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
 	"\amethods\x18\x03 \x03(\tR\amethods\x12\x1a\n" +
 	"\bpatterns\x18\x04 \x03(\tR\bpatterns\x12\x18\n" +
-	"\ahandler\x18\x05 \x01(\tR\ahandler\"w\n" +
+	"\ahandler\x18\x05 \x01(\tR\ahandler\x12 \n" +
+	"\vdescription\x18\x06 \x01(\tR\vdescription\x12!\n" +
+	"\finput_schema\x18\a \x01(\tR\vinputSchema\"w\n" +
 	"\fWebFramework\x128\n" +
 	"\x0eframework_type\x18\x01 \x01(\x0e2\x11.WebFrameworkTypeR\rframeworkType\x12-\n" +
 	"\n" +
