@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-// MkdirAllWithPerm creates a directory with specified permissions
-func MkdirAllWithPerm(path string, perm os.FileMode) error {
+// MkdirAll creates a directory with specified permissions
+func MkdirAll(path string, perm os.FileMode) error {
 	dir, err := os.Stat(path)
 	if err == nil {
 		if dir.IsDir() {
@@ -20,20 +20,20 @@ func MkdirAllWithPerm(path string, perm os.FileMode) error {
 	}
 
 	parentDir := filepath.Dir(path)
-	if err := MkdirAllWithPerm(parentDir, perm); err != nil {
+	if err := MkdirAll(parentDir, perm); err != nil {
 		return fmt.Errorf("failed to create parent directory %s: %v", parentDir, err)
 	}
 
 	// Create directory if it doesn't exist
-	if err := MkdirWithPerm(path, perm); err != nil {
+	if err := Mkdir(path, perm); err != nil {
 		return fmt.Errorf("failed to create directory %s: %v", path, err)
 	}
 
 	return nil
 }
 
-// MkdirWithPerm creates a directory with specified permissions
-func MkdirWithPerm(path string, perm os.FileMode) error {
+// Mkdir creates a directory with specified permissions
+func Mkdir(path string, perm os.FileMode) error {
 	// Create directory if it doesn't exist
 	if err := os.Mkdir(path, perm); err != nil {
 		return fmt.Errorf("failed to create directory %s: %v", path, err)
@@ -50,7 +50,7 @@ func MkdirWithPerm(path string, perm os.FileMode) error {
 // EnsureFileDir ensures the parent directory of a file exists
 func EnsureFileDir(filePath string) error {
 	dir := filepath.Dir(filePath)
-	return MkdirAllWithPerm(dir, 0777)
+	return MkdirAll(dir, 0777)
 }
 
 func Exists(filePath string) bool {

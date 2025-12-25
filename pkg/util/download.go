@@ -22,7 +22,7 @@ func DownloadPlugin(name, version string) error {
 
 	// 创建插件目录
 	pluginDir := filepath.Join(cfg.SothothDir, "plugins", name, version)
-	err := os.MkdirAll(pluginDir, 0755)
+	err := MkdirAll(pluginDir, 0755)
 	if err != nil {
 		return fmt.Errorf("create plugin dir error: %v", err)
 	}
@@ -151,11 +151,11 @@ func extractFile(f *zip.File, destDir string) error {
 
 	// 如果是目录，创建目录
 	if f.FileInfo().IsDir() {
-		return os.MkdirAll(path, 0777)
+		return MkdirAll(path, 0777)
 	}
 
 	// 创建父目录
-	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
+	if err := MkdirAll(filepath.Dir(path), 0777); err != nil {
 		return err
 	}
 

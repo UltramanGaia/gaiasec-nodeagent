@@ -101,11 +101,11 @@ func DoMount(src string, dest string, pid int) error {
 	destPath := fmt.Sprintf("/proc/%d/root%s", pid, dest)
 	if !util.Exists(destPath) {
 		if srcIsDir {
-			util.MkdirAllWithPerm(destPath, srcMod)
+			util.MkdirAll(destPath, srcMod)
 		} else {
 			destParentPaht := filepath.Dir(destPath)
 			if !util.Exists(destParentPaht) {
-				util.MkdirAllWithPerm(destParentPaht, os.ModePerm)
+				util.MkdirAll(destParentPaht, os.ModePerm)
 			}
 			os.OpenFile(destPath, os.O_CREATE, srcMod)
 		}
@@ -159,7 +159,7 @@ func TryMountDir(pid int, src string, dest string) error {
 				log.Errorf("try remount root path error: %s", err)
 				return err
 			}
-			err = util.MkdirAllWithPerm(destDir, os.ModePerm)
+			err = util.MkdirAll(destDir, os.ModePerm)
 			if err != nil {
 				log.Errorf("mkdir error: %s", err)
 				return err

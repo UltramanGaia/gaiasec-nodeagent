@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sothoth-nodeagent/pkg/pb"
+	"sothoth-nodeagent/pkg/util"
 	"strings"
 )
 
@@ -98,7 +99,7 @@ func CreateFile(path string) error {
 // CreateDirectory creates a new directory
 func CreateDirectory(path string) error {
 	cleanPath := filepath.Clean(path)
-	err := os.MkdirAll(cleanPath, 0755)
+	err := util.MkdirAll(cleanPath, 0755)
 	if err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
@@ -170,7 +171,7 @@ func writeFileContent(path string, content []byte) error {
 	cleanPath := filepath.Clean(path)
 	// Create directory if it doesn't exist
 	dir := filepath.Dir(cleanPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := util.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
