@@ -14,9 +14,11 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"sothoth-nodeagent/pkg/config"
 	"sothoth-nodeagent/pkg/naserver"
+	"sothoth-nodeagent/pkg/pb"
 	"sothoth-nodeagent/pkg/util"
 	"sothoth-nodeagent/pkg/xdaemon"
 	"strconv"
@@ -72,7 +74,9 @@ func ParseMain() {
 
 	// 处理守护进程模式
 	if cfg.DaemonMode {
-		logFile := filepath.Join(cfg.SothothDir, "logs/nodeagent/000000000000/agent.log")
+		logFile := filepath.Join(cfg.SothothDir, "logs/", pb.AgentType_NODE_AGENT.String(), "/000000000000/agent.log")
+		logDir := path.Dir(logFile)
+		util.MkdirAllWithPerm(logDir, 0777)
 		xdaemon.Background(logFile, true)
 	}
 
@@ -118,19 +122,19 @@ func ParseMain() {
 func EnvInit(cfg *config.Config) {
 	// 初始化各个目录
 	// 创建sothoth主目录，权限设置为777
-	if err := util.MkdirWithPerm(cfg.SothothDir, 0777); err != nil {
+	if err := util.MkdirAllWithPerm(cfg.SothothDir, 0777); err != nil {
 		log.Fatalf("create sothoth dir error: %v", err)
 	}
 
 	// 创建日志文件目录
-	logDir := filepath.Join(cfg.SothothDir, "logs/nodeagent/000000000000/")
-	if err := util.MkdirWithPerm(logDir, 0777); err != nil {
+	logDir := filepath.Join(cfg.SothothDir, "logs/", pb.AgentType_NODE_AGENT.String(), "/000000000000/")
+	if err := util.MkdirAllWithPerm(logDir, 0777); err != nil {
 		log.Fatalf("create log dir error: %v", err)
 	}
 
 	// 创建临时文件目录
 	tmpDir := filepath.Join(cfg.SothothDir, "tmp")
-	if err := util.MkdirWithPerm(tmpDir, 0777); err != nil {
+	if err := util.MkdirAllWithPerm(tmpDir, 0777); err != nil {
 		log.Fatalf("create tmp dir error: %v", err)
 	}
 

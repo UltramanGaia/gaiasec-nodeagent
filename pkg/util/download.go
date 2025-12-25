@@ -94,7 +94,7 @@ func downloadFile(url, filepath string) error {
 	}
 
 	// 创建目标文件
-	out, err := os.Create(filepath)
+	out, err := os.OpenFile(filepath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
 	if err != nil {
 		return fmt.Errorf("create file error: %v", err)
 	}
@@ -122,7 +122,7 @@ func extractZip(src, dest string) error {
 	defer r.Close()
 
 	// 创建目标目录
-	err = os.MkdirAll(dest, 0755)
+	err = os.MkdirAll(dest, 0777)
 	if err != nil {
 		return fmt.Errorf("create target dir error: %v", err)
 	}
@@ -151,11 +151,11 @@ func extractFile(f *zip.File, destDir string) error {
 
 	// 如果是目录，创建目录
 	if f.FileInfo().IsDir() {
-		return os.MkdirAll(path, f.FileInfo().Mode())
+		return os.MkdirAll(path, 0777)
 	}
 
 	// 创建父目录
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		return err
 	}
 
@@ -167,7 +167,7 @@ func extractFile(f *zip.File, destDir string) error {
 	defer rc.Close()
 
 	// 创建目标文件
-	outFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.FileInfo().Mode())
+	outFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
 	if err != nil {
 		return err
 	}

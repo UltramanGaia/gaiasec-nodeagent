@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sothoth-nodeagent/pkg/config"
+	"sothoth-nodeagent/pkg/mount"
 	"sothoth-nodeagent/pkg/pb"
 	"sothoth-nodeagent/pkg/util"
 	"strconv"
@@ -111,6 +112,14 @@ func deployByJVMAttach(pluginConfig *PluginConfig, targetPID int) error {
 	// 检查目标进程是否存在
 	if !isProcessExists(targetPID) {
 		return fmt.Errorf("target process does not exists: %d", targetPID)
+	}
+
+	// 解决容器运行时mount命名空间隔离问题
+	cfg := config.GetInstance()
+	err = mount.TryMountDir(targetPID, cfg.SothothDir, cfg.SothothDir)
+	if err != nil {
+		log.Errorf("Mount Error: %v\n", err)
+		return err
 	}
 
 	agentJarPath := pluginConfig.Start.Path
@@ -247,7 +256,4 @@ func isProcessExists(pid int) bool {
 		return false
 	}
 	return true
-	//// 发送信号0检查进程是否存在, windows下面好像有问题，去掉
-	//err = process.Signal(syscall.Signal(0))
-	//return err == nil
 }

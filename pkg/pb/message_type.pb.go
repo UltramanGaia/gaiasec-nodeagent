@@ -71,6 +71,7 @@ const (
 	MessageType_IAST_HARDCODE_REPORT MessageType = 55
 	MessageType_FUZZ_REQUEST         MessageType = 56
 	MessageType_FUZZ_RESPONSE        MessageType = 57
+	MessageType_TRACE_REPORT         MessageType = 58
 	MessageType_PUSH                 MessageType = 80
 	MessageType_PULL                 MessageType = 81
 )
@@ -120,6 +121,7 @@ var (
 		55: "IAST_HARDCODE_REPORT",
 		56: "FUZZ_REQUEST",
 		57: "FUZZ_RESPONSE",
+		58: "TRACE_REPORT",
 		80: "PUSH",
 		81: "PULL",
 	}
@@ -166,6 +168,7 @@ var (
 		"IAST_HARDCODE_REPORT":     55,
 		"FUZZ_REQUEST":             56,
 		"FUZZ_RESPONSE":            57,
+		"TRACE_REPORT":             58,
 		"PUSH":                     80,
 		"PULL":                     81,
 	}
@@ -202,7 +205,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xf9\a\n" +
+	"\x12message_type.proto*\x8b\b\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -247,7 +250,8 @@ const file_message_type_proto_rawDesc = "" +
 	"\x10IAST_SAAS_REPORT\x106\x12\x18\n" +
 	"\x14IAST_HARDCODE_REPORT\x107\x12\x10\n" +
 	"\fFUZZ_REQUEST\x108\x12\x11\n" +
-	"\rFUZZ_RESPONSE\x109\x12\b\n" +
+	"\rFUZZ_RESPONSE\x109\x12\x10\n" +
+	"\fTRACE_REPORT\x10:\x12\b\n" +
 	"\x04PUSH\x10P\x12\b\n" +
 	"\x04PULL\x10QB)\n" +
 	"\n" +
