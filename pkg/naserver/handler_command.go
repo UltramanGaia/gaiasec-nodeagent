@@ -3,8 +3,8 @@ package naserver
 import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/system"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/system"
 )
 
 func (na *NodeAgent) handleExecuteCommand(message *pb.Base) {

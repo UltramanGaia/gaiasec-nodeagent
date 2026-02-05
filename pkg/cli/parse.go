@@ -10,19 +10,21 @@ package cli
 import (
 	"flag"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"path"
 	"path/filepath"
-	"sothoth-nodeagent/pkg/config"
-	"sothoth-nodeagent/pkg/naserver"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/util"
-	"sothoth-nodeagent/pkg/xdaemon"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/naserver"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/xdaemon"
 	"strconv"
+	"strings"
 	"syscall"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // init 函数在包加载时自动执行，用于初始化命令行参数
@@ -30,10 +32,10 @@ func init() {
 	cfg := config.GetInstance()
 
 	// 定义命令行参数
-	flag.StringVar(&cfg.Server, "server", "", "Sothoth Server WebSocket URL")
+	flag.StringVar(&cfg.Server, "server", "", "GaiaSec Server WebSocket URL")
 	flag.StringVar(&cfg.ProjectID, "projectId", "", "Project ID")
 	flag.StringVar(&cfg.NodeID, "nodeId", "", "Node ID")
-	flag.StringVar(&cfg.SothothDir, "sothothDir", "/sothoth", "Sothoth工作目录")
+	flag.StringVar(&cfg.GaiaSecDir, "gaiasecDir", "/gaiasec", "GaiaSec工作目录")
 	flag.BoolVar(&cfg.DaemonMode, "d", false, "daemon(background)")
 	flag.BoolVar(&cfg.ProxyMode, "p", false, "enable proxy mode")
 	flag.BoolVar(&cfg.Version, "version", false, "version")
@@ -54,14 +56,19 @@ func ParseMain() {
 
 	// 如果请求显示版本信息，则输出版本并退出
 	if cfg.Version {
-		fmt.Println("Sothoth NodeAgent v1.0.0 (Go)")
+		fmt.Println("GaiaSec NodeAgent v1.0.0 (Go)")
 		return
 	}
 
 	// 验证必需的命令行参数
 	if cfg.ProjectID == "" || cfg.NodeID == "" || cfg.Server == "" {
-		log.Fatal("Usage: sothoth-nodeagent -projectId <PROJECT_ID> -nodeId <NODE_ID> -server <SERVER_URL> [-sothothDir <DIR>] [-d] [-p]")
+		log.Fatal("Usage: gaiasec-nodeagent -projectId <PROJECT_ID> -nodeId <NODE_ID> -server <SERVER_URL> [-gaiasecDir <DIR>] [-d] [-p]")
 	}
+
+	// 设置自定义日志格式化器，与JavaAgent格式保持一致
+	log.SetFormatter(&JavaAgentStyleFormatter{
+		NodeID: cfg.NodeID,
+	})
 
 	// 初始化运行环境
 	EnvInit(cfg)
@@ -74,7 +81,7 @@ func ParseMain() {
 
 	// 处理守护进程模式
 	if cfg.DaemonMode {
-		logFile := filepath.Join(cfg.SothothDir, "logs/", pb.AgentType_NODE_AGENT.String(), "/000000000000/agent.log")
+		logFile := filepath.Join(cfg.GaiaSecDir, "logs", pb.AgentType_NODE_AGENT.String(), cfg.NodeID, "agent.log")
 		logDir := path.Dir(logFile)
 		util.MkdirAll(logDir, 0777)
 		xdaemon.Background(logFile, true)
@@ -113,27 +120,58 @@ func ParseMain() {
 	}
 }
 
+// JavaAgentStyleFormatter 自定义日志格式化器，与JavaAgent保持一致
+type JavaAgentStyleFormatter struct {
+	NodeID string
+}
+
+// Format 实现logrus.Formatter接口
+func (f *JavaAgentStyleFormatter) Format(entry *log.Entry) ([]byte, error) {
+	// 获取日志级别
+	level := strings.ToUpper(entry.Level.String())
+
+	// 构建消息内容
+	message := entry.Message
+
+	// 格式化时间
+	timestamp := entry.Time.Format("2006-01-02 15:04:05")
+
+	// 构建日志行，格式：时间 [AGENT_TYPE][LEVEL]nodeId message
+	logLine := fmt.Sprintf("%s [NODE_AGENT][%s]%s %s\n", timestamp, level, f.NodeID, message)
+
+	return []byte(logLine), nil
+}
+
+// 自定义日志格式化器，与JavaAgent保持一致
+func init() {
+	// 默认使用简单的文本格式，后续会在ParseMain中更新为自定义格式
+	log.SetFormatter(&log.TextFormatter{
+		DisableTimestamp: true,
+		DisableColors:    true,
+	})
+}
+
 // EnvInit 初始化NodeAgent运行环境
 // 创建必要的目录结构并设置环境变量，包括：
-// - Sothoth工作目录
+// - GaiaSec工作目录
 // - 日志目录
 // - 临时文件目录
 // - Shell环境变量配置
 func EnvInit(cfg *config.Config) {
 	// 初始化各个目录
-	// 创建sothoth主目录，权限设置为777
-	if err := util.MkdirAll(cfg.SothothDir, 0777); err != nil {
-		log.Fatalf("create sothoth dir error: %v", err)
+	// 创建gaiasec主目录，权限设置为777
+	if err := util.MkdirAll(cfg.GaiaSecDir, 0777); err != nil {
+		log.Fatalf("create gaiasec dir error: %v", err)
 	}
 
 	// 创建日志文件目录
-	logDir := filepath.Join(cfg.SothothDir, "logs/", pb.AgentType_NODE_AGENT.String(), "/000000000000/")
+	logDir := filepath.Join(cfg.GaiaSecDir, "logs/", pb.AgentType_NODE_AGENT.String(), "/", cfg.NodeID, "/")
 	if err := util.MkdirAll(logDir, 0777); err != nil {
 		log.Fatalf("create log dir error: %v", err)
 	}
 
 	// 创建临时文件目录
-	tmpDir := filepath.Join(cfg.SothothDir, "tmp")
+	tmpDir := filepath.Join(cfg.GaiaSecDir, "tmp")
 	if err := util.MkdirAll(tmpDir, 0777); err != nil {
 		log.Fatalf("create tmp dir error: %v", err)
 	}
@@ -143,8 +181,8 @@ func EnvInit(cfg *config.Config) {
 	envVars := map[string]string{
 		"TMOUT":    "0",                                            // 禁用shell超时
 		"HISTSIZE": "1000",                                         // 历史命令数量
-		"HISTFILE": filepath.Join(cfg.SothothDir, ".bash_history"), // 历史文件路径
-		"PATH":     os.Getenv("PATH") + ":" + cfg.SothothDir,       // 添加sothoth bin目录到PATH
+		"HISTFILE": filepath.Join(cfg.GaiaSecDir, ".bash_history"), // 历史文件路径
+		"PATH":     os.Getenv("PATH") + ":" + cfg.GaiaSecDir,       // 添加gaiasec bin目录到PATH
 	}
 
 	for key, value := range envVars {
@@ -160,14 +198,14 @@ func EnvInit(cfg *config.Config) {
 		}
 	}
 
-	log.Infof("EnvInit success: sothoth_dir=%s", cfg.SothothDir)
+	log.Infof("EnvInit success: gaiasec_dir=%s", cfg.GaiaSecDir)
 }
 
 // checkRunning 检查是否已有NodeAgent实例在运行
 // 通过读取PID文件并检查进程是否存在来判断
 // 返回true表示已有实例在运行，false表示没有
 func checkRunning(cfg *config.Config) bool {
-	pidFile := filepath.Join(cfg.SothothDir, "nodeagent.pid")
+	pidFile := filepath.Join(cfg.GaiaSecDir, "nodeagent.pid")
 	data, err := ioutil.ReadFile(pidFile)
 	if err != nil {
 		return false
@@ -191,7 +229,7 @@ func checkRunning(cfg *config.Config) bool {
 // createPidFile 创建PID文件
 // 将当前进程的PID写入到指定的PID文件中，用于进程管理和唯一性检查
 func createPidFile(cfg *config.Config) {
-	pidFile := filepath.Join(cfg.SothothDir, "nodeagent.pid")
+	pidFile := filepath.Join(cfg.GaiaSecDir, "nodeagent.pid")
 	pid := os.Getpid()
 	if err := ioutil.WriteFile(pidFile, []byte(strconv.Itoa(pid)), 0644); err != nil {
 		log.Fatalf("create pid file error: %v", err)

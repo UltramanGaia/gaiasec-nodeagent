@@ -1,6 +1,6 @@
 package proxy
 
-import "sothoth-nodeagent/pkg/pb"
+import "gaiasec-nodeagent/pkg/pb"
 
 // proxy client handle one connection, send data to proxy server vai websocket.
 type ProxyClient struct {

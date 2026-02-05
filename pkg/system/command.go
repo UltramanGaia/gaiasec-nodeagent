@@ -3,7 +3,7 @@ package system
 import (
 	"os/exec"
 	"runtime"
-	"sothoth-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/util"
 	"strings"
 	"time"
 )

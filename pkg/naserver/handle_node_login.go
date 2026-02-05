@@ -4,9 +4,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"runtime"
-	"sothoth-nodeagent/pkg/constant"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/constant"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 )
 
 func (na *NodeAgent) reportRegister() {

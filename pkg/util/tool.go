@@ -3,11 +3,11 @@ package util
 import (
 	"path/filepath"
 	"runtime"
-	"sothoth-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/config"
 )
 
 func Tool(toolName string) (string, error) {
-	toolPath := filepath.Join(config.GetInstance().SothothDir, toolName)
+	toolPath := filepath.Join(config.GetInstance().GaiaSecDir, toolName)
 	if runtime.GOOS == "windows" {
 		toolPath += ".exe"
 	}

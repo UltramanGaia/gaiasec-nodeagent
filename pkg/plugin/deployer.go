@@ -3,18 +3,19 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"sothoth-nodeagent/pkg/config"
-	"sothoth-nodeagent/pkg/mount"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/mount"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 	"strconv"
 	"strings"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Deploy 部署插件到目标进程
@@ -23,7 +24,7 @@ func DeployPlugin(request *pb.DeployPluginRequest) error {
 
 	cfg := config.GetInstance()
 	// 创建插件目录
-	pluginDir := filepath.Join(cfg.SothothDir, "plugins", request.PluginName, request.PluginVersion)
+	pluginDir := filepath.Join(cfg.GaiaSecDir, "plugins", request.PluginName, request.PluginVersion)
 
 	log.Infof("handle deploy: %s version: %s Target PID: %d", request.PluginName, request.PluginVersion, request.Pid)
 
@@ -116,7 +117,7 @@ func deployByJVMAttach(pluginConfig *PluginConfig, targetPID int) error {
 
 	// 解决容器运行时mount命名空间隔离问题
 	cfg := config.GetInstance()
-	err = mount.TryMountDir(targetPID, cfg.SothothDir, cfg.SothothDir)
+	err = mount.TryMountDir(targetPID, cfg.GaiaSecDir, cfg.GaiaSecDir)
 	if err != nil {
 		log.Errorf("Mount Error: %v\n", err)
 		return err
@@ -218,7 +219,7 @@ func UndeployPlugin(pluginConfig *PluginConfig) error {
 func stopJVMAttachPlugin(pluginConfig *PluginConfig) error {
 	// 对于JVM Attach的插件
 
-	jattachPath := filepath.Join(config.GetInstance().SothothDir, "/jattach")
+	jattachPath := filepath.Join(config.GetInstance().GaiaSecDir, "jattach")
 	if !util.Exists(jattachPath) {
 		err := util.DownloadTool("jattach")
 		if err != nil {

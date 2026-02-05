@@ -5,9 +5,9 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"sothoth-nodeagent/pkg/config"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/wsclient"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/wsclient"
 	"syscall"
 )
 
@@ -23,7 +23,7 @@ type Server struct {
 func NewServer(client *wsclient.Client) (*Server, error) {
 	cfg := config.GetInstance()
 
-	socketPath := cfg.SothothDir + "/nodeagent.sock"
+	socketPath := cfg.GaiaSecDir + "/nodeagent.sock"
 	return &Server{
 		socketPath:      socketPath,
 		WsClient:        client,
@@ -34,7 +34,7 @@ func NewServer(client *wsclient.Client) (*Server, error) {
 func (s *Server) Start() {
 	s.running = true
 	var socketPath string
-	socketPath = "/sothoth/nodeagent.sock"
+	socketPath = "/gaiasec/nodeagent.sock"
 	log.Infof("Starting unix socket listener at %s", socketPath)
 	_ = os.Remove(socketPath)
 	listener, err := net.Listen("unix", socketPath)

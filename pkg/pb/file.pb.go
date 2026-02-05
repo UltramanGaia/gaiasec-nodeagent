@@ -945,7 +945,7 @@ const file_file_proto_rawDesc = "" +
 	"\tDIRECTORY\x10\x01\x12\v\n" +
 	"\aSYMLINK\x10\x02B)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_file_proto_rawDescOnce sync.Once

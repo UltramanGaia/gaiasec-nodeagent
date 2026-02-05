@@ -138,7 +138,7 @@ const file_sca_proto_rawDesc = "" +
 	"\vScaResponse\x12\x18\n" +
 	"\x04scas\x18\x01 \x03(\v2\x04.ScaR\x04scasB)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_sca_proto_rawDescOnce sync.Once

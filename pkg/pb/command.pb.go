@@ -139,7 +139,7 @@ const file_command_proto_rawDesc = "" +
 	"\x06stdout\x18\x02 \x01(\tR\x06stdout\x12\x16\n" +
 	"\x06stderr\x18\x03 \x01(\tR\x06stderrB)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_command_proto_rawDescOnce sync.Once

@@ -2,8 +2,8 @@ package naserver
 
 import (
 	log "github.com/sirupsen/logrus"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/process"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/process"
 )
 
 func (na *NodeAgent) handleProcessRequest(message *pb.Base) {

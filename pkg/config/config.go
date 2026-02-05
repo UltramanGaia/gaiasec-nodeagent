@@ -9,7 +9,7 @@ type Config struct {
 	Server     string
 	ProjectID  string
 	NodeID     string
-	SothothDir string
+	GaiaSecDir string
 	DaemonMode bool
 	ProxyMode  bool
 	Version    bool
@@ -27,7 +27,7 @@ var (
 func GetInstance() *Config {
 	once.Do(func() {
 		instance = &Config{
-			SothothDir: "/sothoth",
+			GaiaSecDir: "/gaiasec",
 			Logflags:   "log.LstdFlags",
 		}
 	})

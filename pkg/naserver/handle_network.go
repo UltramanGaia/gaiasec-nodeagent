@@ -2,8 +2,8 @@ package naserver
 
 import (
 	log "github.com/sirupsen/logrus"
-	"sothoth-nodeagent/pkg/network"
-	"sothoth-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/network"
+	"gaiasec-nodeagent/pkg/pb"
 )
 
 // handleNetworkRequest handles the network connection information request

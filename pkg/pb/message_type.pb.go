@@ -263,7 +263,7 @@ const file_message_type_proto_rawDesc = "" +
 	"\x04PUSH\x10P\x12\b\n" +
 	"\x04PULL\x10QB)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_message_type_proto_rawDescOnce sync.Once

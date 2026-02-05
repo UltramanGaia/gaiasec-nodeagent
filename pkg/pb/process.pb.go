@@ -156,7 +156,7 @@ const file_process_proto_rawDesc = "" +
 	"\x11ProcessesResponse\x12&\n" +
 	"\tprocesses\x18\x01 \x03(\v2\b.ProcessR\tprocessesB)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_process_proto_rawDescOnce sync.Once

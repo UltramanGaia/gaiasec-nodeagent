@@ -185,7 +185,7 @@ const file_proxy_proto_rawDesc = "" +
 	"\x0fESTABLISH_ERROR\x10\x02\x12\v\n" +
 	"\aNO_MORE\x10\x03B)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_proxy_proto_rawDescOnce sync.Once

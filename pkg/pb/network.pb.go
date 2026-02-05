@@ -224,7 +224,7 @@ const file_network_proto_rawDesc = "" +
 	"\x0fNetworkResponse\x124\n" +
 	"\vconnections\x18\x01 \x03(\v2\x12.NetworkConnectionR\vconnectionsB)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_network_proto_rawDescOnce sync.Once

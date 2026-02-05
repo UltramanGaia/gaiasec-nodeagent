@@ -1,8 +1,8 @@
 package naserver
 
 import (
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/proxy"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/proxy"
 )
 
 // 代理相关处理方法

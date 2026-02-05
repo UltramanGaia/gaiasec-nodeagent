@@ -2,7 +2,7 @@ package process
 
 import (
 	"context"
-	"sothoth-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/pb"
 	"strings"
 
 	"github.com/shirou/gopsutil/v3/process"

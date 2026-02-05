@@ -8,8 +8,8 @@ import (
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wspb"
 	"os"
-	"sothoth-nodeagent/pkg/config"
-	"sothoth-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/pb"
 	"sync"
 	"time"
 )

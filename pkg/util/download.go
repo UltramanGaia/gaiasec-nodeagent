@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"sothoth-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/config"
 	"strings"
 )
 
@@ -21,7 +21,7 @@ func DownloadPlugin(name, version string) error {
 	downloadURL := fmt.Sprintf("/plugins/%s/%s.zip", name, version)
 
 	// 创建插件目录
-	pluginDir := filepath.Join(cfg.SothothDir, "plugins", name, version)
+	pluginDir := filepath.Join(cfg.GaiaSecDir, "plugins", name, version)
 	err := MkdirAll(pluginDir, 0755)
 	if err != nil {
 		return fmt.Errorf("create plugin dir error: %v", err)
@@ -59,7 +59,7 @@ func DownloadTool(name string) error {
 	}
 
 	// 下载插件文件
-	toolPath := filepath.Join(cfg.SothothDir, name)
+	toolPath := filepath.Join(cfg.GaiaSecDir, name)
 	err := downloadFile(downloadURL, toolPath)
 	if err != nil {
 		return fmt.Errorf("download tool error: %v", err)

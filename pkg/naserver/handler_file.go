@@ -8,9 +8,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"sothoth-nodeagent/pkg/config"
-	"sothoth-nodeagent/pkg/filesystem"
-	"sothoth-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/filesystem"
+	"gaiasec-nodeagent/pkg/pb"
 )
 
 // 文件系统相关处理方法

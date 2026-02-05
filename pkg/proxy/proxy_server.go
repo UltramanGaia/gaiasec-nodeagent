@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
-	"sothoth-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/pb"
 	"time"
 )
 

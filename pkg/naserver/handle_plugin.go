@@ -4,8 +4,8 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/plugin"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/plugin"
 )
 
 func (na *NodeAgent) handleDeployPluginRequest(message *pb.Base) {

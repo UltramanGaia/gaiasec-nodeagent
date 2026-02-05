@@ -74,7 +74,7 @@ const file_heartbeat_proto_rawDesc = "" +
 	"\tHeartbeat\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02idB)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_heartbeat_proto_rawDescOnce sync.Once

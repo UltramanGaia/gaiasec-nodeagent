@@ -1,7 +1,7 @@
 package network
 
 import (
-	"sothoth-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/pb"
 )
 
 // GetNetworkConnections returns a list of network connections

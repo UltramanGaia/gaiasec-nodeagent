@@ -3,8 +3,8 @@ package naserver
 import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/terminal"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/terminal"
 )
 
 // PTY相关处理方法

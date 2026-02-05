@@ -24,25 +24,25 @@ const (
 type WebAppType int32
 
 const (
-	WebAppType_TOMCAT   WebAppType = 0
-	WebAppType_JETTY    WebAppType = 1
-	WebAppType_UNDERTOW WebAppType = 2
-	WebAppType_NETTY    WebAppType = 3
+	WebAppType_Tomcat   WebAppType = 0
+	WebAppType_Jetty    WebAppType = 1
+	WebAppType_Undertow WebAppType = 2
+	WebAppType_Netty    WebAppType = 3
 )
 
 // Enum value maps for WebAppType.
 var (
 	WebAppType_name = map[int32]string{
-		0: "TOMCAT",
-		1: "JETTY",
-		2: "UNDERTOW",
-		3: "NETTY",
+		0: "Tomcat",
+		1: "Jetty",
+		2: "Undertow",
+		3: "Netty",
 	}
 	WebAppType_value = map[string]int32{
-		"TOMCAT":   0,
-		"JETTY":    1,
-		"UNDERTOW": 2,
-		"NETTY":    3,
+		"Tomcat":   0,
+		"Jetty":    1,
+		"Undertow": 2,
+		"Netty":    3,
 	}
 )
 
@@ -76,28 +76,31 @@ func (WebAppType) EnumDescriptor() ([]byte, []int) {
 type WebProcessorType int32
 
 const (
-	WebProcessorType_FILTER          WebProcessorType = 0
-	WebProcessorType_SERVLET         WebProcessorType = 1
-	WebProcessorType_INTERCEPTOR     WebProcessorType = 2
-	WebProcessorType_CONTROLLER      WebProcessorType = 3
-	WebProcessorType_HENDLER_ADAPTER WebProcessorType = 4
+	WebProcessorType_Filter         WebProcessorType = 0
+	WebProcessorType_Servlet        WebProcessorType = 1
+	WebProcessorType_Listener       WebProcessorType = 2
+	WebProcessorType_Interceptor    WebProcessorType = 3
+	WebProcessorType_Controller     WebProcessorType = 4
+	WebProcessorType_HendlerAdapter WebProcessorType = 5
 )
 
 // Enum value maps for WebProcessorType.
 var (
 	WebProcessorType_name = map[int32]string{
-		0: "FILTER",
-		1: "SERVLET",
-		2: "INTERCEPTOR",
-		3: "CONTROLLER",
-		4: "HENDLER_ADAPTER",
+		0: "Filter",
+		1: "Servlet",
+		2: "Listener",
+		3: "Interceptor",
+		4: "Controller",
+		5: "HendlerAdapter",
 	}
 	WebProcessorType_value = map[string]int32{
-		"FILTER":          0,
-		"SERVLET":         1,
-		"INTERCEPTOR":     2,
-		"CONTROLLER":      3,
-		"HENDLER_ADAPTER": 4,
+		"Filter":         0,
+		"Servlet":        1,
+		"Listener":       2,
+		"Interceptor":    3,
+		"Controller":     4,
+		"HendlerAdapter": 5,
 	}
 )
 
@@ -131,19 +134,19 @@ func (WebProcessorType) EnumDescriptor() ([]byte, []int) {
 type WebFrameworkType int32
 
 const (
-	WebFrameworkType_SPRINGMVC WebFrameworkType = 0
-	WebFrameworkType_STRUTS    WebFrameworkType = 1
+	WebFrameworkType_SpringMvc WebFrameworkType = 0
+	WebFrameworkType_Struts    WebFrameworkType = 1
 )
 
 // Enum value maps for WebFrameworkType.
 var (
 	WebFrameworkType_name = map[int32]string{
-		0: "SPRINGMVC",
-		1: "STRUTS",
+		0: "SpringMvc",
+		1: "Struts",
 	}
 	WebFrameworkType_value = map[string]int32{
-		"SPRINGMVC": 0,
-		"STRUTS":    1,
+		"SpringMvc": 0,
+		"Struts":    1,
 	}
 )
 
@@ -221,7 +224,7 @@ func (x *WebProcessor) GetProcessorType() WebProcessorType {
 	if x != nil {
 		return x.ProcessorType
 	}
-	return WebProcessorType_FILTER
+	return WebProcessorType_Filter
 }
 
 func (x *WebProcessor) GetName() string {
@@ -308,7 +311,7 @@ func (x *WebFramework) GetFrameworkType() WebFrameworkType {
 	if x != nil {
 		return x.FrameworkType
 	}
-	return WebFrameworkType_SPRINGMVC
+	return WebFrameworkType_SpringMvc
 }
 
 func (x *WebFramework) GetProcessors() []*WebProcessor {
@@ -364,7 +367,7 @@ func (x *WebApp) GetAppType() WebAppType {
 	if x != nil {
 		return x.AppType
 	}
-	return WebAppType_TOMCAT
+	return WebAppType_Tomcat
 }
 
 func (x *WebApp) GetConnectors() []string {
@@ -483,24 +486,25 @@ const file_web_routes_proto_rawDesc = "" +
 	"\n" +
 	"WebAppType\x12\n" +
 	"\n" +
-	"\x06TOMCAT\x10\x00\x12\t\n" +
-	"\x05JETTY\x10\x01\x12\f\n" +
-	"\bUNDERTOW\x10\x02\x12\t\n" +
-	"\x05NETTY\x10\x03*a\n" +
+	"\x06Tomcat\x10\x00\x12\t\n" +
+	"\x05Jetty\x10\x01\x12\f\n" +
+	"\bUndertow\x10\x02\x12\t\n" +
+	"\x05Netty\x10\x03*n\n" +
 	"\x10WebProcessorType\x12\n" +
 	"\n" +
-	"\x06FILTER\x10\x00\x12\v\n" +
-	"\aSERVLET\x10\x01\x12\x0f\n" +
-	"\vINTERCEPTOR\x10\x02\x12\x0e\n" +
+	"\x06Filter\x10\x00\x12\v\n" +
+	"\aServlet\x10\x01\x12\f\n" +
+	"\bListener\x10\x02\x12\x0f\n" +
+	"\vInterceptor\x10\x03\x12\x0e\n" +
 	"\n" +
-	"CONTROLLER\x10\x03\x12\x13\n" +
-	"\x0fHENDLER_ADAPTER\x10\x04*-\n" +
+	"Controller\x10\x04\x12\x12\n" +
+	"\x0eHendlerAdapter\x10\x05*-\n" +
 	"\x10WebFrameworkType\x12\r\n" +
-	"\tSPRINGMVC\x10\x00\x12\n" +
+	"\tSpringMvc\x10\x00\x12\n" +
 	"\n" +
-	"\x06STRUTS\x10\x01B)\n" +
+	"\x06Struts\x10\x01B)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_web_routes_proto_rawDescOnce sync.Once

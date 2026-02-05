@@ -2,8 +2,8 @@ package proxy
 
 import (
 	"context"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/wsclient"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/wsclient"
 )
 
 type WSWriter struct {

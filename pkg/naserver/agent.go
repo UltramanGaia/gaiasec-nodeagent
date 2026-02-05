@@ -1,7 +1,7 @@
 // Package naserver 提供NodeAgent的核心功能实现
 //
 // 该包包含NodeAgent的主要结构和方法，负责：
-// - 与Sothoth服务器建立和维护WebSocket连接
+// - 与GaiaSec服务器建立和维护WebSocket连接
 // - 处理来自服务器的各种请求（命令执行、进程查询等）
 // - 管理终端会话和文件系统操作
 // - 提供独立连接管理器支持多会话架构
@@ -10,14 +10,14 @@ package naserver
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"sothoth-nodeagent/pkg/config"
-	"sothoth-nodeagent/pkg/constant"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/process"
-	"sothoth-nodeagent/pkg/proxy"
-	"sothoth-nodeagent/pkg/system"
-	"sothoth-nodeagent/pkg/udsserver"
-	"sothoth-nodeagent/pkg/wsclient"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/constant"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/process"
+	"gaiasec-nodeagent/pkg/proxy"
+	"gaiasec-nodeagent/pkg/system"
+	"gaiasec-nodeagent/pkg/udsserver"
+	"gaiasec-nodeagent/pkg/wsclient"
 	"time"
 )
 
@@ -27,7 +27,7 @@ type NodeAgent struct {
 	ProjectID    string
 	NodeID       string
 	ServerURL    string
-	SothothDir   string
+	GaiaSecDir   string
 	ProxyMode    bool
 	Sock5Addr    string
 	AutoHook     bool
@@ -52,7 +52,7 @@ type NodeAgent struct {
 //	projectID - 项目ID
 //	nodeID - 节点ID
 //	server - 服务器地址
-//	sothothDir - Sothoth工作目录
+//	gaiasecDir - GaiaSec工作目录
 //	proxyMode - 是否启用代理模式
 //
 // 返回：
@@ -91,7 +91,7 @@ func NewNodeAgent() (*NodeAgent, error) {
 		ProjectID:    cfg.ProjectID,
 		NodeID:       cfg.NodeID,
 		ServerURL:    serverURL,
-		SothothDir:   cfg.SothothDir,
+		GaiaSecDir:   cfg.GaiaSecDir,
 		ProxyMode:    cfg.ProxyMode,
 		Sock5Addr:    cfg.Socks5Addr,
 		AutoHook:     cfg.AutoHook,
@@ -118,12 +118,12 @@ func NewNodeAgent() (*NodeAgent, error) {
 //
 //	error - 运行过程中的错误
 func (na *NodeAgent) Start() error {
-	log.Infof("Sothoth Node Agent v%s", na.AgentVersion)
+	log.Infof("GaiaSec Node Agent v%s", na.AgentVersion)
 	log.Infof("ProjectID: %s", na.ProjectID)
 	log.Infof("NodeID: %s", na.NodeID)
 	log.Infof("HostName: %s", na.Hostname)
 	log.Infof("IP Addr: %s", na.IPAddress)
-	log.Infof("Sothoth Dir: %s", na.SothothDir)
+	log.Infof("GaiaSec Dir: %s", na.GaiaSecDir)
 	log.Infof("ProxyMode: %t", na.ProxyMode)
 	log.Infof("ConnectUrl: %s", na.ServerURL)
 

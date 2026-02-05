@@ -146,7 +146,7 @@ const file_terminal_proto_rawDesc = "" +
 	"\x16TerminalCreateResponse\x12\x16\n" +
 	"\x06result\x18\x01 \x01(\tR\x06resultB)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_terminal_proto_rawDescOnce sync.Once

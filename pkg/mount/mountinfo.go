@@ -2,7 +2,7 @@ package mount
 
 import (
 	"fmt"
-	"sothoth-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/util"
 	"strconv"
 	"strings"
 )

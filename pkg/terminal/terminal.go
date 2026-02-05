@@ -10,8 +10,8 @@ import (
 	"nhooyr.io/websocket"
 	"os"
 	"runtime"
-	"sothoth-nodeagent/pkg/config"
-	"sothoth-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/util"
 	"strings"
 	"sync"
 )

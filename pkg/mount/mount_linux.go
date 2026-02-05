@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
-	"sothoth-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/util"
 	"strings"
 )
 

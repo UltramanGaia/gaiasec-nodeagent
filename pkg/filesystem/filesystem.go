@@ -6,8 +6,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 	"strings"
 )
 

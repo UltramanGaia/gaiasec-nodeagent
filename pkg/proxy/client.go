@@ -9,9 +9,9 @@ import (
 	"io"
 	"net"
 	"nhooyr.io/websocket/wspb"
-	"sothoth-nodeagent/pkg/config"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 	"strconv"
 	"time"
 )

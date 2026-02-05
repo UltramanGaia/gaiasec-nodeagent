@@ -110,7 +110,7 @@ const file_base_proto_rawDesc = "" +
 	"\asession\x18\x04 \x01(\tR\asession\x12\x12\n" +
 	"\x04data\x18\x05 \x01(\fR\x04dataB)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_base_proto_rawDescOnce sync.Once

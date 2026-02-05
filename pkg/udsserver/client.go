@@ -7,9 +7,9 @@ import (
 	"google.golang.org/protobuf/proto"
 	"io"
 	"net"
-	"sothoth-nodeagent/pkg/constant"
-	"sothoth-nodeagent/pkg/pb"
-	"sothoth-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/constant"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 	"sync"
 )
 

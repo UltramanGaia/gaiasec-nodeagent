@@ -1009,7 +1009,7 @@ const file_iast_proto_rawDesc = "" +
 	"field_name\x18\x05 \x01(\tR\tfieldName\x12\x14\n" +
 	"\x05value\x18\x06 \x01(\tR\x05valueB)\n" +
 	"\n" +
-	"sothoth.pbP\x01Z\x19sothoth-nodeagent/pkg/pb/b\x06proto3"
+	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
 var (
 	file_iast_proto_rawDescOnce sync.Once
