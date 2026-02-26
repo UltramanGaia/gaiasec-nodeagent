@@ -113,7 +113,7 @@ cd gaiasec-nodeagent
 GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -o nodeagent-linux-amd64 ./cmd/nodeagent
 
 # 构建 Linux ARM64（需要交叉编译器）
-GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc go build -o nodeagent-linux-arm64 ./cmd/nodeagentugs
+GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc go build -o nodeagent-linux-arm64 ./cmd/nodeagent
 
 # 构建 Windows AMD64
 GOOS=windows GOARCH=amd64 go build -o nodeagent-windows-amd64.exe ./cmd/nodeagent
