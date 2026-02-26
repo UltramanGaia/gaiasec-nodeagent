@@ -2,7 +2,9 @@ package wsclient
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 	"nhooyr.io/websocket"
@@ -50,9 +52,20 @@ func (c *Client) Reconnect() error {
 		return fmt.Errorf("it is not Running")
 	}
 	log.Errorf("trying to reconnect client: [" + c.uri + "]")
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
+	}
+	opts := &websocket.DialOptions{
+		HTTPClient: httpClient,
+	}
 	for i := 0; c.retryNum == 0 || i <= c.retryNum; i++ {
 		time.Sleep(time.Duration(c.pauseBeforeRetry) * time.Second)
-		client, _, err := websocket.Dial(c.ctx, c.uri, nil)
+		client, _, err := websocket.Dial(c.ctx, c.uri, opts)
 		if err == nil {
 			log.Info("Reconnect success")
 			c.Conn = client
@@ -64,7 +77,18 @@ func (c *Client) Reconnect() error {
 
 func (c *Client) Start() {
 	c.Running = true
-	conn, _, err := websocket.Dial(c.ctx, c.uri, nil)
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
+	}
+	opts := &websocket.DialOptions{
+		HTTPClient: httpClient,
+	}
+	conn, _, err := websocket.Dial(c.ctx, c.uri, opts)
 	if err != nil {
 		log.Error("dial:", err)
 		os.Exit(-1)

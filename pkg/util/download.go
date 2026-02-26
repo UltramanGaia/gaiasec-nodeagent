@@ -2,14 +2,15 @@ package util
 
 import (
 	"archive/zip"
+	"crypto/tls"
 	"fmt"
+	"gaiasec-nodeagent/pkg/config"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
-	"gaiasec-nodeagent/pkg/config"
 	"strings"
 )
 
@@ -73,16 +74,22 @@ func DownloadTool(name string) error {
 
 // downloadFile 下载文件
 func downloadFile(url, filepath string) error {
-	// 处理相对URL
-	if strings.HasPrefix(url, "/") {
-		// 这里应该从配置中获取服务器地址，暂时硬编码
-		url = "http://" + config.GetInstance().Server + url
-	}
+	url = config.GetInstance().Server + url
 
 	log.Infof("download file: %s", url)
 
+	// 创建自定义HTTP客户端，禁用TLS证书验证
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
+	}
+
 	// 创建HTTP请求
-	resp, err := http.Get(url)
+	resp, err := httpClient.Get(url)
 	if err != nil {
 		return fmt.Errorf("HTTP request failed: %v", err)
 	}

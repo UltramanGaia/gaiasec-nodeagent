@@ -3,17 +3,20 @@ package terminal
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
-	"github.com/runletapp/go-console"
-	log "github.com/sirupsen/logrus"
-	"io"
-	"nhooyr.io/websocket"
-	"os"
-	"runtime"
 	"gaiasec-nodeagent/pkg/config"
 	"gaiasec-nodeagent/pkg/util"
+	"io"
+	"net/http"
+	"os"
+	"runtime"
 	"strings"
 	"sync"
+
+	"github.com/runletapp/go-console"
+	log "github.com/sirupsen/logrus"
+	"nhooyr.io/websocket"
 )
 
 type Terminal struct {
@@ -73,8 +76,21 @@ func (t *Terminal) Start() {
 
 	sessionID := strings.Replace(t.SessionID, "client-", "server-", -1)
 	cfg := config.GetInstance()
-	uri := "ws://" + cfg.Server + "/ws/terminal?nodeId=" + cfg.NodeID + "&clientId=" + sessionID
-	conn, _, err := websocket.Dial(ctx, uri, nil)
+	protocol, host := util.ParseServerURL(cfg.Server)
+	wsProtocol := util.GetWebSocketProtocol(protocol)
+	uri := wsProtocol + "://" + host + "/ws/terminal?nodeId=" + cfg.NodeID + "&clientId=" + sessionID
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
+	}
+	opts := &websocket.DialOptions{
+		HTTPClient: httpClient,
+	}
+	conn, _, err := websocket.Dial(ctx, uri, opts)
 	if err != nil {
 		log.Infof("failed to connect to terminal: %v", err)
 		return

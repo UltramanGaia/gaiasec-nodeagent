@@ -1,16 +1,19 @@
 package naserver
 
 import (
-	log "github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/proto"
+	"crypto/tls"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/filesystem"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
-	"gaiasec-nodeagent/pkg/config"
-	"gaiasec-nodeagent/pkg/filesystem"
-	"gaiasec-nodeagent/pkg/pb"
+
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
 )
 
 // 文件系统相关处理方法
@@ -209,7 +212,18 @@ func (na *NodeAgent) handleFsDownload(message *pb.Base) {
 
 	cfg := config.GetInstance()
 
-	res, err := http.Post("http://"+cfg.Server+"/remote/filesystem/upload", m.FormDataContentType(), r)
+	// 创建自定义HTTP客户端，禁用TLS证书验证
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
+	}
+
+	protocol, host := util.ParseServerURL(cfg.Server)
+	res, err := httpClient.Post(protocol+"://"+host+"/remote/filesystem/upload", m.FormDataContentType(), r)
 	if err != nil {
 		log.Info("post error:", err)
 		return

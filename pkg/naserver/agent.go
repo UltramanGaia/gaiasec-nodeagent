@@ -17,6 +17,7 @@ import (
 	"gaiasec-nodeagent/pkg/proxy"
 	"gaiasec-nodeagent/pkg/system"
 	"gaiasec-nodeagent/pkg/udsserver"
+	"gaiasec-nodeagent/pkg/util"
 	"gaiasec-nodeagent/pkg/wsclient"
 	"time"
 )
@@ -62,7 +63,9 @@ type NodeAgent struct {
 func NewNodeAgent() (*NodeAgent, error) {
 	cfg := config.GetInstance()
 
-	serverURL := fmt.Sprintf("ws://%s/ws/agent?projectId=%s&connectId=%s", cfg.Server, cfg.ProjectID, cfg.NodeID)
+	protocol, host := util.ParseServerURL(cfg.Server)
+	wsProtocol := util.GetWebSocketProtocol(protocol)
+	serverURL := fmt.Sprintf("%s://%s/ws/agent?projectId=%s&connectId=%s", wsProtocol, host, cfg.ProjectID, cfg.NodeID)
 	hostname, err := system.GetHostname()
 	if err != nil {
 		return nil, fmt.Errorf("获取主机名失败: %v", err)
