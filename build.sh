@@ -61,7 +61,7 @@ CURRENT=0
     echo -e "${BLUE}[${CURRENT}/${TOTAL}] Building for $OS/$ARCH...${NC}"
     
     # Set output filename with version info
-    OUTPUT_NAME="nodeagent-${BUILD_VERSION}-${OS}-${ARCH}"
+    OUTPUT_NAME="nodeagent-${OS}-${ARCH}"
     if [ "$OS" = "windows" ]; then
         OUTPUT_NAME="$OUTPUT_NAME.exe"
     fi
