@@ -51,8 +51,9 @@ PLATFORMS=(
 TOTAL=${#PLATFORMS[@]}
 CURRENT=0
 
-for PLATFORM in "${PLATFORMS[@]}"; do
-    ((CURRENT++))
+    for PLATFORM in "${PLATFORMS[@]}"; do
+    CURRENT=$((CURRENT + 1))
+
     CC=""
     CC_OPT=""
     IFS='/' read -r OS ARCH CC <<< "$PLATFORM"
