@@ -9,7 +9,6 @@ package naserver
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"gaiasec-nodeagent/pkg/config"
 	"gaiasec-nodeagent/pkg/constant"
 	"gaiasec-nodeagent/pkg/pb"
@@ -19,6 +18,7 @@ import (
 	"gaiasec-nodeagent/pkg/udsserver"
 	"gaiasec-nodeagent/pkg/util"
 	"gaiasec-nodeagent/pkg/wsclient"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -178,44 +178,46 @@ func (na *NodeAgent) handleWsMessages() {
 		if na.NodeID == destination {
 			log.Debug("receive message, handle it.")
 			// 根据消息类型处理
-				switch baseMessage.Type {
-				case pb.MessageType_PROCESSES_REQUEST:
-					go na.handleProcessRequest(baseMessage)
-				case pb.MessageType_NETWORK_REQUEST:
-					go na.handleNetworkRequest(baseMessage)
-				case pb.MessageType_DEPLOY_PLUGIN_REQUEST:
-					go na.handleDeployPluginRequest(baseMessage)
-				case pb.MessageType_EXECUTE_COMMAND_REQUEST:
-					go na.handleExecuteCommand(baseMessage)
-				case pb.MessageType_FS_LIST_DIR_REQUEST:
-					go na.handleFsListDir(baseMessage)
-				case pb.MessageType_FS_READ_FILE_REQUEST:
-					go na.handleFsReadFile(baseMessage)
-				case pb.MessageType_FS_WRITE_FILE_REQUEST:
-					go na.handleFsWriteFile(baseMessage)
-				case pb.MessageType_FS_CREATE_FILE_REQUEST:
-					go na.handleFsCreateFile(baseMessage)
-				case pb.MessageType_FS_CREATE_DIR_REQUEST:
-					go na.handleFsCreateDir(baseMessage)
-				case pb.MessageType_FS_DELETE_REQUEST:
-					go na.handleFsDelete(baseMessage)
-				case pb.MessageType_FS_RENAME_REQUEST:
-					go na.handleFsRename(baseMessage)
-				case pb.MessageType_FS_DOWNLOAD_REQUEST:
-					go na.handleFsDownload(baseMessage)
-				case pb.MessageType_PROXY_CLOSE: // closed by client
-					go na.handleProxyClose(baseMessage)
-				case pb.MessageType_PROXY_ESTABLISH: // establish
-					go na.handleProxyEstablish(baseMessage)
-				case pb.MessageType_PROXY_DATA_TO_SERVER:
-					go na.handleProxyDataToServer(baseMessage)
-				case pb.MessageType_PROXY_DATA_TO_CLIENT:
-					go na.handleProxyDataToClient(baseMessage)
-				case pb.MessageType_TERMINAL_CREATE_REQUEST:
-					go na.handlePtyCreate(baseMessage)
-				default:
-					log.Error("UNKNOWN MESSAGE TYPE")
-				}
+			switch baseMessage.Type {
+			case pb.MessageType_PROCESSES_REQUEST:
+				go na.handleProcessRequest(baseMessage)
+			case pb.MessageType_NETWORK_REQUEST:
+				go na.handleNetworkRequest(baseMessage)
+			case pb.MessageType_DEPLOY_PLUGIN_REQUEST:
+				go na.handleDeployPluginRequest(baseMessage)
+			case pb.MessageType_EXECUTE_COMMAND_REQUEST:
+				go na.handleExecuteCommand(baseMessage)
+			case pb.MessageType_FS_LIST_DIR_REQUEST:
+				go na.handleFsListDir(baseMessage)
+			case pb.MessageType_FS_READ_FILE_REQUEST:
+				go na.handleFsReadFile(baseMessage)
+			case pb.MessageType_FS_WRITE_FILE_REQUEST:
+				go na.handleFsWriteFile(baseMessage)
+			case pb.MessageType_FS_CREATE_FILE_REQUEST:
+				go na.handleFsCreateFile(baseMessage)
+			case pb.MessageType_FS_CREATE_DIR_REQUEST:
+				go na.handleFsCreateDir(baseMessage)
+			case pb.MessageType_FS_DELETE_REQUEST:
+				go na.handleFsDelete(baseMessage)
+			case pb.MessageType_FS_RENAME_REQUEST:
+				go na.handleFsRename(baseMessage)
+			case pb.MessageType_FS_DOWNLOAD_REQUEST:
+				go na.handleFsDownload(baseMessage)
+			case pb.MessageType_PROXY_CLOSE: // closed by client
+				go na.handleProxyClose(baseMessage)
+			case pb.MessageType_PROXY_ESTABLISH: // establish
+				go na.handleProxyEstablish(baseMessage)
+			case pb.MessageType_PROXY_DATA_TO_SERVER:
+				go na.handleProxyDataToServer(baseMessage)
+			case pb.MessageType_PROXY_DATA_TO_CLIENT:
+				go na.handleProxyDataToClient(baseMessage)
+			case pb.MessageType_TERMINAL_CREATE_REQUEST:
+				go na.handlePtyCreate(baseMessage)
+			case pb.MessageType_CONTAINER_REQUEST:
+				go na.handleContainerRequest(baseMessage)
+			default:
+				log.Error("UNKNOWN MESSAGE TYPE")
+			}
 		} else {
 			log.Info("receive message, route it.")
 			na.routeToAgent(baseMessage)
