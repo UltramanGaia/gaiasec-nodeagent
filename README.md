@@ -2,7 +2,7 @@
 
 ## 1. 功能概述
 
-Node Agent 是 GaiaSec 系统中的节点代理，主要负责与 Java Agent 通信，管理节点状态，以及将收集到的信息传递给服务器。
+Node Agent 是 GaiaSec 系统中的节点代理，主要负责与 Java Agent/ Python Agent 通信，管理节点状态，以及将收集到的信息传递给服务器。
 
 ## 2. 核心特性
 
