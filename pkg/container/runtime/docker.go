@@ -143,12 +143,12 @@ func parseDockerPorts(ports []types.Port) []PortMapping {
 
 func parseDockerMounts(mounts []types.MountPoint) []MountPoint {
 	result := make([]MountPoint, 0, len(mounts))
-	for _, mount := range mounts {
+	for _, m := range mounts {
 		result = append(result, MountPoint{
-			Source:      mount.Source,
-			Destination: mount.Destination,
-			Type:        mount.Type,
-			Driver:      mount.Driver,
+			Source:      m.Source,
+			Destination: m.Destination,
+			Type:        string(m.Type),
+			Driver:      m.Driver,
 		})
 	}
 	return result
@@ -158,13 +158,11 @@ func parseDockerNetworks(networks map[string]*network.EndpointSettings) []Contai
 	result := make([]ContainerNetwork, 0, len(networks))
 	for name, net := range networks {
 		ipAddr := ""
-		macAddr := ""
 		gateway := ""
 		networkID := ""
 		aliases := []string{}
 		if net != nil {
 			ipAddr = net.IPAddress
-			macAddr = net.MacAddress
 			gateway = net.Gateway
 			networkID = net.NetworkID
 			aliases = net.Aliases
@@ -174,7 +172,6 @@ func parseDockerNetworks(networks map[string]*network.EndpointSettings) []Contai
 			NetworkName: name,
 			IPAddress:   ipAddr,
 			Gateway:     gateway,
-			MacAddress:  macAddr,
 			Aliases:     aliases,
 		})
 	}

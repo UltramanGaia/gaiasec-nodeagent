@@ -3,6 +3,7 @@ package container
 import (
 	"gaiasec-nodeagent/pkg/container/runtime"
 	pb "gaiasec-nodeagent/pkg/pb"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -51,7 +52,7 @@ func GetContainerList() ([]*pb.Container, error) {
 }
 
 // Helper: 将内部 Ports 映射为 protobuf 类型
-func toProtobufPorts(ports []PortMapping) []*pb.PortMapping {
+func toProtobufPorts(ports []runtime.PortMapping) []*pb.PortMapping {
 	result := make([]*pb.PortMapping, 0, len(ports))
 	for _, p := range ports {
 		result = append(result, &pb.PortMapping{
@@ -65,7 +66,7 @@ func toProtobufPorts(ports []PortMapping) []*pb.PortMapping {
 }
 
 // Helper: 将内部 MountPoint 映射为 protobuf 类型
-func toProtobufMounts(mounts []MountPoint) []*pb.MountPoint {
+func toProtobufMounts(mounts []runtime.MountPoint) []*pb.MountPoint {
 	result := make([]*pb.MountPoint, 0, len(mounts))
 	for _, m := range mounts {
 		result = append(result, &pb.MountPoint{
@@ -79,7 +80,7 @@ func toProtobufMounts(mounts []MountPoint) []*pb.MountPoint {
 }
 
 // Helper: 将内部 Network 映射为 protobuf 类型
-func toProtobufNetworks(nets []ContainerNetwork) []*pb.ContainerNetwork {
+func toProtobufNetworks(nets []runtime.ContainerNetwork) []*pb.ContainerNetwork {
 	result := make([]*pb.ContainerNetwork, 0, len(nets))
 	for _, n := range nets {
 		result = append(result, &pb.ContainerNetwork{

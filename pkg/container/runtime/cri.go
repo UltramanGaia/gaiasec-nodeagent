@@ -2,12 +2,13 @@ package runtime
 
 import (
 	"context"
+	"strconv"
+	"strings"
+
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1alpha2"
-	"strconv"
-	"strings"
+	runtimeapi "k8s.io/cri-api/pkg/apis/runtime/v1"
 )
 
 // CRIClient 实现了运行时客户端接口（CRI 通过 CRI-O/containerd 的 CRI API）
@@ -60,14 +61,17 @@ func (c *CRIClient) ListContainers() ([]Container, error) {
 		}
 
 		pidNs := ""
-		if status.Status != nil && status.Status.GetProcessConfig() != nil {
-			// 兼容性处理：某些版本字段不会直接暴露 ProcessId
-		}
-		if status.Status != nil && status.Status.GetPid() != 0 {
-			pidNs, _ = GetPIDNamespace(int(status.Status.Pid))
+		pid := 0
+		if status.Info != nil {
+			if pidStr, ok := status.Info["pid"]; ok {
+				pid, _ = strconv.Atoi(pidStr)
+				if pid != 0 {
+					pidNs, _ = GetPIDNamespace(pid)
+				}
+			}
 		}
 
-		podName, k8sNs := parseK8sMetadata(status.Labels)
+		podName, k8sNs := parseK8sMetadata(ctr.Labels)
 		state := parseCRIState(status.Status)
 
 		cont := Container{
@@ -75,13 +79,13 @@ func (c *CRIClient) ListContainers() ([]Container, error) {
 			Name:         ctr.Metadata.Name,
 			State:        state,
 			ImageID:      stripImageID(ctr.ImageRef),
-			ImageName:    status.Status.GetImageRef(),
-			PID:          strconv.Itoa(int(status.Status.GetPid())),
+			ImageName:    status.Status.ImageRef,
+			PID:          strconv.Itoa(pid),
 			PIDNamespace: pidNs,
 			Runtime:      c.runtimeType,
-			CreateTime:   status.CreatedAt,
-			Labels:       status.Labels,
-			Annotations:  status.Annotations,
+			CreateTime:   status.Status.CreatedAt,
+			Labels:       ctr.Labels,
+			Annotations:  ctr.Annotations,
 			PodName:      podName,
 			Namespace:    k8sNs,
 		}
