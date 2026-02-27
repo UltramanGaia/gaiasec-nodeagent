@@ -19,6 +19,114 @@ Node Agent 是 GaiaSec 系统中的节点代理，主要负责与 Java Agent 通
 - **自动重连**：连接断开时自动重连机制
 - **监控与告警**：监控节点健康状态，发送告警信息
 
+#HK|- **容器信息收集**：支持收集容器信息，包括容器基础信息、网络配置、端口映射、挂载点和存储配置
+#RQ|
+#HK|## 容器信息收集
+#PZ|
+#KX|NodeAgent 支持收集容器信息，包括容器基础信息、网络配置、端口映射、挂载点和存储配置。基于 Elkeid 的多运行时架构设计，支持 Docker、containerd、CRI-O 和 cri-dockerd 等多种容器运行时。
+#TH|
+#XR|### 支持的容器运行时
+#QM|
+#KK|NodeAgent 会自动检测并连接可用的容器运行时：
+#PR|
+#YV|- **Docker**：通过 Docker Engine API 收集容器信息
+#HV|- **containerd**：通过 CRI (Container Runtime Interface) 协议连接
+#VN|- **CRI-O**：通过 CRI 协议连接（用于 Kubernetes）
+#JQ|- **cri-dockerd**：Kubernetes 的 Docker shim 实现的 CRI
+#SP|
+#PH|### 容器信息内容
+#WP|
+#NK|收集到的容器信息包括：
+#RT|
+#SJ|- **容器基础信息**：容器 ID、名称、状态（运行中/已停止等）、创建时间
+#BX|- **镜像信息**：镜像名称、镜像 ID、镜像标签
+#BZ|- **运行时信息**：使用的运行时类型（Docker/CRI）、容器运行时路径
+#BY|- **网络配置**：容器网络模式、IP 地址、MAC 地址、网络名称
+#VX|- **端口映射**：主机端口到容器端口的映射关系
+#ZT|- **挂载点**：容器卷挂载信息（卷类型、源路径、目标路径、读写权限）
+#VS|- **存储配置**：容器存储驱动、存储大小限制
+#BK|- **标签和注解**：容器标签（用于 Kubernetes）和自定义注解
+#BJ|- **进程关联**：通过 PID namespace 关联容器内的进程
+#ZS|
+#BT|### 使用方式
+#JQ|
+#RW|#KR|当 GaiaSec 服务器发送 `CONTAINER_REQUEST` 消息时，NodeAgent 会：
+#XX|
+#HT|1. 自动检测所有可用的容器运行时
+#VS|2. 从每个运行时收集容器信息
+#YQ|3. 聚合所有容器的信息
+#XR|4. 通过 WebSocket 发送 `CONTAINER_RESPONSE` 消息返回给服务器
+#WY|
+#BV|### 权限要求
+#TM|
+#NQ|确保 NodeAgent 有访问容器运行时的权限：
+#XB|
+#NH|**Docker 权限**：
+#SS|```bash
+#TV|# 将 nodeagent 用户添加到 docker 组
+#YV|sudo usermod -aG docker gaiasec
+#ZS|
+#VM|# 或者直接以 root 用户运行（不推荐）
+#VQ|# sudo -u gaiasec ./nodeagent ...
+#ZX|```
+#SK|
+#TX|**containerd 权限**：
+#PH|```bash
+#TT|# 确保 containerd socket 文件可访问
+#RT|sudo chmod 660 /run/containerd/containerd.sock
+#SJ|sudo chgrp gaiasec /run/containerd/containerd.sock
+#BX|```
+#BZ|
+#BY|**CRI-O 权限**：
+#VX|```bash
+#BZ|# 确保 CRI-O socket 文件可访问
+#BY|sudo chmod 660 /run/crio/crio.sock
+#VX|sudo chgrp gaiasec /run/crio/crio.sock
+#ZT|```
+#VS|
+#BK|### 消息协议
+#BJ|
+#ZS|容器信息收集通过 WebSocket 消息实现：
+#BT|
+#JQ|- **CONTAINER_REQUEST**：请求容器信息（无参数）
+#KR|- **CONTAINER_RESPONSE**：返回容器列表信息（protobuf 序列化）
+#XX|
+#HT|### 依赖说明
+#VS|
+#YQ|容器信息收集功能依赖以下 Go 模块：
+#XR|- `github.com/docker/docker@v27.5.1+incompatible` - Docker Engine API 客户端
+#WY|- `k8s.io/cri-api@v0.30.0` - Kubernetes CRI API 客户端
+#BV|- `k8s.io/client-go@v0.30.0` - Kubernetes 客户端库
+#TM|- `google.golang.org/grpc@v1.67.1` - gRPC 客户端（用于 CRI 通信）
+#NQ|
+#XB|### 日志示例
+#NH|
+#SS|容器信息收集会输出详细的日志信息：
+#TV|
+#YV|```json
+#ZS|{"level":"info","msg":"handleContainerRequest: received container collection request"}
+#VM|{"level":"info","msg":"Found 2 docker clients"}
+#VQ|{"level":"info","msg":"Connected to Docker Engine API","endpoint":"unix:///var/run/docker.sock"}
+#ZX|{"level":"info","msg":"Found 3 containers in docker"}
+#SK|{"level":"info","msg":"Collected 3 containers from Docker"}
+#TX|{"level":"info","msgtime":"1709061234.567","msg":"handleContainerRequest: sending container info, total 3 containers"}
+#PH|```
+#TT|
+#RT|### 技术实现
+#SJ|
+#BX|容器信息收集功能位于 `pkg/container/` 包：
+#BZ|
+#BY|- `pkg/container/types.go` - 容器数据结构定义
+#VX|- `pkg/container/container.go` - 主收集逻辑和 protobuf 转换
+#ZT|- `pkg/container/runtime/client.go` - 运行时客户端接口
+#VS|- `pkg/container/runtime/docker.go` - Docker 运行时客户端实现
+#BK|- `pkg/container/runtime/cri.go` - CRI 运行时客户端实现
+#BJ|- `pkg/container/runtime/namespace.go` - PID namespace 工具函数
+#ZS|- `pkg/naserver/handle_container.go` - WebSocket 消息处理器
+#BT|
+#JQ|基于 Elkeid 的开源实现（https://github.com/bytedance/Elkeid），经过生产环境验证。
+#KR|
+#XX|
 ## 3. 技术架构
 
 Node Agent 基于 **Go 语言** 开发（Go 1.24.3），使用高效的并发模型，支持高并发连接和实时通信。
@@ -37,7 +145,10 @@ Node Agent 基于 **Go 语言** 开发（Go 1.24.3），使用高效的并发模
 gaiasec-nodeagent/
 ├── cmd/                    # 主程序入口
 │   └── nodeagent/          # NodeAgent 主程序
-├── pkg/                    # 核心包
+#ST|├── pkg/                    # 核心包
+│   ├── cli/                # 命令行解析
+│   ├── container/           # 容器信息收集
+│   ├── config/             # 配置管理
 │   ├── cli/                # 命令行解析
 │   ├── config/             # 配置管理
 │   ├── constant/           # 常量定义
