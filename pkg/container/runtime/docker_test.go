@@ -9,29 +9,28 @@ import (
 )
 
 func TestDockerClient_GetContainerList(t *testing.T) {
-	// This is a stub test since we cannot run Docker in current environment
-	// In a real test environment, we would:
-	// 1. Start test containers
-	// 2. Create Docker client
-	// 3. Call GetContainerList
-	// 4. Verify returned containers
+	client, err := NewDockerClient()
+	if err != nil {
+		t.Skipf("Skipping Docker client test - cannot connect to Docker daemon: %v", err)
+		return
+	}
 
-	t.Skip("Skipping Docker client test - requires Docker runtime environment")
+	containers, err := client.ListContainers()
+	if err != nil {
+		t.Fatalf("Failed to get container list: %v", err)
+	}
 
-	// Example implementation for Docker environment:
-	/*
-		client := &DockerClient{}
-		containers, err := client.GetContainerList()
-		assert.NoError(t, err)
-		assert.NotEmpty(t, containers)
+	assert.NotEmpty(t, containers, "Should find at least one container")
 
-		for _, c := range containers {
-			assert.NotEmpty(t, c.ID)
-			assert.NotEmpty(t, c.Name)
-			assert.NotEmpty(t, c.Runtime)
-			assert.Equal(t, "docker", c.Runtime)
-		}
-	*/
+	for _, c := range containers {
+		assert.NotEmpty(t, c.ID, "Container ID should not be empty")
+		assert.NotEmpty(t, c.Name, "Container Name should not be empty")
+		assert.NotEmpty(t, c.State, "Container State should not be empty")
+		assert.Equal(t, "docker", c.Runtime, "Runtime should be docker")
+		assert.NotZero(t, c.CreateTime, "CreateTime should not be zero")
+	}
+
+	t.Logf("Successfully collected %d containers", len(containers))
 }
 
 func TestDockerClient_getContainerInfo(t *testing.T) {

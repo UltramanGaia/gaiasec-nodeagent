@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	log "github.com/sirupsen/logrus"
 )
@@ -76,7 +78,7 @@ func NewDockerClient() (*DockerClient, error) {
 
 func (d *DockerClient) ListContainers() ([]Container, error) {
 	ctx := context.Background()
-	ctrs, err := d.client.ContainerList(ctx, types.ContainerListOptions{All: true})
+	ctrs, err := d.client.ContainerList(ctx, container.ListOptions{All: true})
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +97,7 @@ func (d *DockerClient) ListContainers() ([]Container, error) {
 		}
 		pidNs, _ := GetPIDNamespace(pid)
 
-		ports := parseDockerPorts(inspect.NetworkSettings.Ports)
+		ports := parseDockerPorts(ctr.Ports)
 		mounts := parseDockerMounts(inspect.Mounts)
 		networks := parseDockerNetworks(inspect.NetworkSettings.Networks)
 
@@ -108,7 +110,7 @@ func (d *DockerClient) ListContainers() ([]Container, error) {
 			PID:          strconv.Itoa(inspect.State.Pid),
 			PIDNamespace: pidNs,
 			Runtime:      "docker",
-			CreateTime:   ctr.Created.Unix(),
+			CreateTime:   ctr.Created,
 			Ports:        ports,
 			Mounts:       mounts,
 			Networks:     networks,
@@ -124,15 +126,15 @@ func (d *DockerClient) RuntimeType() string {
 	return "docker"
 }
 
-func parseDockerPorts(ports types.PortMap) []PortMapping {
+func parseDockerPorts(ports []types.Port) []PortMapping {
 	result := []PortMapping{}
-	for containerPort, bindings := range ports {
-		for _, binding := range bindings {
+	for _, port := range ports {
+		if port.PublicPort != 0 {
 			result = append(result, PortMapping{
-				ContainerPort: int32(containerPort.Int()),
-				Protocol:      containerPort.Proto(),
-				HostIP:        binding.HostIP,
-				HostPort:      int32(binding.HostPort),
+				ContainerPort: int32(port.PrivatePort),
+				Protocol:      port.Type,
+				HostIP:        port.IP,
+				HostPort:      int32(port.PublicPort),
 			})
 		}
 	}
@@ -152,15 +154,28 @@ func parseDockerMounts(mounts []types.MountPoint) []MountPoint {
 	return result
 }
 
-func parseDockerNetworks(networks map[string]types.NetworkResource) []ContainerNetwork {
+func parseDockerNetworks(networks map[string]*network.EndpointSettings) []ContainerNetwork {
 	result := make([]ContainerNetwork, 0, len(networks))
-	for name, network := range networks {
+	for name, net := range networks {
+		ipAddr := ""
+		macAddr := ""
+		gateway := ""
+		networkID := ""
+		aliases := []string{}
+		if net != nil {
+			ipAddr = net.IPAddress
+			macAddr = net.MacAddress
+			gateway = net.Gateway
+			networkID = net.NetworkID
+			aliases = net.Aliases
+		}
 		result = append(result, ContainerNetwork{
-			NetworkID:   network.NetworkID,
+			NetworkID:   networkID,
 			NetworkName: name,
-			IPAddress:   network.IPAddress,
-			Gateway:     network.Gateway,
-			Aliases:     network.Aliases,
+			IPAddress:   ipAddr,
+			Gateway:     gateway,
+			MacAddress:  macAddr,
+			Aliases:     aliases,
 		})
 	}
 	return result
