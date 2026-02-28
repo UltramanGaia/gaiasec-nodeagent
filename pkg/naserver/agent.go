@@ -166,8 +166,8 @@ func (na *NodeAgent) handleWsMessages() {
 			log.Error("read:", err)
 			err = na.wsClient.Reconnect()
 			if err != nil {
-				log.Error("Reconnect failed, wait 5 mins")
-				time.Sleep(5 * time.Minute)
+				log.Error("Reconnect failed, wait 1 mins")
+				time.Sleep(1 * time.Minute)
 				continue
 			}
 			na.reportRegister()
