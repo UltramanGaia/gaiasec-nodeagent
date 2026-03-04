@@ -3,12 +3,12 @@ package proxy
 import (
 	"context"
 	"errors"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/wsclient"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 	"net"
 	"nhooyr.io/websocket/wspb"
-	"gaiasec-nodeagent/pkg/pb"
-	"gaiasec-nodeagent/pkg/wsclient"
 	"sync"
 )
 
@@ -81,6 +81,7 @@ var ConnCloseByClient = errors.New("conn closed by client")
 
 func HandleProxyEstablish(server *Server, msg *pb.Base) error {
 	id := msg.Session
+	log.Infof("HandleProxyEstablish: session=%s, source=%s, destination=%s", id, msg.Source, msg.Destination)
 	proxyEstMsg := &pb.ProxyEstablishMessage{}
 	err := proto.Unmarshal(msg.Data, proxyEstMsg)
 	if err != nil {
@@ -127,13 +128,15 @@ func HandleProxyDataToClient(server *Server, msg *pb.Base) error {
 }
 
 func establishProxy(server *Server, sessionId string, addr string, source string, destination string) {
+	log.Infof("establishProxy: session=%s, addr=%s, source=%s, destination=%s", sessionId, addr, source, destination)
 	e := &ProxyServer{Id: sessionId}
 
 	err := e.establish(server, addr, source, destination)
 	if err == nil {
+		log.Infof("establishProxy success: session=%s", sessionId)
 		server.tellClosed(sessionId, source, destination) // tell client to close connection.
 	} else if err != ConnCloseByClient {
-		log.Error(err) // todo error handle better way
+		log.Errorf("establishProxy error: session=%s, error=%v", sessionId, err)
 		server.tellClosed(sessionId, source, destination)
 	}
 	return
@@ -168,6 +171,7 @@ func (s *Server) addNewProxyServer(proxyInstance *ProxyServer) {
 	s.proxyServersMu.Lock()
 	defer s.proxyServersMu.Unlock()
 	s.proxyServers[proxyInstance.Id] = proxyInstance
+	log.Infof("addNewProxyServer: id=%s", proxyInstance.Id)
 }
 
 func (s *Server) GetProxyServerById(id string) *ProxyServer {
@@ -184,6 +188,7 @@ func (s *Server) removeProxyServer(id string) {
 	defer s.proxyServersMu.Unlock()
 	if _, ok := s.proxyServers[id]; ok {
 		delete(s.proxyServers, id)
+		log.Infof("removeProxyServer: id=%s", id)
 	}
 }
 
@@ -191,6 +196,7 @@ func (s *Server) addNewProxyClient(proxyInstance *ProxyClient) {
 	s.proxyClientsMu.Lock()
 	defer s.proxyClientsMu.Unlock()
 	s.proxyClients[proxyInstance.Id] = proxyInstance
+	log.Infof("addNewProxyClient: id=%s, destination=%s", proxyInstance.Id, proxyInstance.Destination)
 }
 
 func (s *Server) GetProxyClientById(id string) *ProxyClient {
@@ -207,5 +213,6 @@ func (s *Server) removeProxyClient(id string) {
 	defer s.proxyClientsMu.Unlock()
 	if _, ok := s.proxyClients[id]; ok {
 		delete(s.proxyClients, id)
+		log.Infof("removeProxyClient: id=%s", id)
 	}
 }

@@ -5,13 +5,13 @@ import (
 	"context"
 	"encoding/binary"
 	"errors"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
 	"nhooyr.io/websocket/wspb"
-	"gaiasec-nodeagent/pkg/config"
-	"gaiasec-nodeagent/pkg/pb"
-	"gaiasec-nodeagent/pkg/util"
 	"strconv"
 	"time"
 )
@@ -30,6 +30,7 @@ func NewClient(conn *net.TCPConn, s *Server) (*Client, error) {
 }
 
 func (client *Client) handleSocks5Conn() {
+	log.Infof("handleSocks5Conn: remote=%s", client.conn.RemoteAddr())
 	// defer c.Close()
 	defer client.conn.Close()
 	// In negotiate, we can get proxy type, target address and first send data.
@@ -154,6 +155,7 @@ func (client *Client) NewProxy(username string, onData func(string, ServerData),
 }
 
 func (client *Client) transData(addr string) error {
+	log.Infof("transData: target=%s, addr=%s", client.target, addr)
 	conn := client.conn
 	type Done struct {
 		tell bool
@@ -176,6 +178,7 @@ func (client *Client) transData(addr string) error {
 
 	// tell server to establish connection
 	if err := proxyClient.Establish(client, addr); err != nil {
+		log.Errorf("transData Establish error: %v", err)
 		client.server.removeProxyClient(proxyClient.Id)
 		err := client.tellClose(proxyClient.Id, proxyClient.Source, proxyClient.Destination)
 		if err != nil {
@@ -211,6 +214,7 @@ func (client *Client) transData(addr string) error {
 
 // tell the remote proxy server to close this connection.
 func (client *Client) tellClose(id string, source string, destination string) error {
+	log.Infof("tellClose: id=%s, source=%s, dest=%s", id, source, destination)
 	// send finish flag to client
 	base := &pb.Base{
 		Type:        pb.MessageType_PROXY_CLOSE,

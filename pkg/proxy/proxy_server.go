@@ -2,10 +2,10 @@ package proxy
 
 import (
 	"context"
+	"gaiasec-nodeagent/pkg/pb"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
-	"gaiasec-nodeagent/pkg/pb"
 	"time"
 )
 
@@ -29,12 +29,14 @@ func (ps *ProxyServer) Close(tell bool) error {
 
 // data: data send in establish step (can be nil).
 func (ps *ProxyServer) establish(s *Server, addr string, source string, destination string) error {
+	log.Infof("ProxyServer establish: id=%s, addr=%s", ps.Id, addr)
 	conn, err := net.DialTimeout("tcp", addr, time.Second*8) // todo config timeout
 	if err != nil {
 		return err
 	}
 	ps.tcpConn = conn
 	defer conn.Close()
+	log.Infof("ProxyServer connected: id=%s, remote=%s", ps.Id, conn.RemoteAddr())
 
 	ps.done = make(chan ChanDone, 2)
 	//defer close(done)
