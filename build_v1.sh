@@ -2,7 +2,9 @@
 # GaiaSec NodeAgent Cross-Platform Build Script
 # This script builds the NodeAgent for multiple platforms
 
-apt-get install -y gcc-aarch64-linux-gnu
+apt-get install -y golang gcc-aarch64-linux-gnu
+
+cd /build/
 
 set -e
 
