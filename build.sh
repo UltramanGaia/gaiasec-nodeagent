@@ -1,6 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 # GaiaSec NodeAgent Cross-Platform Build Script
 # This script builds the NodeAgent for multiple platforms
+
+apt-get install -y golang gcc-aarch64-linux-gnu
+
+cd /build/
 
 set -e
 
@@ -34,7 +38,7 @@ fi
 
 # Output directory (absolute path)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUTPUT_DIR="${SCRIPT_DIR}/../gaiasec-server/plugins/nodeagent/"
+OUTPUT_DIR="${SCRIPT_DIR}/bin/"
 mkdir -p "$OUTPUT_DIR"
 
 echo -e "${BLUE}Output directory: ${OUTPUT_DIR}${NC}"
@@ -43,9 +47,8 @@ echo ""
 # Build for different platforms
 # Format: "OS/ARCH[/<CROSS_COMPILER>]"
 PLATFORMS=(
-    "linux/amd64"
-    "linux/arm64/aarch64-linux-gnu-gcc"
-    "windows/amd64"
+    "linux/x86_64/amd64"
+    "linux/aarch64/arm64/aarch64-linux-gnu-gcc"
 )
 
 TOTAL=${#PLATFORMS[@]}
@@ -56,15 +59,12 @@ CURRENT=0
 
     CC=""
     CC_OPT=""
-    IFS='/' read -r OS ARCH CC <<< "$PLATFORM"
+    IFS='/' read -r OS ARCH_NAME ARCH CC <<< "$PLATFORM"
     
     echo -e "${BLUE}[${CURRENT}/${TOTAL}] Building for $OS/$ARCH...${NC}"
     
     # Set output filename with version info
-    OUTPUT_NAME="nodeagent-${OS}-${ARCH}"
-    if [ "$OS" = "windows" ]; then
-        OUTPUT_NAME="$OUTPUT_NAME.exe"
-    fi
+    OUTPUT_NAME="sothothv1_agent"
 
     if [ -n "$CC" ]; then
         CC_OPT="CC=$CC"
@@ -82,6 +82,8 @@ CURRENT=0
         # Show file size
         SIZE=$(ls -lh "$OUTPUT_DIR/$OUTPUT_NAME" | awk '{print $5}')
         echo -e "${GREEN}✓ Successfully built ${OUTPUT_NAME} (Size: ${SIZE})${NC}"
+	tar -czvf "sothothv1_agent-latest-linux-${ARCH_NAME}.tar.gz" ./bin/
+	rm "bin/sothothv1_agent"
     else
         echo -e "${RED}✗ Failed to build ${OUTPUT_NAME}${NC}"
         exit 1
