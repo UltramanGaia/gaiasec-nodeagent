@@ -33,8 +33,10 @@ func NewServer(client *wsclient.Client) (*Server, error) {
 
 func (s *Server) Start() {
 	s.running = true
+	cfg := config.GetInstance()
+
 	var socketPath string
-	socketPath = cft.GaiaSecDir + "/nodeagent.sock"
+	socketPath = cfg.GaiaSecDir + "/nodeagent.sock"
 	log.Infof("Starting unix socket listener at %s", socketPath)
 	_ = os.Remove(socketPath)
 	listener, err := net.Listen("unix", socketPath)
