@@ -10,16 +10,17 @@ package cli
 import (
 	"flag"
 	"fmt"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/naserver"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
+	"gaiasec-nodeagent/pkg/version"
+	"gaiasec-nodeagent/pkg/xdaemon"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"path"
 	"path/filepath"
-	"gaiasec-nodeagent/pkg/config"
-	"gaiasec-nodeagent/pkg/naserver"
-	"gaiasec-nodeagent/pkg/pb"
-	"gaiasec-nodeagent/pkg/util"
-	"gaiasec-nodeagent/pkg/xdaemon"
 	"strconv"
 	"strings"
 	"syscall"
@@ -56,8 +57,17 @@ func ParseMain() {
 
 	// 如果请求显示版本信息，则输出版本并退出
 	if cfg.Version {
-		fmt.Println("GaiaSec NodeAgent v1.0.0 (Go)")
+		fmt.Printf("GaiaSec NodeAgent %s (Go)\n", version.Version)
+		if version.BuildTime != "" {
+			fmt.Printf("Build Time: %s\n", version.BuildTime)
+		}
 		return
+	}
+
+	// 启动时打印版本信息
+	log.Infof("GaiaSec NodeAgent starting, version: %s", version.Version)
+	if version.BuildTime != "" {
+		log.Infof("Build Time: %s", version.BuildTime)
 	}
 
 	// 验证必需的命令行参数

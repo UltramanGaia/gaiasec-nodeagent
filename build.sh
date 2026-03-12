@@ -69,7 +69,7 @@ CURRENT=0
 
     # Build the binary with version info
     env GOOS=$OS GOARCH=$ARCH CGO_ENABLED=1 $CC_OPT go build \
-        -ldflags="-w -s -X 'main.Version=${BUILD_VERSION}' -X 'main.BuildTime=${BUILD_TIME}'" \
+        -ldflags="-w -s -X 'gaiasec-nodeagent/pkg/version.Version=${BUILD_VERSION}' -X 'gaiasec-nodeagent/pkg/version.BuildTime=${BUILD_TIME}'" \
         -trimpath \
         -o "$OUTPUT_DIR/$OUTPUT_NAME" \
         ./cmd/nodeagent
