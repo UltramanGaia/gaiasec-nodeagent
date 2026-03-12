@@ -28,7 +28,6 @@ type Process struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Cmdline       string                 `protobuf:"bytes,4,opt,name=cmdline,proto3" json:"cmdline,omitempty"`
 	User          string                 `protobuf:"bytes,5,opt,name=user,proto3" json:"user,omitempty"`
-	IsListen      bool                   `protobuf:"varint,6,opt,name=is_listen,json=isListen,proto3" json:"is_listen,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -98,13 +97,6 @@ func (x *Process) GetUser() string {
 	return ""
 }
 
-func (x *Process) GetIsListen() bool {
-	if x != nil {
-		return x.IsListen
-	}
-	return false
-}
-
 // 获取进程列表响应
 type ProcessesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -154,14 +146,13 @@ var File_process_proto protoreflect.FileDescriptor
 
 const file_process_proto_rawDesc = "" +
 	"\n" +
-	"\rprocess.proto\"\x8e\x01\n" +
+	"\rprocess.proto\"q\n" +
 	"\aProcess\x12\x10\n" +
 	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12\x12\n" +
 	"\x04ppid\x18\x02 \x01(\x05R\x04ppid\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x18\n" +
 	"\acmdline\x18\x04 \x01(\tR\acmdline\x12\x12\n" +
-	"\x04user\x18\x05 \x01(\tR\x04user\x12\x1b\n" +
-	"\tis_listen\x18\x06 \x01(\bR\bisListen\";\n" +
+	"\x04user\x18\x05 \x01(\tR\x04user\";\n" +
 	"\x11ProcessesResponse\x12&\n" +
 	"\tprocesses\x18\x01 \x03(\v2\b.ProcessR\tprocessesB)\n" +
 	"\n" +
