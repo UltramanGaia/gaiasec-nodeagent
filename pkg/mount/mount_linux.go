@@ -4,10 +4,10 @@ package mount
 
 import (
 	"fmt"
+	"gaiasec-nodeagent/pkg/util"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path/filepath"
-	"gaiasec-nodeagent/pkg/util"
 	"strings"
 )
 
@@ -108,6 +108,7 @@ func DoMount(src string, dest string, pid int) error {
 				util.MkdirAll(destParentPaht, os.ModePerm)
 			}
 			os.OpenFile(destPath, os.O_CREATE, srcMod)
+			_ = util.EnsureFilePerm(destPath)
 		}
 	}
 	return realMount(src, dest, pid)

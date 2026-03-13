@@ -47,6 +47,12 @@ func Mkdir(path string, perm os.FileMode) error {
 	return nil
 }
 
+// EnsureFilePerm ensures the perm is 0777
+func EnsureFilePerm(filePath string) error {
+	// Ensure the directory has the correct permissions
+	return os.Chmod(filePath, 0777)
+}
+
 // EnsureFileDir ensures the parent directory of a file exists
 func EnsureFileDir(filePath string) error {
 	dir := filepath.Dir(filePath)

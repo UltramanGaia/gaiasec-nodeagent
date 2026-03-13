@@ -113,6 +113,7 @@ func downloadFile(url, filepath string) error {
 		return fmt.Errorf("write file error: %v", err)
 	}
 
+	_ = EnsureFilePerm(filepath)
 	log.Infof("download file success: %s", filepath)
 	return nil
 }
@@ -182,5 +183,9 @@ func extractFile(f *zip.File, destDir string) error {
 
 	// 复制数据
 	_, err = io.Copy(outFile, rc)
+
+	// set permission
+	_ = EnsureFilePerm(path)
+
 	return err
 }
