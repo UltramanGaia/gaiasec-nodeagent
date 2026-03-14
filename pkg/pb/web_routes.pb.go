@@ -28,6 +28,9 @@ const (
 	WebAppType_Jetty    WebAppType = 1
 	WebAppType_Undertow WebAppType = 2
 	WebAppType_Netty    WebAppType = 3
+	WebAppType_Nuwa     WebAppType = 4
+	WebAppType_Nginx    WebAppType = 5
+	WebAppType_Hiro     WebAppType = 6
 )
 
 // Enum value maps for WebAppType.
@@ -37,12 +40,18 @@ var (
 		1: "Jetty",
 		2: "Undertow",
 		3: "Netty",
+		4: "Nuwa",
+		5: "Nginx",
+		6: "Hiro",
 	}
 	WebAppType_value = map[string]int32{
 		"Tomcat":   0,
 		"Jetty":    1,
 		"Undertow": 2,
 		"Netty":    3,
+		"Nuwa":     4,
+		"Nginx":    5,
+		"Hiro":     6,
 	}
 )
 
@@ -136,6 +145,7 @@ type WebFrameworkType int32
 const (
 	WebFrameworkType_SpringMvc WebFrameworkType = 0
 	WebFrameworkType_Struts    WebFrameworkType = 1
+	WebFrameworkType_CloudSOP  WebFrameworkType = 2
 )
 
 // Enum value maps for WebFrameworkType.
@@ -143,10 +153,12 @@ var (
 	WebFrameworkType_name = map[int32]string{
 		0: "SpringMvc",
 		1: "Struts",
+		2: "CloudSOP",
 	}
 	WebFrameworkType_value = map[string]int32{
 		"SpringMvc": 0,
 		"Struts":    1,
+		"CloudSOP":  2,
 	}
 )
 
@@ -482,14 +494,17 @@ const file_web_routes_proto_rawDesc = "" +
 	"frameworks\x18\x06 \x03(\v2\r.WebFrameworkR\n" +
 	"frameworks\"6\n" +
 	"\x11WebRoutesResponse\x12!\n" +
-	"\awebapps\x18\x01 \x03(\v2\a.WebAppR\awebapps*<\n" +
+	"\awebapps\x18\x01 \x03(\v2\a.WebAppR\awebapps*[\n" +
 	"\n" +
 	"WebAppType\x12\n" +
 	"\n" +
 	"\x06Tomcat\x10\x00\x12\t\n" +
 	"\x05Jetty\x10\x01\x12\f\n" +
 	"\bUndertow\x10\x02\x12\t\n" +
-	"\x05Netty\x10\x03*n\n" +
+	"\x05Netty\x10\x03\x12\b\n" +
+	"\x04Nuwa\x10\x04\x12\t\n" +
+	"\x05Nginx\x10\x05\x12\b\n" +
+	"\x04Hiro\x10\x06*n\n" +
 	"\x10WebProcessorType\x12\n" +
 	"\n" +
 	"\x06Filter\x10\x00\x12\v\n" +
@@ -498,11 +513,12 @@ const file_web_routes_proto_rawDesc = "" +
 	"\vInterceptor\x10\x03\x12\x0e\n" +
 	"\n" +
 	"Controller\x10\x04\x12\x12\n" +
-	"\x0eHendlerAdapter\x10\x05*-\n" +
+	"\x0eHendlerAdapter\x10\x05*;\n" +
 	"\x10WebFrameworkType\x12\r\n" +
 	"\tSpringMvc\x10\x00\x12\n" +
 	"\n" +
-	"\x06Struts\x10\x01B)\n" +
+	"\x06Struts\x10\x01\x12\f\n" +
+	"\bCloudSOP\x10\x02B)\n" +
 	"\n" +
 	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
