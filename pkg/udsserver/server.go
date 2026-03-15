@@ -6,8 +6,11 @@ import (
 	"os"
 	"os/signal"
 	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/constant"
 	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 	"gaiasec-nodeagent/pkg/wsclient"
+	"sync"
 	"syscall"
 )
 
@@ -15,6 +18,7 @@ type Server struct {
 	socketPath      string
 	WsClient        *wsclient.Client
 	Agent2SocketMap map[string]*Client
+	mu              sync.RWMutex
 	listener        net.Listener
 	running         bool
 	cfg             *config.Config
@@ -110,4 +114,19 @@ func (s *Server) accept() net.Conn {
 	}
 	log.Infof("Accepted connection from %s", conn.RemoteAddr())
 	return conn
+}
+
+func (s *Server) BroadcastAgentStatus() {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	for agentId, client := range s.Agent2SocketMap {
+		if client.registerMsg != nil {
+			log.Infof("Broadcast agent status for %s", agentId)
+			err := s.WsClient.SendMessage(client.registerMsg, pb.MessageType_REGISTER, agentId, constant.SERVER_ID, util.GenerateID())
+			if err != nil {
+				log.Errorf("Failed to broadcast agent status for %s: %v", agentId, err)
+			}
+		}
+	}
 }

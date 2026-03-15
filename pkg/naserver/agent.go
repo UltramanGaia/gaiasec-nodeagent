@@ -171,6 +171,7 @@ func (na *NodeAgent) handleWsMessages() {
 				continue
 			}
 			na.reportRegister()
+			na.udsServer.BroadcastAgentStatus()
 			continue
 		}
 

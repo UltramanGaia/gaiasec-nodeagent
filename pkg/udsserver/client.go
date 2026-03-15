@@ -14,11 +14,12 @@ import (
 )
 
 type Client struct {
-	conn      *net.Conn
-	server    *Server
-	writeLock sync.RWMutex
-	agentId   string
-	buffer    []byte // 缓存不完整的数据包
+	conn        *net.Conn
+	server      *Server
+	writeLock   sync.RWMutex
+	agentId     string
+	buffer      []byte
+	registerMsg *pb.Register
 }
 
 func NewClient(conn *net.Conn, s *Server) (*Client, error) {
@@ -58,6 +59,7 @@ func (c *Client) HandleAgentMessage() {
 				return
 			}
 			c.agentId = registerMsg.Id
+			c.registerMsg = registerMsg
 			c.server.Agent2SocketMap[c.agentId] = c
 			log.Infof("Agent %s register", registerMsg.Id)
 		}
