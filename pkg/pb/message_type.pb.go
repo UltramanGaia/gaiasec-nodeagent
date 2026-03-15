@@ -74,6 +74,8 @@ const (
 	MessageType_FUZZ_REQUEST         MessageType = 56
 	MessageType_FUZZ_RESPONSE        MessageType = 57
 	MessageType_TRACE_REPORT         MessageType = 58
+	MessageType_HTTP_SEND_REQUEST    MessageType = 59
+	MessageType_HTTP_SEND_RESPONSE   MessageType = 60
 	MessageType_PUSH                 MessageType = 80
 	MessageType_PULL                 MessageType = 81
 	// 容器信息
@@ -129,6 +131,8 @@ var (
 		56:  "FUZZ_REQUEST",
 		57:  "FUZZ_RESPONSE",
 		58:  "TRACE_REPORT",
+		59:  "HTTP_SEND_REQUEST",
+		60:  "HTTP_SEND_RESPONSE",
 		80:  "PUSH",
 		81:  "PULL",
 		100: "CONTAINER_REQUEST",
@@ -180,6 +184,8 @@ var (
 		"FUZZ_REQUEST":             56,
 		"FUZZ_RESPONSE":            57,
 		"TRACE_REPORT":             58,
+		"HTTP_SEND_REQUEST":        59,
+		"HTTP_SEND_RESPONSE":       60,
 		"PUSH":                     80,
 		"PULL":                     81,
 		"CONTAINER_REQUEST":        100,
@@ -218,7 +224,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xe5\b\n" +
+	"\x12message_type.proto*\x94\t\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -266,7 +272,9 @@ const file_message_type_proto_rawDesc = "" +
 	"\x14IAST_HARDCODE_REPORT\x107\x12\x10\n" +
 	"\fFUZZ_REQUEST\x108\x12\x11\n" +
 	"\rFUZZ_RESPONSE\x109\x12\x10\n" +
-	"\fTRACE_REPORT\x10:\x12\b\n" +
+	"\fTRACE_REPORT\x10:\x12\x15\n" +
+	"\x11HTTP_SEND_REQUEST\x10;\x12\x16\n" +
+	"\x12HTTP_SEND_RESPONSE\x10<\x12\b\n" +
 	"\x04PUSH\x10P\x12\b\n" +
 	"\x04PULL\x10Q\x12\x15\n" +
 	"\x11CONTAINER_REQUEST\x10d\x12\x16\n" +
