@@ -34,7 +34,7 @@ fi
 
 # Output directory (absolute path)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUTPUT_DIR="${SCRIPT_DIR}/../gaiasec-server/plugins/nodeagent/"
+OUTPUT_DIR="${SCRIPT_DIR}/../gaiasec-api-gateway/plugins/nodeagent/"
 mkdir -p "$OUTPUT_DIR"
 
 echo -e "${BLUE}Output directory: ${OUTPUT_DIR}${NC}"
