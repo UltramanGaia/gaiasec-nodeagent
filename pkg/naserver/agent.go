@@ -216,6 +216,8 @@ func (na *NodeAgent) handleWsMessages() {
 				go na.handlePtyCreate(baseMessage)
 			case pb.MessageType_CONTAINER_REQUEST:
 				go na.handleContainerRequest(baseMessage)
+			case pb.MessageType_HTTP_SEND_REQUEST:
+				go na.handleHttpSendRequest(baseMessage)
 			default:
 				log.Error("UNKNOWN MESSAGE TYPE")
 			}
