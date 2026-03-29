@@ -44,24 +44,34 @@ func (c *Client) HandleAgentMessage() {
 			return
 		}
 
-		if c.agentId == "" {
-			// 解析Protobuf消息
-			msg := &pb.Base{}
-			if err := proto.Unmarshal(data, msg); err != nil {
-				log.Error("Unmarshal message error: ", err)
-			}
-			if msg.GetType() != pb.MessageType_REGISTER { // 第一个消息必须是登录消息
-				log.Error("first message must be register message")
-			}
+		msg := &pb.Base{}
+		if err := proto.Unmarshal(data, msg); err != nil {
+			log.Error("Unmarshal message error: ", err)
+			continue
+		}
+
+		if msg.GetType() == pb.MessageType_REGISTER {
 			registerMsg := &pb.Register{}
 			if err := proto.Unmarshal(msg.GetData(), registerMsg); err != nil {
-				log.Error("first message parse error: ", err)
-				return
+				log.Error("register message parse error: ", err)
+				continue
 			}
-			c.agentId = registerMsg.Id
+			if registerMsg.GetId() == "" {
+				log.Error("register message missing agent id")
+				continue
+			}
+			if c.agentId == "" {
+				c.agentId = registerMsg.Id
+				c.server.Agent2SocketMap[c.agentId] = c
+				log.Infof("Agent %s register", registerMsg.Id)
+			} else if c.agentId != registerMsg.Id {
+				log.Errorf("agent id changed from %s to %s", c.agentId, registerMsg.Id)
+				continue
+			}
 			c.registerMsg = registerMsg
-			c.server.Agent2SocketMap[c.agentId] = c
-			log.Infof("Agent %s register", registerMsg.Id)
+		} else if c.agentId == "" { // 第一个消息必须是登录消息
+			log.Errorf("first message must be register message, got %s", msg.GetType())
+			continue
 		}
 
 		log.Debug("Received message from agent, send to server")
