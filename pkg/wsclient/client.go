@@ -4,14 +4,14 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"net/http"
+	"gaiasec-nodeagent/pkg/config"
+	"gaiasec-nodeagent/pkg/pb"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
+	"net/http"
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wspb"
 	"os"
-	"gaiasec-nodeagent/pkg/config"
-	"gaiasec-nodeagent/pkg/pb"
 	"sync"
 	"time"
 )
@@ -51,7 +51,7 @@ func (c *Client) Reconnect() error {
 	if !c.Running {
 		return fmt.Errorf("it is not Running")
 	}
-	log.Errorf("trying to reconnect client: [" + c.uri + "]")
+	log.Errorf("trying to reconnect client: [%s]", c.uri)
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: true,
 	}
