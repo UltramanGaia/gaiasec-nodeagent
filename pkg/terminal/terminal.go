@@ -47,6 +47,25 @@ func NewTerminal(cols int, rows int, cmd string, sessionID string) *Terminal {
 	}
 }
 
+func parseIncomingMessage(messageType websocket.MessageType, message []byte) ([]byte, *TTYSize, bool, error) {
+	dataBuffer := bytes.Trim(message, "\x00")
+	if len(dataBuffer) == 0 {
+		return nil, nil, false, nil
+	}
+
+	if messageType == websocket.MessageBinary || dataBuffer[0] != 1 {
+		return dataBuffer, nil, false, nil
+	}
+
+	ttySize := &TTYSize{}
+	resizeMessage := bytes.Trim(dataBuffer[1:], "\n\r\t\x00\x01")
+	if err := json.Unmarshal(resizeMessage, ttySize); err != nil {
+		return nil, nil, true, err
+	}
+
+	return nil, ttySize, true, nil
+}
+
 func (t *Terminal) Start() {
 	proc, err := console.New(t.Cols, t.Rows)
 	if err != nil {
@@ -163,28 +182,24 @@ func (t *Terminal) Start() {
 				}
 				break
 			}
-			dataLength := len(message)
-			dataBuffer := bytes.Trim(message, "\x00")
-			if dataLength == -1 {
-				log.Infof("failed to get the correct data length, ignoring")
+
+			dataBuffer, ttySize, isResize, err := parseIncomingMessage(messageType, message)
+			if err != nil {
+				log.Infof("failed to parse terminal message: %v", err)
 				continue
 			}
-			// handle resizing
-			if messageType != websocket.MessageBinary {
-				if dataBuffer[0] == 1 {
-					ttySize := &TTYSize{}
-					resizeMessage := bytes.Trim(dataBuffer[1:], "\n\r\t\x00\x01")
-					if err := json.Unmarshal(resizeMessage, &ttySize); err != nil {
-						log.Infof("failed to unmarshal ttySize: %v", err)
-						continue
-					}
-					log.Infof("ttySize: %v", ttySize)
-					err = proc.SetSize(int(ttySize.Cols), int(ttySize.Rows))
-					if err != nil {
-						log.Infof("failed to set ttySize: %v", err)
-					}
-					continue
+
+			if isResize {
+				log.Infof("ttySize: %v", ttySize)
+				if err := proc.SetSize(int(ttySize.Cols), int(ttySize.Rows)); err != nil {
+					log.Infof("failed to set ttySize: %v", err)
 				}
+				continue
+			}
+
+			if len(dataBuffer) == 0 {
+				log.Infof("received empty terminal message, ignoring")
+				continue
 			}
 
 			// write to tty
