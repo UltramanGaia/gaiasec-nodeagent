@@ -34,7 +34,7 @@ fi
 
 # Output directory (absolute path)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUTPUT_DIR="${SCRIPT_DIR}/../gaiasec-api-gateway/plugins/nodeagent/"
+OUTPUT_DIR="${SCRIPT_DIR}/agent/"
 mkdir -p "$OUTPUT_DIR"
 
 echo -e "${BLUE}Output directory: ${OUTPUT_DIR}${NC}"
@@ -98,3 +98,9 @@ echo -e "${YELLOW}  Version: ${BUILD_VERSION}${NC}"
 echo -e "${YELLOW}  Build Time: ${BUILD_TIME}${NC}"
 echo -e "${YELLOW}  Platforms: ${TOTAL}${NC}"
 echo ""
+chmod a+rx ./sync.sh
+./sync.sh
+echo ""
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}Sync completed successfully!${NC}"
+echo -e "${GREEN}========================================${NC}"
