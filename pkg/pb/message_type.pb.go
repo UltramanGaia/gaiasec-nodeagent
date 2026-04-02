@@ -81,6 +81,13 @@ const (
 	// 容器信息
 	MessageType_CONTAINER_REQUEST  MessageType = 100
 	MessageType_CONTAINER_RESPONSE MessageType = 101
+	// 安全分析
+	MessageType_CONTAINER_ESCAPE_REQUEST        MessageType = 102
+	MessageType_CONTAINER_ESCAPE_RESPONSE       MessageType = 103
+	MessageType_PRIVILEGE_ESCALATION_REQUEST    MessageType = 104
+	MessageType_PRIVILEGE_ESCALATION_RESPONSE   MessageType = 105
+	MessageType_K8S_PRIVILEGE_ESCALATION_REQUEST  MessageType = 106
+	MessageType_K8S_PRIVILEGE_ESCALATION_RESPONSE MessageType = 107
 )
 
 // Enum value maps for MessageType.
@@ -137,6 +144,12 @@ var (
 		81:  "PULL",
 		100: "CONTAINER_REQUEST",
 		101: "CONTAINER_RESPONSE",
+		102: "CONTAINER_ESCAPE_REQUEST",
+		103: "CONTAINER_ESCAPE_RESPONSE",
+		104: "PRIVILEGE_ESCALATION_REQUEST",
+		105: "PRIVILEGE_ESCALATION_RESPONSE",
+		106: "K8S_PRIVILEGE_ESCALATION_REQUEST",
+		107: "K8S_PRIVILEGE_ESCALATION_RESPONSE",
 	}
 	MessageType_value = map[string]int32{
 		"UNKNOWN":                  0,
@@ -188,8 +201,14 @@ var (
 		"HTTP_SEND_RESPONSE":       60,
 		"PUSH":                     80,
 		"PULL":                     81,
-		"CONTAINER_REQUEST":        100,
-		"CONTAINER_RESPONSE":       101,
+		"CONTAINER_REQUEST":                  100,
+		"CONTAINER_RESPONSE":                 101,
+		"CONTAINER_ESCAPE_REQUEST":           102,
+		"CONTAINER_ESCAPE_RESPONSE":          103,
+		"PRIVILEGE_ESCALATION_REQUEST":       104,
+		"PRIVILEGE_ESCALATION_RESPONSE":      105,
+		"K8S_PRIVILEGE_ESCALATION_REQUEST":   106,
+		"K8S_PRIVILEGE_ESCALATION_RESPONSE":  107,
 	}
 )
 

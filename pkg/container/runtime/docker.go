@@ -34,6 +34,9 @@ type Container struct {
 	Annotations  map[string]string
 	PodName      string
 	Namespace    string
+	Privileged   bool
+	CapAdd       []string   // 手动添加的 capabilities
+	CapDrop      []string   // 丢弃的 capabilities
 }
 
 type PortMapping struct {
@@ -115,6 +118,9 @@ func (d *DockerClient) ListContainers() ([]Container, error) {
 			Mounts:       mounts,
 			Networks:     networks,
 			Labels:       inspect.Config.Labels,
+			Privileged:   inspect.HostConfig.Privileged,
+			CapAdd:       inspect.HostConfig.CapAdd,
+			CapDrop:      inspect.HostConfig.CapDrop,
 		}
 		result = append(result, cont)
 	}

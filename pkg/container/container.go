@@ -9,6 +9,7 @@ import (
 
 // GetContainerList 获取所有运行时的容器信息，统一输出为 protobuf 的 Container 列表
 func GetContainerList() ([]*pb.Container, error) {
+	log.Infof("[Container] GetContainerList start")
 	clients := runtime.NewClients()
 	if len(clients) == 0 {
 		log.Warn("No container runtime clients available")
@@ -44,6 +45,9 @@ func GetContainerList() ([]*pb.Container, error) {
 				Annotations:  c.Annotations,
 				PodName:      c.PodName,
 				Namespace:    c.Namespace,
+				Privileged:   c.Privileged,
+				CapAdd:       c.CapAdd,
+				CapDrop:      c.CapDrop,
 			}
 			allContainers = append(allContainers, pbContainer)
 		}

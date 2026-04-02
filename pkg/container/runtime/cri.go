@@ -2,8 +2,10 @@ package runtime
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -30,9 +32,13 @@ var CRISockets = []struct {
 
 // NewCRIClients 尝试连接可用的 CRI 实现，返回可用的客户端切片
 func NewCRIClients() []Client {
+	log.Infof("[CRI] NewCRIClients start")
 	var clients []Client
 	for _, cri := range CRISockets {
-		conn, err := grpc.Dial(cri.socket, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+		log.Infof("[CRI] Trying to connect to %s at %s", cri.name, cri.socket)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		conn, err := grpc.DialContext(ctx, cri.socket, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+		cancel()
 		if err != nil {
 			log.Debugf("Failed to connect to %s: %v", cri.name, err)
 			continue
@@ -46,14 +52,21 @@ func NewCRIClients() []Client {
 
 // ListContainersList 实现 CRI 客户端容器列表获取逻辑
 func (c *CRIClient) ListContainers() ([]Container, error) {
-	ctx := context.Background()
+	log.Infof("[CRI] ListContainers start")
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 	resp, err := c.client.ListContainers(ctx, &runtimeapi.ListContainersRequest{})
 	if err != nil {
+		log.Errorf("[CRI] ListContainers failed: %v", err)
 		return nil, err
 	}
+	log.Infof("[CRI] ListContainers got %d containers, fetching status...", len(resp.Containers))
 
 	result := make([]Container, 0, len(resp.Containers))
-	for _, ctr := range resp.Containers {
+	for i, ctr := range resp.Containers {
+		if i%10 == 0 {
+			log.Infof("[CRI] Processing container %d/%d: %s", i+1, len(resp.Containers), ctr.Id)
+		}
 		status, err := c.client.ContainerStatus(ctx, &runtimeapi.ContainerStatusRequest{ContainerId: ctr.Id, Verbose: true})
 		if err != nil {
 			log.Warnf("Failed to get status for container %s: %v", ctr.Id, err)
@@ -74,6 +87,20 @@ func (c *CRIClient) ListContainers() ([]Container, error) {
 		podName, k8sNs := parseK8sMetadata(ctr.Labels)
 		state := parseCRIState(status.Status)
 
+		// 从 status.Info 中获取安全相关配置
+		privileged := false
+		var capAdd, capDrop []string
+		if status.Info != nil {
+			// 解析 privileged
+			if priv, ok := status.Info["privileged"]; ok {
+				privileged = priv == "true"
+			}
+			// 解析 capabilities (从 info 中获取)
+			if caps, ok := status.Info["capabilities"]; ok {
+				capAdd, capDrop = parseCRICapabilities(caps)
+			}
+		}
+
 		cont := Container{
 			ID:           ctr.Id,
 			Name:         ctr.Metadata.Name,
@@ -88,6 +115,9 @@ func (c *CRIClient) ListContainers() ([]Container, error) {
 			Annotations:  ctr.Annotations,
 			PodName:      podName,
 			Namespace:    k8sNs,
+			Privileged:   privileged,
+			CapAdd:       capAdd,
+			CapDrop:      capDrop,
 		}
 		result = append(result, cont)
 	}
@@ -130,4 +160,23 @@ func stripImageID(imageRef string) string {
 		return strings.TrimPrefix(imageRef, "sha256:")
 	}
 	return imageRef
+}
+
+// parseCRICapabilities 从 info 字符串中解析 capabilities
+func parseCRICapabilities(info string) (capAdd, capDrop []string) {
+	// info 可能是 JSON 格式或简单字符串，尝试解析
+	// 简化处理：如果包含 add 或 drop 关键词，手动解析
+	if strings.Contains(info, "add") || strings.Contains(info, "drop") {
+		// 尝试解析 JSON
+		var caps map[string][]string
+		if err := json.Unmarshal([]byte(info), &caps); err == nil {
+			if v, ok := caps["add"]; ok {
+				capAdd = v
+			}
+			if v, ok := caps["drop"]; ok {
+				capDrop = v
+			}
+		}
+	}
+	return
 }

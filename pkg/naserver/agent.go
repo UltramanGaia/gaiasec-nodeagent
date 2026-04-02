@@ -216,6 +216,12 @@ func (na *NodeAgent) handleWsMessages() {
 				go na.handlePtyCreate(baseMessage)
 			case pb.MessageType_CONTAINER_REQUEST:
 				go na.handleContainerRequest(baseMessage)
+			case pb.MessageType_CONTAINER_ESCAPE_REQUEST:
+				go na.handleContainerEscapeRequest(baseMessage)
+			case pb.MessageType_PRIVILEGE_ESCALATION_REQUEST:
+				go na.handlePrivilegeEscalationRequest(baseMessage)
+			case pb.MessageType_K8S_PRIVILEGE_ESCALATION_REQUEST:
+				go na.handleK8SPrivilegeEscalationRequest(baseMessage)
 			case pb.MessageType_HTTP_SEND_REQUEST:
 				go na.handleHttpSendRequest(baseMessage)
 			default:

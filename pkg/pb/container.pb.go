@@ -255,6 +255,9 @@ type Container struct {
 	Annotations   map[string]string      `protobuf:"bytes,14,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	PodName       string                 `protobuf:"bytes,15,opt,name=pod_name,json=podName,proto3" json:"pod_name,omitempty"`
 	Namespace     string                 `protobuf:"bytes,16,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Privileged    bool                   `protobuf:"varint,17,opt,name=privileged,proto3" json:"privileged,omitempty"`
+	CapAdd        []string               `protobuf:"bytes,18,rep,name=cap_add,json=capAdd,proto3" json:"cap_add,omitempty"`
+	CapDrop       []string               `protobuf:"bytes,19,rep,name=cap_drop,json=capDrop,proto3" json:"cap_drop,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -399,6 +402,27 @@ func (x *Container) GetNamespace() string {
 		return x.Namespace
 	}
 	return ""
+}
+
+func (x *Container) GetPrivileged() bool {
+	if x != nil {
+		return x.Privileged
+	}
+	return false
+}
+
+func (x *Container) GetCapAdd() []string {
+	if x != nil {
+		return x.CapAdd
+	}
+	return nil
+}
+
+func (x *Container) GetCapDrop() []string {
+	if x != nil {
+		return x.CapDrop
+	}
+	return nil
 }
 
 // 获取容器列表请求
