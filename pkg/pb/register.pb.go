@@ -24,9 +24,10 @@ const (
 type AgentType int32
 
 const (
-	AgentType_NODE_AGENT    AgentType = 0
-	AgentType_JAVA_AGENT    AgentType = 1
-	AgentType_GAIASEC_AGENT AgentType = 2
+	AgentType_NODE_AGENT     AgentType = 0
+	AgentType_JAVA_AGENT     AgentType = 1
+	AgentType_GAIASEC_AGENT  AgentType = 2
+	AgentType_UPLOAD_PACKAGE AgentType = 3
 )
 
 // Enum value maps for AgentType.
@@ -35,11 +36,13 @@ var (
 		0: "NODE_AGENT",
 		1: "JAVA_AGENT",
 		2: "GAIASEC_AGENT",
+		3: "UPLOAD_PACKAGE",
 	}
 	AgentType_value = map[string]int32{
-		"NODE_AGENT":    0,
-		"JAVA_AGENT":    1,
-		"GAIASEC_AGENT": 2,
+		"NODE_AGENT":     0,
+		"JAVA_AGENT":     1,
+		"GAIASEC_AGENT":  2,
+		"UPLOAD_PACKAGE": 3,
 	}
 )
 
@@ -263,13 +266,14 @@ const file_register_proto_rawDesc = "" +
 	"\x04name\x18\v \x01(\tR\x04name\"\x1c\n" +
 	"\n" +
 	"Unregister\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id*>\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id*R\n" +
 	"\tAgentType\x12\x0e\n" +
 	"\n" +
 	"NODE_AGENT\x10\x00\x12\x0e\n" +
 	"\n" +
 	"JAVA_AGENT\x10\x01\x12\x11\n" +
-	"\rGAIASEC_AGENT\x10\x02B)\n" +
+	"\rGAIASEC_AGENT\x10\x02\x12\x12\n" +
+	"\x0eUPLOAD_PACKAGE\x10\x03B)\n" +
 	"\n" +
 	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
