@@ -256,8 +256,8 @@ type Container struct {
 	PodName       string                 `protobuf:"bytes,15,opt,name=pod_name,json=podName,proto3" json:"pod_name,omitempty"`
 	Namespace     string                 `protobuf:"bytes,16,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	Privileged    bool                   `protobuf:"varint,17,opt,name=privileged,proto3" json:"privileged,omitempty"`
-	CapAdd        []string               `protobuf:"bytes,18,rep,name=cap_add,json=capAdd,proto3" json:"cap_add,omitempty"`
-	CapDrop       []string               `protobuf:"bytes,19,rep,name=cap_drop,json=capDrop,proto3" json:"cap_drop,omitempty"`
+	CapAdd        []string               `protobuf:"bytes,18,rep,name=cap_add,json=capAdd,proto3" json:"cap_add,omitempty"`    // 手动添加的 capabilities
+	CapDrop       []string               `protobuf:"bytes,19,rep,name=cap_drop,json=capDrop,proto3" json:"cap_drop,omitempty"` // 丢弃的 capabilities
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -530,7 +530,7 @@ const file_container_proto_rawDesc = "" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x12 \n" +
 	"\vdestination\x18\x02 \x01(\tR\vdestination\x12\x12\n" +
 	"\x04type\x18\x03 \x01(\tR\x04type\x12\x16\n" +
-	"\x06driver\x18\x04 \x01(\tR\x06driver\"\x8c\x05\n" +
+	"\x06driver\x18\x04 \x01(\tR\x06driver\"\xe0\x05\n" +
 	"\tContainer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -550,7 +550,12 @@ const file_container_proto_rawDesc = "" +
 	"\x06labels\x18\r \x03(\v2\x16.Container.LabelsEntryR\x06labels\x12=\n" +
 	"\vannotations\x18\x0e \x03(\v2\x1b.Container.AnnotationsEntryR\vannotations\x12\x19\n" +
 	"\bpod_name\x18\x0f \x01(\tR\apodName\x12\x1c\n" +
-	"\tnamespace\x18\x10 \x01(\tR\tnamespace\x1a9\n" +
+	"\tnamespace\x18\x10 \x01(\tR\tnamespace\x12\x1e\n" +
+	"\n" +
+	"privileged\x18\x11 \x01(\bR\n" +
+	"privileged\x12\x17\n" +
+	"\acap_add\x18\x12 \x03(\tR\x06capAdd\x12\x19\n" +
+	"\bcap_drop\x18\x13 \x03(\tR\acapDrop\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +

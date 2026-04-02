@@ -81,11 +81,13 @@ const (
 	// 容器信息
 	MessageType_CONTAINER_REQUEST  MessageType = 100
 	MessageType_CONTAINER_RESPONSE MessageType = 101
-	// 安全分析
-	MessageType_CONTAINER_ESCAPE_REQUEST        MessageType = 102
-	MessageType_CONTAINER_ESCAPE_RESPONSE       MessageType = 103
-	MessageType_PRIVILEGE_ESCALATION_REQUEST    MessageType = 104
-	MessageType_PRIVILEGE_ESCALATION_RESPONSE   MessageType = 105
+	// 容器逃逸分析
+	MessageType_CONTAINER_ESCAPE_REQUEST  MessageType = 102
+	MessageType_CONTAINER_ESCAPE_RESPONSE MessageType = 103
+	// 本地提权分析
+	MessageType_PRIVILEGE_ESCALATION_REQUEST  MessageType = 104
+	MessageType_PRIVILEGE_ESCALATION_RESPONSE MessageType = 105
+	// K8s 集群内提权分析
 	MessageType_K8S_PRIVILEGE_ESCALATION_REQUEST  MessageType = 106
 	MessageType_K8S_PRIVILEGE_ESCALATION_RESPONSE MessageType = 107
 )
@@ -152,63 +154,63 @@ var (
 		107: "K8S_PRIVILEGE_ESCALATION_RESPONSE",
 	}
 	MessageType_value = map[string]int32{
-		"UNKNOWN":                  0,
-		"REGISTER":                 1,
-		"UNREGISTER":               2,
-		"HEARTBEAT":                3,
-		"INIT":                     4,
-		"PROCESSES_REQUEST":        5,
-		"PROCESSES_RESPONSE":       6,
-		"DEPLOY_PLUGIN_REQUEST":    7,
-		"DEPLOY_PLUGIN_RESPONSE":   8,
-		"EXECUTE_COMMAND_REQUEST":  9,
-		"EXECUTE_COMMAND_RESPONSE": 10,
-		"NETWORK_REQUEST":          11,
-		"NETWORK_RESPONSE":         12,
-		"FS_LIST_DIR_REQUEST":      20,
-		"FS_LIST_DIR_RESPONSE":     21,
-		"FS_READ_FILE_REQUEST":     22,
-		"FS_READ_FILE_RESPONSE":    23,
-		"FS_WRITE_FILE_REQUEST":    24,
-		"FS_WRITE_FILE_RESPONSE":   25,
-		"FS_CREATE_FILE_REQUEST":   26,
-		"FS_CREATE_FILE_RESPONSE":  27,
-		"FS_CREATE_DIR_REQUEST":    28,
-		"FS_CREATE_DIR_RESPONSE":   29,
-		"FS_DELETE_REQUEST":        30,
-		"FS_DELETE_RESPONSE":       31,
-		"FS_RENAME_REQUEST":        32,
-		"FS_RENAME_RESPONSE":       33,
-		"FS_DOWNLOAD_REQUEST":      34,
-		"PROXY_ESTABLISH":          40,
-		"PROXY_DATA_TO_SERVER":     41,
-		"PROXY_DATA_TO_CLIENT":     42,
-		"PROXY_CLOSE":              43,
-		"TERMINAL_CREATE_REQUEST":  45,
-		"TERMINAL_CREATE_RESPONSE": 46,
-		"TERMINAL_CLOSE":           47,
-		"TERMINAL_ERROR":           48,
-		"WEB_ROUTES_REQUEST":       50,
-		"WEB_ROUTES_RESPONSE":      51,
-		"SCA_RESPONSE":             52,
-		"IAST_NORMAL_REPORT":       53,
-		"IAST_SAAS_REPORT":         54,
-		"IAST_HARDCODE_REPORT":     55,
-		"FUZZ_REQUEST":             56,
-		"FUZZ_RESPONSE":            57,
-		"TRACE_REPORT":             58,
-		"HTTP_SEND_REQUEST":        59,
-		"HTTP_SEND_RESPONSE":       60,
-		"PUSH":                     80,
-		"PULL":                     81,
-		"CONTAINER_REQUEST":                  100,
-		"CONTAINER_RESPONSE":                 101,
-		"CONTAINER_ESCAPE_REQUEST":           102,
-		"CONTAINER_ESCAPE_RESPONSE":          103,
-		"PRIVILEGE_ESCALATION_REQUEST":       104,
-		"PRIVILEGE_ESCALATION_RESPONSE":      105,
-		"K8S_PRIVILEGE_ESCALATION_REQUEST":   106,
-		"K8S_PRIVILEGE_ESCALATION_RESPONSE":  107,
+		"UNKNOWN":                           0,
+		"REGISTER":                          1,
+		"UNREGISTER":                        2,
+		"HEARTBEAT":                         3,
+		"INIT":                              4,
+		"PROCESSES_REQUEST":                 5,
+		"PROCESSES_RESPONSE":                6,
+		"DEPLOY_PLUGIN_REQUEST":             7,
+		"DEPLOY_PLUGIN_RESPONSE":            8,
+		"EXECUTE_COMMAND_REQUEST":           9,
+		"EXECUTE_COMMAND_RESPONSE":          10,
+		"NETWORK_REQUEST":                   11,
+		"NETWORK_RESPONSE":                  12,
+		"FS_LIST_DIR_REQUEST":               20,
+		"FS_LIST_DIR_RESPONSE":              21,
+		"FS_READ_FILE_REQUEST":              22,
+		"FS_READ_FILE_RESPONSE":             23,
+		"FS_WRITE_FILE_REQUEST":             24,
+		"FS_WRITE_FILE_RESPONSE":            25,
+		"FS_CREATE_FILE_REQUEST":            26,
+		"FS_CREATE_FILE_RESPONSE":           27,
+		"FS_CREATE_DIR_REQUEST":             28,
+		"FS_CREATE_DIR_RESPONSE":            29,
+		"FS_DELETE_REQUEST":                 30,
+		"FS_DELETE_RESPONSE":                31,
+		"FS_RENAME_REQUEST":                 32,
+		"FS_RENAME_RESPONSE":                33,
+		"FS_DOWNLOAD_REQUEST":               34,
+		"PROXY_ESTABLISH":                   40,
+		"PROXY_DATA_TO_SERVER":              41,
+		"PROXY_DATA_TO_CLIENT":              42,
+		"PROXY_CLOSE":                       43,
+		"TERMINAL_CREATE_REQUEST":           45,
+		"TERMINAL_CREATE_RESPONSE":          46,
+		"TERMINAL_CLOSE":                    47,
+		"TERMINAL_ERROR":                    48,
+		"WEB_ROUTES_REQUEST":                50,
+		"WEB_ROUTES_RESPONSE":               51,
+		"SCA_RESPONSE":                      52,
+		"IAST_NORMAL_REPORT":                53,
+		"IAST_SAAS_REPORT":                  54,
+		"IAST_HARDCODE_REPORT":              55,
+		"FUZZ_REQUEST":                      56,
+		"FUZZ_RESPONSE":                     57,
+		"TRACE_REPORT":                      58,
+		"HTTP_SEND_REQUEST":                 59,
+		"HTTP_SEND_RESPONSE":                60,
+		"PUSH":                              80,
+		"PULL":                              81,
+		"CONTAINER_REQUEST":                 100,
+		"CONTAINER_RESPONSE":                101,
+		"CONTAINER_ESCAPE_REQUEST":          102,
+		"CONTAINER_ESCAPE_RESPONSE":         103,
+		"PRIVILEGE_ESCALATION_REQUEST":      104,
+		"PRIVILEGE_ESCALATION_RESPONSE":     105,
+		"K8S_PRIVILEGE_ESCALATION_REQUEST":  106,
+		"K8S_PRIVILEGE_ESCALATION_RESPONSE": 107,
 	}
 )
 
@@ -243,7 +245,8 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\x94\t\n" +
+	"\x12message_type.proto*\xe3\n" +
+	"\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -297,7 +300,13 @@ const file_message_type_proto_rawDesc = "" +
 	"\x04PUSH\x10P\x12\b\n" +
 	"\x04PULL\x10Q\x12\x15\n" +
 	"\x11CONTAINER_REQUEST\x10d\x12\x16\n" +
-	"\x12CONTAINER_RESPONSE\x10eB)\n" +
+	"\x12CONTAINER_RESPONSE\x10e\x12\x1c\n" +
+	"\x18CONTAINER_ESCAPE_REQUEST\x10f\x12\x1d\n" +
+	"\x19CONTAINER_ESCAPE_RESPONSE\x10g\x12 \n" +
+	"\x1cPRIVILEGE_ESCALATION_REQUEST\x10h\x12!\n" +
+	"\x1dPRIVILEGE_ESCALATION_RESPONSE\x10i\x12$\n" +
+	" K8S_PRIVILEGE_ESCALATION_REQUEST\x10j\x12%\n" +
+	"!K8S_PRIVILEGE_ESCALATION_RESPONSE\x10kB)\n" +
 	"\n" +
 	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
