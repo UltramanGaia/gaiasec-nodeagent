@@ -8,3 +8,11 @@ commit:
 	test -z "$$(git status --short)" || opencode run 'commit it'
 build:
 	bash build.sh
+
+push:
+	test -z "$$(git cherry -v)" || opencode run 'push it'
+
+push_image:
+	echo "ok"
+push_image_remote:
+	echo "ok"
