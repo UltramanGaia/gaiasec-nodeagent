@@ -64,9 +64,15 @@ func CreateArchive(rootPath string, includes, excludes []string, archivePath str
 			return nil
 		}
 
-		info, err := d.Info()
+		info, err := os.Stat(path)
 		if err != nil {
 			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if !info.Mode().IsRegular() {
+			return nil
 		}
 		header, err := zip.FileInfoHeader(info)
 		if err != nil {
