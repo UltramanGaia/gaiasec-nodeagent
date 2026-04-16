@@ -12,6 +12,7 @@ import (
 
 func CreateArchive(rootPath string, includes, excludes []string, archivePath string) (int64, error) {
 	cleanRoot := filepath.Clean(rootPath)
+	entryPrefix := archiveEntryPrefix(cleanRoot)
 	rootInfo, err := os.Stat(cleanRoot)
 	if err != nil {
 		return 0, fmt.Errorf("stat root path: %w", err)
@@ -41,7 +42,15 @@ func CreateArchive(rootPath string, includes, excludes []string, archivePath str
 			return nil
 		}
 
-		entryName := strings.TrimPrefix(filepath.ToSlash(path), "/")
+		entryName := filepath.ToSlash(strings.TrimPrefix(filepath.Clean(path), string(filepath.Separator)))
+		if entryPrefix != "" && strings.HasPrefix(entryName, entryPrefix+"/") {
+			entryName = strings.TrimPrefix(entryName, entryPrefix+"/")
+		}
+		entryName = filepath.ToSlash(filepath.Clean(entryName))
+		entryName = strings.TrimPrefix(entryName, "/")
+		if entryName == "." || entryName == "" {
+			return nil
+		}
 		if entryName == "" {
 			return nil
 		}
@@ -112,6 +121,18 @@ func matchesAnyPattern(path string, patterns []string) bool {
 		}
 	}
 	return false
+}
+
+func archiveEntryPrefix(rootPath string) string {
+	clean := filepath.ToSlash(filepath.Clean(rootPath))
+	clean = strings.TrimPrefix(clean, "/")
+	const procRootMarker = "root/"
+	if strings.HasPrefix(clean, "proc/") {
+		if idx := strings.Index(clean, procRootMarker); idx >= 0 {
+			return clean[:idx+len(procRootMarker)-1]
+		}
+	}
+	return ""
 }
 
 func matchArchivePattern(path, pattern string) bool {

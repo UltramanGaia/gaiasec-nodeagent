@@ -2,7 +2,6 @@ package naserver
 
 import (
 	"crypto/tls"
-	"fmt"
 	"gaiasec-nodeagent/pkg/config"
 	"gaiasec-nodeagent/pkg/filesystem"
 	"gaiasec-nodeagent/pkg/pb"
@@ -11,11 +10,12 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 )
+
+const archiveTempDir = "/gaiasec/tmp"
 
 // 文件系统相关处理方法
 func (na *NodeAgent) handleFsListDir(message *pb.Base) {
@@ -239,93 +239,51 @@ func (na *NodeAgent) handleFsDownload(message *pb.Base) {
 	log.Info("upload file response:", string(body))
 }
 
-func (na *NodeAgent) handleFsArchiveUpload(message *pb.Base) {
-	log.Info("handle file system archive upload")
-	request := &pb.FSArchiveUploadRequest{}
+func (na *NodeAgent) handleFsArchiveCreate(message *pb.Base) {
+	log.Info("handle file system archive create")
+	request := &pb.FSArchiveCreateRequest{}
 	if err := proto.Unmarshal(message.Data, request); err != nil {
 		log.Info("unmarshal error:", err)
 		return
 	}
 
-	tempFile, err := os.CreateTemp("", "gaiasec-archive-*.zip")
-	if err != nil {
-		_ = na.wsClient.SendMessage(&pb.FSArchiveUploadResponse{
+	if err := os.MkdirAll(archiveTempDir, 0o755); err != nil {
+		_ = na.wsClient.SendMessage(&pb.FSArchiveCreateResponse{
 			Result: "error",
 			Error:  err.Error(),
-		}, pb.MessageType_FS_ARCHIVE_UPLOAD_RESPONSE, na.NodeID, message.Source, message.Session)
+		}, pb.MessageType_FS_ARCHIVE_CREATE_RESPONSE, na.NodeID, message.Source, message.Session)
+		return
+	}
+
+	tempFile, err := os.CreateTemp(archiveTempDir, "gaiasec-archive-*.zip")
+	if err != nil {
+		_ = na.wsClient.SendMessage(&pb.FSArchiveCreateResponse{
+			Result: "error",
+			Error:  err.Error(),
+		}, pb.MessageType_FS_ARCHIVE_CREATE_RESPONSE, na.NodeID, message.Source, message.Session)
 		return
 	}
 	tempPath := tempFile.Name()
 	tempFile.Close()
-	defer os.Remove(tempPath)
+
+	log.Infof("create archive for path '%s' to '%s'", request.RootPath, tempPath)
 
 	size, err := filesystem.CreateArchive(request.RootPath, request.Include, request.Exclude, tempPath)
 	if err != nil {
-		_ = na.wsClient.SendMessage(&pb.FSArchiveUploadResponse{
+		_ = os.Remove(tempPath)
+		_ = na.wsClient.SendMessage(&pb.FSArchiveCreateResponse{
 			Result: "error",
 			Error:  err.Error(),
-		}, pb.MessageType_FS_ARCHIVE_UPLOAD_RESPONSE, na.NodeID, message.Source, message.Session)
+		}, pb.MessageType_FS_ARCHIVE_CREATE_RESPONSE, na.NodeID, message.Source, message.Session)
 		return
 	}
+	log.Info("archive size:", size)
 
-	archiveName := request.ArchiveName
-	if archiveName == "" {
-		archiveName = message.Session + ".zip"
-	}
-	if err := na.uploadFileToFileserver(tempPath, archiveName); err != nil {
-		_ = na.wsClient.SendMessage(&pb.FSArchiveUploadResponse{
-			Result:      "error",
-			ArchiveName: archiveName,
-			Error:       err.Error(),
-		}, pb.MessageType_FS_ARCHIVE_UPLOAD_RESPONSE, na.NodeID, message.Source, message.Session)
-		return
-	}
-
-	if err := na.wsClient.SendMessage(&pb.FSArchiveUploadResponse{
+	if err := na.wsClient.SendMessage(&pb.FSArchiveCreateResponse{
 		Result:      "ok",
-		ArchiveName: archiveName,
+		ArchivePath: tempPath,
 		Size:        size,
-	}, pb.MessageType_FS_ARCHIVE_UPLOAD_RESPONSE, na.NodeID, message.Source, message.Session); err != nil {
-		log.Info("send archive upload response error:", err)
+	}, pb.MessageType_FS_ARCHIVE_CREATE_RESPONSE, na.NodeID, message.Source, message.Session); err != nil {
+		log.Info("send archive create response error:", err)
 	}
-}
-
-func (na *NodeAgent) uploadFileToFileserver(localPath, remoteName string) error {
-	r, w := io.Pipe()
-	m := multipart.NewWriter(w)
-	go func() {
-		defer w.Close()
-		defer m.Close()
-		part, err := m.CreateFormFile("file", filepath.Base(remoteName))
-		if err != nil {
-			log.Info("create form file error:", err)
-			return
-		}
-		file, err := os.Open(localPath)
-		if err != nil {
-			log.Info("open file error:", err)
-			return
-		}
-		defer file.Close()
-		if _, err = io.Copy(part, file); err != nil {
-			log.Info("copy file error:", err)
-		}
-	}()
-
-	cfg := config.GetInstance()
-	tlsConfig := &tls.Config{InsecureSkipVerify: true}
-	httpClient := &http.Client{
-		Transport: &http.Transport{TLSClientConfig: tlsConfig},
-	}
-	protocol, host := util.ParseServerURL(cfg.Server)
-	res, err := httpClient.Post(protocol+"://"+host+"/remote/filesystem/upload", m.FormDataContentType(), r)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-	if res.StatusCode/100 != 2 {
-		body, _ := io.ReadAll(res.Body)
-		return fmt.Errorf("upload status %d: %s", res.StatusCode, string(body))
-	}
-	return nil
 }

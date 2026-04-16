@@ -54,8 +54,8 @@ const (
 	MessageType_FS_RENAME_REQUEST          MessageType = 32
 	MessageType_FS_RENAME_RESPONSE         MessageType = 33
 	MessageType_FS_DOWNLOAD_REQUEST        MessageType = 34
-	MessageType_FS_ARCHIVE_UPLOAD_REQUEST  MessageType = 35
-	MessageType_FS_ARCHIVE_UPLOAD_RESPONSE MessageType = 36
+	MessageType_FS_ARCHIVE_CREATE_REQUEST  MessageType = 35
+	MessageType_FS_ARCHIVE_CREATE_RESPONSE MessageType = 36
 	// 代理
 	MessageType_PROXY_ESTABLISH      MessageType = 40 // establish
 	MessageType_PROXY_DATA_TO_SERVER MessageType = 41 // data  nodeagent -> server
@@ -125,8 +125,8 @@ var (
 		32:  "FS_RENAME_REQUEST",
 		33:  "FS_RENAME_RESPONSE",
 		34:  "FS_DOWNLOAD_REQUEST",
-		35:  "FS_ARCHIVE_UPLOAD_REQUEST",
-		36:  "FS_ARCHIVE_UPLOAD_RESPONSE",
+		35:  "FS_ARCHIVE_CREATE_REQUEST",
+		36:  "FS_ARCHIVE_CREATE_RESPONSE",
 		40:  "PROXY_ESTABLISH",
 		41:  "PROXY_DATA_TO_SERVER",
 		42:  "PROXY_DATA_TO_CLIENT",
@@ -186,8 +186,8 @@ var (
 		"FS_RENAME_REQUEST":                 32,
 		"FS_RENAME_RESPONSE":                33,
 		"FS_DOWNLOAD_REQUEST":               34,
-		"FS_ARCHIVE_UPLOAD_REQUEST":         35,
-		"FS_ARCHIVE_UPLOAD_RESPONSE":        36,
+		"FS_ARCHIVE_CREATE_REQUEST":         35,
+		"FS_ARCHIVE_CREATE_RESPONSE":        36,
 		"PROXY_ESTABLISH":                   40,
 		"PROXY_DATA_TO_SERVER":              41,
 		"PROXY_DATA_TO_CLIENT":              42,
@@ -283,8 +283,8 @@ const file_message_type_proto_rawDesc = "" +
 	"\x11FS_RENAME_REQUEST\x10 \x12\x16\n" +
 	"\x12FS_RENAME_RESPONSE\x10!\x12\x17\n" +
 	"\x13FS_DOWNLOAD_REQUEST\x10\"\x12\x1d\n" +
-	"\x19FS_ARCHIVE_UPLOAD_REQUEST\x10#\x12\x1e\n" +
-	"\x1aFS_ARCHIVE_UPLOAD_RESPONSE\x10$\x12\x13\n" +
+	"\x19FS_ARCHIVE_CREATE_REQUEST\x10#\x12\x1e\n" +
+	"\x1aFS_ARCHIVE_CREATE_RESPONSE\x10$\x12\x13\n" +
 	"\x0fPROXY_ESTABLISH\x10(\x12\x18\n" +
 	"\x14PROXY_DATA_TO_SERVER\x10)\x12\x18\n" +
 	"\x14PROXY_DATA_TO_CLIENT\x10*\x12\x0f\n" +

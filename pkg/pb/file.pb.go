@@ -886,7 +886,7 @@ func (x *FSDownloadFileRequest) GetPath() string {
 	return ""
 }
 
-type FSArchiveUploadRequest struct {
+type FSArchiveCreateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RootPath      string                 `protobuf:"bytes,1,opt,name=root_path,json=rootPath,proto3" json:"root_path,omitempty"`
 	Include       []string               `protobuf:"bytes,2,rep,name=include,proto3" json:"include,omitempty"`
@@ -896,20 +896,20 @@ type FSArchiveUploadRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *FSArchiveUploadRequest) Reset() {
-	*x = FSArchiveUploadRequest{}
+func (x *FSArchiveCreateRequest) Reset() {
+	*x = FSArchiveCreateRequest{}
 	mi := &file_file_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *FSArchiveUploadRequest) String() string {
+func (x *FSArchiveCreateRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FSArchiveUploadRequest) ProtoMessage() {}
+func (*FSArchiveCreateRequest) ProtoMessage() {}
 
-func (x *FSArchiveUploadRequest) ProtoReflect() protoreflect.Message {
+func (x *FSArchiveCreateRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_file_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -921,63 +921,63 @@ func (x *FSArchiveUploadRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FSArchiveUploadRequest.ProtoReflect.Descriptor instead.
-func (*FSArchiveUploadRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use FSArchiveCreateRequest.ProtoReflect.Descriptor instead.
+func (*FSArchiveCreateRequest) Descriptor() ([]byte, []int) {
 	return file_file_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *FSArchiveUploadRequest) GetRootPath() string {
+func (x *FSArchiveCreateRequest) GetRootPath() string {
 	if x != nil {
 		return x.RootPath
 	}
 	return ""
 }
 
-func (x *FSArchiveUploadRequest) GetInclude() []string {
+func (x *FSArchiveCreateRequest) GetInclude() []string {
 	if x != nil {
 		return x.Include
 	}
 	return nil
 }
 
-func (x *FSArchiveUploadRequest) GetExclude() []string {
+func (x *FSArchiveCreateRequest) GetExclude() []string {
 	if x != nil {
 		return x.Exclude
 	}
 	return nil
 }
 
-func (x *FSArchiveUploadRequest) GetArchiveName() string {
+func (x *FSArchiveCreateRequest) GetArchiveName() string {
 	if x != nil {
 		return x.ArchiveName
 	}
 	return ""
 }
 
-type FSArchiveUploadResponse struct {
+type FSArchiveCreateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
-	ArchiveName   string                 `protobuf:"bytes,2,opt,name=archive_name,json=archiveName,proto3" json:"archive_name,omitempty"`
+	ArchivePath   string                 `protobuf:"bytes,2,opt,name=archive_path,json=archivePath,proto3" json:"archive_path,omitempty"`
 	Size          int64                  `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`
 	Error         string                 `protobuf:"bytes,4,opt,name=error,proto3" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *FSArchiveUploadResponse) Reset() {
-	*x = FSArchiveUploadResponse{}
+func (x *FSArchiveCreateResponse) Reset() {
+	*x = FSArchiveCreateResponse{}
 	mi := &file_file_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *FSArchiveUploadResponse) String() string {
+func (x *FSArchiveCreateResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FSArchiveUploadResponse) ProtoMessage() {}
+func (*FSArchiveCreateResponse) ProtoMessage() {}
 
-func (x *FSArchiveUploadResponse) ProtoReflect() protoreflect.Message {
+func (x *FSArchiveCreateResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_file_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -989,33 +989,33 @@ func (x *FSArchiveUploadResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use FSArchiveUploadResponse.ProtoReflect.Descriptor instead.
-func (*FSArchiveUploadResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use FSArchiveCreateResponse.ProtoReflect.Descriptor instead.
+func (*FSArchiveCreateResponse) Descriptor() ([]byte, []int) {
 	return file_file_proto_rawDescGZIP(), []int{17}
 }
 
-func (x *FSArchiveUploadResponse) GetResult() string {
+func (x *FSArchiveCreateResponse) GetResult() string {
 	if x != nil {
 		return x.Result
 	}
 	return ""
 }
 
-func (x *FSArchiveUploadResponse) GetArchiveName() string {
+func (x *FSArchiveCreateResponse) GetArchivePath() string {
 	if x != nil {
-		return x.ArchiveName
+		return x.ArchivePath
 	}
 	return ""
 }
 
-func (x *FSArchiveUploadResponse) GetSize() int64 {
+func (x *FSArchiveCreateResponse) GetSize() int64 {
 	if x != nil {
 		return x.Size
 	}
 	return 0
 }
 
-func (x *FSArchiveUploadResponse) GetError() string {
+func (x *FSArchiveCreateResponse) GetError() string {
 	if x != nil {
 		return x.Error
 	}
@@ -1076,14 +1076,14 @@ const file_file_proto_rawDesc = "" +
 	"\x06result\x18\x01 \x01(\tR\x06result\"+\n" +
 	"\x15FSDownloadFileRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\"\x8c\x01\n" +
-	"\x16FSArchiveUploadRequest\x12\x1b\n" +
+	"\x16FSArchiveCreateRequest\x12\x1b\n" +
 	"\troot_path\x18\x01 \x01(\tR\brootPath\x12\x18\n" +
 	"\ainclude\x18\x02 \x03(\tR\ainclude\x12\x18\n" +
 	"\aexclude\x18\x03 \x03(\tR\aexclude\x12!\n" +
 	"\farchive_name\x18\x04 \x01(\tR\varchiveName\"~\n" +
-	"\x17FSArchiveUploadResponse\x12\x16\n" +
+	"\x17FSArchiveCreateResponse\x12\x16\n" +
 	"\x06result\x18\x01 \x01(\tR\x06result\x12!\n" +
-	"\farchive_name\x18\x02 \x01(\tR\varchiveName\x12\x12\n" +
+	"\farchive_path\x18\x02 \x01(\tR\varchivePath\x12\x12\n" +
 	"\x04size\x18\x03 \x01(\x03R\x04size\x12\x14\n" +
 	"\x05error\x18\x04 \x01(\tR\x05error*0\n" +
 	"\bFileType\x12\b\n" +
@@ -1125,8 +1125,8 @@ var file_file_proto_goTypes = []any{
 	(*FSRenameFileRequest)(nil),     // 14: FSRenameFileRequest
 	(*FSRenameFileResponse)(nil),    // 15: FSRenameFileResponse
 	(*FSDownloadFileRequest)(nil),   // 16: FSDownloadFileRequest
-	(*FSArchiveUploadRequest)(nil),  // 17: FSArchiveUploadRequest
-	(*FSArchiveUploadResponse)(nil), // 18: FSArchiveUploadResponse
+	(*FSArchiveCreateRequest)(nil),  // 17: FSArchiveCreateRequest
+	(*FSArchiveCreateResponse)(nil), // 18: FSArchiveCreateResponse
 }
 var file_file_proto_depIdxs = []int32{
 	0, // 0: FileNode.fileType:type_name -> FileType
