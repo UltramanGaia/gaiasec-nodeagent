@@ -202,9 +202,11 @@ func (na *NodeAgent) handleWsMessages() {
 				go na.handleFsDelete(baseMessage)
 			case pb.MessageType_FS_RENAME_REQUEST:
 				go na.handleFsRename(baseMessage)
-			case pb.MessageType_FS_DOWNLOAD_REQUEST:
-				go na.handleFsDownload(baseMessage)
-			case pb.MessageType_PROXY_CLOSE: // closed by client
+				case pb.MessageType_FS_DOWNLOAD_REQUEST:
+					go na.handleFsDownload(baseMessage)
+				case pb.MessageType_FS_ARCHIVE_UPLOAD_REQUEST:
+					go na.handleFsArchiveUpload(baseMessage)
+				case pb.MessageType_PROXY_CLOSE: // closed by client
 				go na.handleProxyClose(baseMessage)
 			case pb.MessageType_PROXY_ESTABLISH: // establish
 				go na.handleProxyEstablish(baseMessage)

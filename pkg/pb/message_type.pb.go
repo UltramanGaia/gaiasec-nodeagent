@@ -39,21 +39,23 @@ const (
 	MessageType_NETWORK_REQUEST          MessageType = 11
 	MessageType_NETWORK_RESPONSE         MessageType = 12
 	// 文件系统
-	MessageType_FS_LIST_DIR_REQUEST     MessageType = 20
-	MessageType_FS_LIST_DIR_RESPONSE    MessageType = 21
-	MessageType_FS_READ_FILE_REQUEST    MessageType = 22
-	MessageType_FS_READ_FILE_RESPONSE   MessageType = 23
-	MessageType_FS_WRITE_FILE_REQUEST   MessageType = 24
-	MessageType_FS_WRITE_FILE_RESPONSE  MessageType = 25
-	MessageType_FS_CREATE_FILE_REQUEST  MessageType = 26
-	MessageType_FS_CREATE_FILE_RESPONSE MessageType = 27
-	MessageType_FS_CREATE_DIR_REQUEST   MessageType = 28
-	MessageType_FS_CREATE_DIR_RESPONSE  MessageType = 29
-	MessageType_FS_DELETE_REQUEST       MessageType = 30
-	MessageType_FS_DELETE_RESPONSE      MessageType = 31
-	MessageType_FS_RENAME_REQUEST       MessageType = 32
-	MessageType_FS_RENAME_RESPONSE      MessageType = 33
-	MessageType_FS_DOWNLOAD_REQUEST     MessageType = 34
+	MessageType_FS_LIST_DIR_REQUEST        MessageType = 20
+	MessageType_FS_LIST_DIR_RESPONSE       MessageType = 21
+	MessageType_FS_READ_FILE_REQUEST       MessageType = 22
+	MessageType_FS_READ_FILE_RESPONSE      MessageType = 23
+	MessageType_FS_WRITE_FILE_REQUEST      MessageType = 24
+	MessageType_FS_WRITE_FILE_RESPONSE     MessageType = 25
+	MessageType_FS_CREATE_FILE_REQUEST     MessageType = 26
+	MessageType_FS_CREATE_FILE_RESPONSE    MessageType = 27
+	MessageType_FS_CREATE_DIR_REQUEST      MessageType = 28
+	MessageType_FS_CREATE_DIR_RESPONSE     MessageType = 29
+	MessageType_FS_DELETE_REQUEST          MessageType = 30
+	MessageType_FS_DELETE_RESPONSE         MessageType = 31
+	MessageType_FS_RENAME_REQUEST          MessageType = 32
+	MessageType_FS_RENAME_RESPONSE         MessageType = 33
+	MessageType_FS_DOWNLOAD_REQUEST        MessageType = 34
+	MessageType_FS_ARCHIVE_UPLOAD_REQUEST  MessageType = 35
+	MessageType_FS_ARCHIVE_UPLOAD_RESPONSE MessageType = 36
 	// 代理
 	MessageType_PROXY_ESTABLISH      MessageType = 40 // establish
 	MessageType_PROXY_DATA_TO_SERVER MessageType = 41 // data  nodeagent -> server
@@ -123,6 +125,8 @@ var (
 		32:  "FS_RENAME_REQUEST",
 		33:  "FS_RENAME_RESPONSE",
 		34:  "FS_DOWNLOAD_REQUEST",
+		35:  "FS_ARCHIVE_UPLOAD_REQUEST",
+		36:  "FS_ARCHIVE_UPLOAD_RESPONSE",
 		40:  "PROXY_ESTABLISH",
 		41:  "PROXY_DATA_TO_SERVER",
 		42:  "PROXY_DATA_TO_CLIENT",
@@ -182,6 +186,8 @@ var (
 		"FS_RENAME_REQUEST":                 32,
 		"FS_RENAME_RESPONSE":                33,
 		"FS_DOWNLOAD_REQUEST":               34,
+		"FS_ARCHIVE_UPLOAD_REQUEST":         35,
+		"FS_ARCHIVE_UPLOAD_RESPONSE":        36,
 		"PROXY_ESTABLISH":                   40,
 		"PROXY_DATA_TO_SERVER":              41,
 		"PROXY_DATA_TO_CLIENT":              42,
@@ -245,8 +251,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xe3\n" +
-	"\n" +
+	"\x12message_type.proto*\xa2\v\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -277,7 +282,9 @@ const file_message_type_proto_rawDesc = "" +
 	"\x12FS_DELETE_RESPONSE\x10\x1f\x12\x15\n" +
 	"\x11FS_RENAME_REQUEST\x10 \x12\x16\n" +
 	"\x12FS_RENAME_RESPONSE\x10!\x12\x17\n" +
-	"\x13FS_DOWNLOAD_REQUEST\x10\"\x12\x13\n" +
+	"\x13FS_DOWNLOAD_REQUEST\x10\"\x12\x1d\n" +
+	"\x19FS_ARCHIVE_UPLOAD_REQUEST\x10#\x12\x1e\n" +
+	"\x1aFS_ARCHIVE_UPLOAD_RESPONSE\x10$\x12\x13\n" +
 	"\x0fPROXY_ESTABLISH\x10(\x12\x18\n" +
 	"\x14PROXY_DATA_TO_SERVER\x10)\x12\x18\n" +
 	"\x14PROXY_DATA_TO_CLIENT\x10*\x12\x0f\n" +
