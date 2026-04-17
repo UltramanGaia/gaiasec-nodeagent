@@ -1,15 +1,15 @@
 package udsserver
 
 import (
-	log "github.com/sirupsen/logrus"
-	"net"
-	"os"
-	"os/signal"
 	"gaiasec-nodeagent/pkg/config"
 	"gaiasec-nodeagent/pkg/constant"
 	"gaiasec-nodeagent/pkg/pb"
 	"gaiasec-nodeagent/pkg/util"
 	"gaiasec-nodeagent/pkg/wsclient"
+	log "github.com/sirupsen/logrus"
+	"net"
+	"os"
+	"os/signal"
 	"sync"
 	"syscall"
 )
@@ -93,7 +93,7 @@ func (s *Server) HandleAgentMessage() {
 func (s *Server) HandleMessage(message *pb.Base) {
 	destination := message.Destination
 	if destination != "" {
-		if client, ok := s.Agent2SocketMap[destination]; ok {
+		if client, ok := s.getAgentClient(destination); ok {
 			err := client.SendMessage(message)
 			if err != nil {
 				log.Errorf("Error writing to agent %s: %s", destination, err)
@@ -117,10 +117,7 @@ func (s *Server) accept() net.Conn {
 }
 
 func (s *Server) BroadcastAgentStatus() {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	for agentId, client := range s.Agent2SocketMap {
+	for agentId, client := range s.snapshotAgents() {
 		if client.registerMsg != nil {
 			log.Infof("Broadcast agent status for %s", agentId)
 			err := s.WsClient.SendMessage(client.registerMsg, pb.MessageType_REGISTER, agentId, constant.SERVER_ID, util.GenerateID())
@@ -129,4 +126,34 @@ func (s *Server) BroadcastAgentStatus() {
 			}
 		}
 	}
+}
+
+func (s *Server) registerAgent(agentID string, client *Client) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.Agent2SocketMap[agentID] = client
+}
+
+func (s *Server) unregisterAgent(agentID string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	delete(s.Agent2SocketMap, agentID)
+}
+
+func (s *Server) getAgentClient(agentID string) (*Client, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	client, ok := s.Agent2SocketMap[agentID]
+	return client, ok
+}
+
+func (s *Server) snapshotAgents() map[string]*Client {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	snapshot := make(map[string]*Client, len(s.Agent2SocketMap))
+	for agentID, client := range s.Agent2SocketMap {
+		snapshot[agentID] = client
+	}
+	return snapshot
 }

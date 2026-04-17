@@ -3,13 +3,13 @@ package udsserver
 import (
 	"encoding/binary"
 	"fmt"
+	"gaiasec-nodeagent/pkg/constant"
+	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 	"io"
 	"net"
-	"gaiasec-nodeagent/pkg/constant"
-	"gaiasec-nodeagent/pkg/pb"
-	"gaiasec-nodeagent/pkg/util"
 	"sync"
 )
 
@@ -62,7 +62,7 @@ func (c *Client) HandleAgentMessage() {
 			}
 			if c.agentId == "" {
 				c.agentId = registerMsg.Id
-				c.server.Agent2SocketMap[c.agentId] = c
+				c.server.registerAgent(c.agentId, c)
 				log.Infof("Agent %s register", registerMsg.Id)
 			} else if c.agentId != registerMsg.Id {
 				log.Errorf("agent id changed from %s to %s", c.agentId, registerMsg.Id)
@@ -139,7 +139,7 @@ func (c *Client) unregister(agentId string) {
 		if err != nil {
 			log.Error("Emit logout error: ", err)
 		}
-		delete(c.server.Agent2SocketMap, agentId)
+		c.server.unregisterAgent(agentId)
 	}
 	_ = (*c.conn).Close()
 }
