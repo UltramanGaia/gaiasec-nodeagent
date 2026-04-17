@@ -58,17 +58,11 @@ func ParseMain() {
 	// 如果请求显示版本信息，则输出版本并退出
 	if cfg.Version {
 		fmt.Printf("GaiaSec NodeAgent %s (Go)\n", version.Version)
-		if version.BuildTime != "" {
-			fmt.Printf("Build Time: %s\n", version.BuildTime)
-		}
 		return
 	}
 
 	// 启动时打印版本信息
 	log.Infof("GaiaSec NodeAgent starting, version: %s", version.Version)
-	if version.BuildTime != "" {
-		log.Infof("Build Time: %s", version.BuildTime)
-	}
 
 	// 验证必需的命令行参数
 	if cfg.ProjectID == "" || cfg.NodeID == "" || cfg.Server == "" {

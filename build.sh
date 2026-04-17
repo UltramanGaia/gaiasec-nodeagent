@@ -13,11 +13,9 @@ NC='\033[0m' # No Color
 
 # Version information
 BUILD_VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
-BUILD_TIME=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
 echo -e "${BLUE}Building GaiaSec NodeAgent for multiple platforms...${NC}"
 echo -e "${YELLOW}Version: ${BUILD_VERSION}${NC}"
-echo -e "${YELLOW}Build Time: ${BUILD_TIME}${NC}"
 echo ""
 
 # Ensure dependencies are downloaded
@@ -67,9 +65,10 @@ CURRENT=0
         echo -e "${YELLOW}  Using cross-compiler: $CC${NC}"
     fi
 
-    # Build the binary with version info
+    # Build the binary with stable version info only so identical sources
+    # produce identical ELF outputs across repeated builds.
     env GOOS=$OS GOARCH=$ARCH CGO_ENABLED=1 $CC_OPT go build \
-        -ldflags="-w -s -X 'gaiasec-nodeagent/pkg/version.Version=${BUILD_VERSION}' -X 'gaiasec-nodeagent/pkg/version.BuildTime=${BUILD_TIME}'" \
+        -ldflags="-w -s -X 'gaiasec-nodeagent/pkg/version.Version=${BUILD_VERSION}'" \
         -trimpath \
         -o "$OUTPUT_DIR/$OUTPUT_NAME" \
         ./cmd/nodeagent
@@ -95,7 +94,6 @@ ls -lh "$OUTPUT_DIR/" | grep -E "^-" | awk '{print "  " $9 " (" $5 ")"}'
 echo ""
 echo -e "${YELLOW}Build Summary:${NC}"
 echo -e "${YELLOW}  Version: ${BUILD_VERSION}${NC}"
-echo -e "${YELLOW}  Build Time: ${BUILD_TIME}${NC}"
 echo -e "${YELLOW}  Platforms: ${TOTAL}${NC}"
 echo ""
 chmod a+rx ./sync.sh

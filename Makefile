@@ -15,4 +15,4 @@ push:
 push_image:
 	echo "ok"
 push_image_remote:
-	echo "ok"
+	bash push_image_remote.sh

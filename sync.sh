@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 echo "Checking for gaiasec-api-gateway pod"
@@ -16,6 +16,8 @@ if [ -z "$POD_ID" ]; then
 fi
 
 echo "Found pod: ${POD_ID}"
+
+kubectl exec -it "${POD_ID}" -- mkdir -p /usr/share/nginx/html/plugins/nodeagent/
 
 echo "Syncing linux/amd64 binary..."
 kubectl cp ./agent/nodeagent-linux-amd64 "${POD_ID}:/usr/share/nginx/html/plugins/nodeagent/"
