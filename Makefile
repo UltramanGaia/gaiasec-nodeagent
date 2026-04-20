@@ -5,12 +5,12 @@ pull:
 	git checkout master
 	git pull
 commit:
-	test -z "$$(git status --short)" || opencode run 'commit it'
+	test -z "$$(git status --short)" || opencode run 'git commit it'
 build:
 	bash build.sh
 
 push:
-	test -z "$$(git cherry -v)" || opencode run 'push it'
+	test -z "$$(git cherry -v)" || opencode run 'git push it'
 
 push_image:
 	echo "ok"
