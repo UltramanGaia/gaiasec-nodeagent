@@ -74,7 +74,7 @@ type FileNode struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Path          string                 `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
-	FileType      FileType               `protobuf:"varint,3,opt,name=fileType,proto3,enum=FileType" json:"fileType,omitempty"`
+	FileType      FileType               `protobuf:"varint,3,opt,name=file_type,json=fileType,proto3,enum=FileType" json:"file_type,omitempty"`
 	Size          int64                  `protobuf:"varint,4,opt,name=size,proto3" json:"size,omitempty"`
 	ModifiedTime  int64                  `protobuf:"varint,5,opt,name=modified_time,json=modifiedTime,proto3" json:"modified_time,omitempty"`
 	Permission    string                 `protobuf:"bytes,6,opt,name=permission,proto3" json:"permission,omitempty"`
@@ -1155,11 +1155,11 @@ var File_file_proto protoreflect.FileDescriptor
 const file_file_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"file.proto\"\xc6\x01\n" +
+	"file.proto\"\xc7\x01\n" +
 	"\bFileNode\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
-	"\x04path\x18\x02 \x01(\tR\x04path\x12%\n" +
-	"\bfileType\x18\x03 \x01(\x0e2\t.FileTypeR\bfileType\x12\x12\n" +
+	"\x04path\x18\x02 \x01(\tR\x04path\x12&\n" +
+	"\tfile_type\x18\x03 \x01(\x0e2\t.FileTypeR\bfileType\x12\x12\n" +
 	"\x04size\x18\x04 \x01(\x03R\x04size\x12#\n" +
 	"\rmodified_time\x18\x05 \x01(\x03R\fmodifiedTime\x12\x1e\n" +
 	"\n" +
@@ -1268,7 +1268,7 @@ var file_file_proto_goTypes = []any{
 	(*FSArchiveUploadResponse)(nil), // 20: FSArchiveUploadResponse
 }
 var file_file_proto_depIdxs = []int32{
-	0, // 0: FileNode.fileType:type_name -> FileType
+	0, // 0: FileNode.file_type:type_name -> FileType
 	1, // 1: FSListDirResponse.files:type_name -> FileNode
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
