@@ -65,7 +65,7 @@ func NewNodeAgent() (*NodeAgent, error) {
 
 	protocol, host := util.ParseServerURL(cfg.Server)
 	wsProtocol := util.GetWebSocketProtocol(protocol)
-	serverURL := fmt.Sprintf("%s://%s/ws/agent?projectId=%s&connectId=%s", wsProtocol, host, cfg.ProjectID, cfg.NodeID)
+	serverURL := fmt.Sprintf("%s://%s/ws/agent?project_id=%s&connect_id=%s", wsProtocol, host, cfg.ProjectID, cfg.NodeID)
 	hostname, err := system.GetHostname()
 	if err != nil {
 		return nil, fmt.Errorf("获取主机名失败: %v", err)

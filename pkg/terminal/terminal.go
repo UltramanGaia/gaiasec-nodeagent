@@ -97,7 +97,7 @@ func (t *Terminal) Start() {
 	cfg := config.GetInstance()
 	protocol, host := util.ParseServerURL(cfg.Server)
 	wsProtocol := util.GetWebSocketProtocol(protocol)
-	uri := wsProtocol + "://" + host + "/ws/terminal?nodeId=" + cfg.NodeID + "&clientId=" + sessionID
+	uri := wsProtocol + "://" + host + "/ws/terminal?node_id=" + cfg.NodeID + "&client_id=" + sessionID
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: true,
 	}

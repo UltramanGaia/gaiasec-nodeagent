@@ -34,9 +34,9 @@ func init() {
 
 	// 定义命令行参数
 	flag.StringVar(&cfg.Server, "server", "", "GaiaSec Server WebSocket URL")
-	flag.StringVar(&cfg.ProjectID, "projectId", "", "Project ID")
-	flag.StringVar(&cfg.NodeID, "nodeId", "", "Node ID")
-	flag.StringVar(&cfg.GaiaSecDir, "gaiasecDir", "/gaiasec", "GaiaSec工作目录")
+	flag.StringVar(&cfg.ProjectID, "project_id", "", "Project ID")
+	flag.StringVar(&cfg.NodeID, "node_id", "", "Node ID")
+	flag.StringVar(&cfg.GaiaSecDir, "gaiasec_dir", "/gaiasec", "GaiaSec工作目录")
 	flag.BoolVar(&cfg.DaemonMode, "d", false, "daemon(background)")
 	flag.BoolVar(&cfg.ProxyMode, "p", false, "enable proxy mode")
 	flag.BoolVar(&cfg.Version, "version", false, "version")
@@ -66,7 +66,7 @@ func ParseMain() {
 
 	// 验证必需的命令行参数
 	if cfg.ProjectID == "" || cfg.NodeID == "" || cfg.Server == "" {
-		log.Fatal("Usage: gaiasec-nodeagent -projectId <PROJECT_ID> -nodeId <NODE_ID> -server <SERVER_URL> [-gaiasecDir <DIR>] [-d] [-p]")
+		log.Fatal("Usage: gaiasec-nodeagent -project_id <PROJECT_ID> -node_id <NODE_ID> -server <SERVER_URL> [-gaiasec_dir <DIR>] [-d] [-p]")
 	}
 
 	// 设置自定义日志格式化器，与JavaAgent格式保持一致
