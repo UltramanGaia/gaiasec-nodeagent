@@ -25,6 +25,12 @@ kubectl cp ./agent/nodeagent-linux-amd64 "${POD_ID}:/usr/share/nginx/html/plugin
 echo "Syncing linux/arm64 binary..."
 kubectl cp ./agent/nodeagent-linux-arm64 "${POD_ID}:/usr/share/nginx/html/plugins/nodeagent/"
 
+echo "Syncing linux/amd64 binary..."
+kubectl cp ./agent/jattach-linux-amd64 "${POD_ID}:/usr/share/nginx/html/plugins/nodeagent/"
+
+echo "Syncing linux/arm64 binary..."
+kubectl cp ./agent/jattach-linux-arm64 "${POD_ID}:/usr/share/nginx/html/plugins/nodeagent/"
+
 echo "Verifying sync..."
 kubectl exec -it "${POD_ID}" -- ls -la /usr/share/nginx/html/plugins/nodeagent/
 

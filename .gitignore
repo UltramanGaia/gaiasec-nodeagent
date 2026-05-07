@@ -4,4 +4,7 @@ nodeagent
 history
 nodeagent-linux-amd64
 nodeagent-linux-arm64
+jattach-linux-amd64
+jattach-linux-arm64
+
 kubectl
