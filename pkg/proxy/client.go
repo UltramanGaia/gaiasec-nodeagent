@@ -11,9 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io"
 	"net"
-	"nhooyr.io/websocket/wspb"
 	"strconv"
-	"time"
 )
 
 type Client struct {
@@ -222,9 +220,7 @@ func (client *Client) tellClose(id string, source string, destination string) er
 		Destination: destination,
 		Session:     id,
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
-	defer cancel()
-	return wspb.Write(ctx, client.server.WsClient.Conn, base)
+	return client.server.WsClient.WriteBaseMessage(base)
 }
 
 type ServerData struct {

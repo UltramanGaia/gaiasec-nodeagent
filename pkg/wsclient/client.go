@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gaiasec-nodeagent/pkg/config"
 	"gaiasec-nodeagent/pkg/pb"
+	"gaiasec-nodeagent/pkg/util"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 	"net/http"
@@ -114,6 +115,8 @@ func (c *Client) SendMessageBytes(data []byte) error {
 }
 
 func (c *Client) SendMessage(m proto.Message, msgType pb.MessageType, source string, destination string, sessionId string) error {
+	util.SanitizeProtoStrings(m)
+
 	data, err := proto.Marshal(m)
 	if err != nil {
 		return err
@@ -127,11 +130,12 @@ func (c *Client) SendMessage(m proto.Message, msgType pb.MessageType, source str
 		Data:        data,
 	}
 
-	err = wspb.Write(c.ctx, c.Conn, &msg)
-	return err
+	return c.WriteBaseMessage(&msg)
 }
 
 func (c *Client) Send(msgType pb.MessageType, m proto.Message) error {
+	util.SanitizeProtoStrings(m)
+
 	data, err := proto.Marshal(m)
 	if err != nil {
 		return err
@@ -142,11 +146,15 @@ func (c *Client) Send(msgType pb.MessageType, m proto.Message) error {
 		Data: data,
 	}
 
-	err = wspb.Write(c.ctx, c.Conn, &msg)
-	return err
+	return c.WriteBaseMessage(&msg)
 }
 
 func (c *Client) ReadMessage(v *pb.Base) (err error) {
 	//msg := pb.Base{}
 	return wspb.Read(c.ctx, c.Conn, v)
+}
+
+func (c *Client) WriteBaseMessage(msg *pb.Base) error {
+	util.SanitizeProtoStrings(msg)
+	return wspb.Write(c.ctx, c.Conn, msg)
 }

@@ -162,6 +162,8 @@ func (c *Client) sendMessage(data []byte) error {
 }
 
 func (c *Client) SendMessage(message *pb.Base) error {
+	util.SanitizeProtoStrings(message)
+
 	data, err := proto.Marshal(message)
 	if err != nil {
 		return err

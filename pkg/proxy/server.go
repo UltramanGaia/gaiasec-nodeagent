@@ -1,14 +1,12 @@
 package proxy
 
 import (
-	"context"
 	"errors"
 	"gaiasec-nodeagent/pkg/pb"
 	"gaiasec-nodeagent/pkg/wsclient"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 	"net"
-	"nhooyr.io/websocket/wspb"
 	"sync"
 )
 
@@ -157,13 +155,7 @@ func (s *Server) tellClosed(id string, source string, destination string) error 
 		Destination: destination,
 		Session:     id,
 	}
-	// fixme lock or NextWriter
-	err := wspb.Write(context.TODO(), s.WsClient.Conn, base)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return s.WsClient.WriteBaseMessage(base)
 }
 
 // add a tcp connection to connection pool.
