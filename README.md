@@ -220,14 +220,11 @@ cd gaiasec-nodeagent
 如果需要手动构建特定平台：
 
 ```bash
-# 构建 Linux AMD64
-GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -o nodeagent-linux-amd64 ./cmd/nodeagent
+# 一次性静态构建 nodeagent / jattach / mounter 到 agent/
+make build
 
-# 构建 Linux ARM64（需要交叉编译器）
-GOOS=linux GOARCH=arm64 CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc go build -o nodeagent-linux-arm64 ./cmd/nodeagent
-
-# 构建 Windows AMD64
-GOOS=windows GOARCH=amd64 go build -o nodeagent-windows-amd64.exe ./cmd/nodeagent
+# 或使用封装脚本（会先 tidy，再 build，再 sync）
+./build.sh
 ```
 
 ### 运行 NodeAgent

@@ -1,9 +1,9 @@
 package util
 
 import (
+	"gaiasec-nodeagent/pkg/config"
 	"path/filepath"
 	"runtime"
-	"gaiasec-nodeagent/pkg/config"
 )
 
 func Tool(toolName string) (string, error) {
