@@ -26,7 +26,7 @@ func GetProcessList() ([]*pb.Process, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var processes []*pb.Process
 
 	for _, pid := range pids {
@@ -61,6 +61,7 @@ func getProcessInfo(ctx context.Context, proc *process.Process) (*pb.Process, er
 	if err != nil {
 		name = "unknown"
 	}
+	name = sanitizeProcessString(name, "unknown")
 
 	// Get command line
 	cmdline, err := proc.Cmdline()
@@ -75,16 +76,14 @@ func getProcessInfo(ctx context.Context, proc *process.Process) (*pb.Process, er
 	}
 
 	// Clean up command line
-	cmdline = strings.TrimSpace(cmdline)
-	if cmdline == "" {
-		cmdline = "[" + name + "]"
-	}
+	cmdline = sanitizeProcessString(cmdline, "["+name+"]")
 
 	// Get process user
 	user, err := proc.Username()
 	if err != nil {
 		user = "unknown"
 	}
+	user = sanitizeProcessString(user, "unknown")
 
 	return &pb.Process{
 		Pid:     pid,
@@ -93,4 +92,13 @@ func getProcessInfo(ctx context.Context, proc *process.Process) (*pb.Process, er
 		Cmdline: cmdline,
 		User:    user,
 	}, nil
+}
+
+func sanitizeProcessString(value string, fallback string) string {
+	value = strings.TrimSpace(strings.ToValidUTF8(value, ""))
+	if value == "" {
+		return fallback
+	}
+
+	return value
 }
