@@ -146,6 +146,7 @@ const (
 	WebFrameworkType_SpringMvc WebFrameworkType = 0
 	WebFrameworkType_Struts    WebFrameworkType = 1
 	WebFrameworkType_CloudSOP  WebFrameworkType = 2
+	WebFrameworkType_Cxf       WebFrameworkType = 3
 )
 
 // Enum value maps for WebFrameworkType.
@@ -154,11 +155,13 @@ var (
 		0: "SpringMvc",
 		1: "Struts",
 		2: "CloudSOP",
+		3: "Cxf",
 	}
 	WebFrameworkType_value = map[string]int32{
 		"SpringMvc": 0,
 		"Struts":    1,
 		"CloudSOP":  2,
+		"Cxf":       3,
 	}
 )
 
@@ -513,12 +516,13 @@ const file_web_routes_proto_rawDesc = "" +
 	"\vInterceptor\x10\x03\x12\x0e\n" +
 	"\n" +
 	"Controller\x10\x04\x12\x12\n" +
-	"\x0eHendlerAdapter\x10\x05*;\n" +
+	"\x0eHendlerAdapter\x10\x05*D\n" +
 	"\x10WebFrameworkType\x12\r\n" +
 	"\tSpringMvc\x10\x00\x12\n" +
 	"\n" +
 	"\x06Struts\x10\x01\x12\f\n" +
-	"\bCloudSOP\x10\x02B)\n" +
+	"\bCloudSOP\x10\x02\x12\a\n" +
+	"\x03Cxf\x10\x03B)\n" +
 	"\n" +
 	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
