@@ -4,7 +4,10 @@ package mount
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -45,6 +48,15 @@ func DoMount(src string, dest string, pid int) error {
 
 func TryMountDir(pid int, src string, dest string) error {
 	log.Infof("try mount dir %s to %s", src, dest)
+
+	targetPath := filepath.Join("/proc", strconv.Itoa(pid), "root", strings.TrimPrefix(dest, "/"))
+	if _, err := os.Stat(targetPath); err == nil {
+		log.Infof("skip mount dir %s to %s because target already exists: %s", src, dest, targetPath)
+		return nil
+	} else if !os.IsNotExist(err) {
+		return fmt.Errorf("stat mount target %s failed: %w", targetPath, err)
+	}
+
 	return DoMount(src, dest, pid)
 }
 
