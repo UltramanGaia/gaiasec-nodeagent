@@ -675,6 +675,7 @@ type IastSaasReport struct {
 	ContextPath    string                 `protobuf:"bytes,14,opt,name=context_path,json=contextPath,proto3" json:"context_path,omitempty"`
 	Pool           []*IastMethodEvent     `protobuf:"bytes,15,rep,name=pool,proto3" json:"pool,omitempty"`
 	TraceId        string                 `protobuf:"bytes,16,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	CapturedLogs   string                 `protobuf:"bytes,17,opt,name=captured_logs,json=capturedLogs,proto3" json:"captured_logs,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -817,6 +818,13 @@ func (x *IastSaasReport) GetPool() []*IastMethodEvent {
 func (x *IastSaasReport) GetTraceId() string {
 	if x != nil {
 		return x.TraceId
+	}
+	return ""
+}
+
+func (x *IastSaasReport) GetCapturedLogs() string {
+	if x != nil {
+		return x.CapturedLogs
 	}
 	return ""
 }
@@ -978,7 +986,7 @@ const file_iast_proto_rawDesc = "" +
 	"\vsource_type\x18\x13 \x03(\v2\x0f.IastSourceTypeR\n" +
 	"sourceType\x12\x19\n" +
 	"\btrace_id\x18\x14 \x01(\tR\atraceId\x12\x16\n" +
-	"\x06stacks\x18\x15 \x03(\tR\x06stacks\"\x8a\x04\n" +
+	"\x06stacks\x18\x15 \x03(\tR\x06stacks\"\xaf\x04\n" +
 	"\x0eIastSaasReport\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12#\n" +
 	"\rhttp_protocol\x18\x02 \x01(\tR\fhttpProtocol\x12\x1f\n" +
@@ -998,7 +1006,8 @@ const file_iast_proto_rawDesc = "" +
 	"\rresponse_body\x18\r \x01(\tR\fresponseBody\x12!\n" +
 	"\fcontext_path\x18\x0e \x01(\tR\vcontextPath\x12$\n" +
 	"\x04pool\x18\x0f \x03(\v2\x10.IastMethodEventR\x04pool\x12\x19\n" +
-	"\btrace_id\x18\x10 \x01(\tR\atraceId\"\xae\x01\n" +
+	"\btrace_id\x18\x10 \x01(\tR\atraceId\x12#\n" +
+	"\rcaptured_logs\x18\x11 \x01(\tR\fcapturedLogs\"\xae\x01\n" +
 	"\x12IastHardCodeReport\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x12\n" +
 	"\x04file\x18\x02 \x01(\tR\x04file\x12\x1d\n" +
