@@ -2,10 +2,19 @@ package process
 
 import (
 	"context"
+	"fmt"
 	"gaiasec-nodeagent/pkg/pb"
+	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/shirou/gopsutil/v3/process"
+)
+
+const (
+	maxEnvVars        = 256
+	maxEnvKeyLength   = 128
+	maxEnvValueLength = 2048
 )
 
 // ProcessInfo represents process information
@@ -44,6 +53,64 @@ func GetProcessList() ([]*pb.Process, error) {
 	}
 
 	return processes, nil
+}
+
+// GetProcessMetadata returns detailed metadata for a single process.
+func GetProcessMetadata(pid int32) (*pb.ProcessMetadataResponse, error) {
+	ctx := context.Background()
+	proc, err := process.NewProcess(pid)
+	if err != nil {
+		return nil, err
+	}
+
+	processInfo, err := getProcessInfo(ctx, proc)
+	if err != nil {
+		return nil, err
+	}
+
+	executable, err := proc.Exe()
+	if err != nil {
+		executable = ""
+	}
+	executable = sanitizePath(executable)
+
+	cwd, err := proc.Cwd()
+	if err != nil {
+		cwd = ""
+	}
+	cwd = sanitizePath(cwd)
+
+	envVars := collectEnvVars(proc)
+	cmdlineArgs, err := proc.CmdlineSlice()
+	if err != nil || len(cmdlineArgs) == 0 {
+		cmdlineArgs = splitCommandLine(processInfo.GetCmdline())
+	}
+	jvmArgs, mainClass, jarPath := parseJavaCommand(cmdlineArgs)
+
+	listenPorts, err := collectListenPorts(proc)
+	if err != nil {
+		listenPorts = nil
+	}
+
+	startSignature, err := buildStartSignature(proc)
+	if err != nil {
+		startSignature = ""
+	}
+
+	return &pb.ProcessMetadataResponse{
+		Pid:            pid,
+		Name:           processInfo.GetName(),
+		Cmdline:        processInfo.GetCmdline(),
+		Executable:     executable,
+		Cwd:            cwd,
+		User:           processInfo.GetUser(),
+		JvmArgs:        jvmArgs,
+		MainClass:      mainClass,
+		JarPath:        jarPath,
+		EnvVars:        envVars,
+		ListenPorts:    listenPorts,
+		StartSignature: startSignature,
+	}, nil
 }
 
 // getProcessInfo extracts process information using gopsutil
@@ -101,4 +168,139 @@ func sanitizeProcessString(value string, fallback string) string {
 	}
 
 	return value
+}
+
+func sanitizePath(value string) string {
+	value = sanitizeProcessString(value, "")
+	if value == "" {
+		return ""
+	}
+	return filepath.Clean(value)
+}
+
+func collectEnvVars(proc *process.Process) map[string]string {
+	values, err := proc.Environ()
+	if err != nil || len(values) == 0 {
+		return nil
+	}
+
+	envVars := make(map[string]string)
+	for _, item := range values {
+		if len(envVars) >= maxEnvVars {
+			break
+		}
+		key, value, ok := strings.Cut(item, "=")
+		if !ok {
+			continue
+		}
+		key = sanitizeProcessString(key, "")
+		if key == "" {
+			continue
+		}
+		key = truncateString(key, maxEnvKeyLength)
+		value = truncateString(sanitizeProcessString(value, ""), maxEnvValueLength)
+		envVars[key] = value
+	}
+	if len(envVars) == 0 {
+		return nil
+	}
+	return envVars
+}
+
+func collectListenPorts(proc *process.Process) ([]int32, error) {
+	connections, err := proc.Connections()
+	if err != nil {
+		return nil, err
+	}
+
+	ports := make(map[uint32]struct{})
+	for _, connection := range connections {
+		if connection.Status != "LISTEN" || connection.Laddr.Port == 0 {
+			continue
+		}
+		ports[connection.Laddr.Port] = struct{}{}
+	}
+	if len(ports) == 0 {
+		return nil, nil
+	}
+
+	ordered := make([]int, 0, len(ports))
+	for port := range ports {
+		ordered = append(ordered, int(port))
+	}
+	sort.Ints(ordered)
+
+	result := make([]int32, 0, len(ordered))
+	for _, port := range ordered {
+		result = append(result, int32(port))
+	}
+	return result, nil
+}
+
+func buildStartSignature(proc *process.Process) (string, error) {
+	createdAt, err := proc.CreateTime()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%d", createdAt), nil
+}
+
+func parseJavaCommand(args []string) ([]string, string, string) {
+	if len(args) <= 1 {
+		return nil, "", ""
+	}
+
+	jvmArgs := make([]string, 0)
+	mainClass := ""
+	jarPath := ""
+
+	for i := 1; i < len(args); i++ {
+		arg := sanitizeProcessString(args[i], "")
+		if arg == "" {
+			continue
+		}
+		if jarPath == "" && arg == "-jar" && i+1 < len(args) {
+			jarPath = sanitizePath(args[i+1])
+			break
+		}
+		if strings.HasPrefix(arg, "-") {
+			jvmArgs = append(jvmArgs, arg)
+			if takesValue(arg) && i+1 < len(args) {
+				value := sanitizeProcessString(args[i+1], "")
+				if value != "" {
+					jvmArgs = append(jvmArgs, value)
+				}
+				i++
+			}
+			continue
+		}
+		mainClass = arg
+		break
+	}
+
+	return jvmArgs, mainClass, jarPath
+}
+
+func takesValue(arg string) bool {
+	switch arg {
+	case "-cp", "-classpath", "-p", "--module-path":
+		return true
+	default:
+		return false
+	}
+}
+
+func splitCommandLine(command string) []string {
+	command = strings.TrimSpace(command)
+	if command == "" {
+		return nil
+	}
+	return strings.Fields(command)
+}
+
+func truncateString(value string, limit int) string {
+	if limit <= 0 || len(value) <= limit {
+		return value
+	}
+	return value[:limit]
 }

@@ -25,19 +25,21 @@ const (
 type MessageType int32
 
 const (
-	MessageType_UNKNOWN                  MessageType = 0
-	MessageType_REGISTER                 MessageType = 1
-	MessageType_UNREGISTER               MessageType = 2
-	MessageType_HEARTBEAT                MessageType = 3
-	MessageType_INIT                     MessageType = 4
-	MessageType_PROCESSES_REQUEST        MessageType = 5
-	MessageType_PROCESSES_RESPONSE       MessageType = 6
-	MessageType_DEPLOY_PLUGIN_REQUEST    MessageType = 7
-	MessageType_DEPLOY_PLUGIN_RESPONSE   MessageType = 8
-	MessageType_EXECUTE_COMMAND_REQUEST  MessageType = 9
-	MessageType_EXECUTE_COMMAND_RESPONSE MessageType = 10
-	MessageType_NETWORK_REQUEST          MessageType = 11
-	MessageType_NETWORK_RESPONSE         MessageType = 12
+	MessageType_UNKNOWN                   MessageType = 0
+	MessageType_REGISTER                  MessageType = 1
+	MessageType_UNREGISTER                MessageType = 2
+	MessageType_HEARTBEAT                 MessageType = 3
+	MessageType_INIT                      MessageType = 4
+	MessageType_PROCESSES_REQUEST         MessageType = 5
+	MessageType_PROCESSES_RESPONSE        MessageType = 6
+	MessageType_DEPLOY_PLUGIN_REQUEST     MessageType = 7
+	MessageType_DEPLOY_PLUGIN_RESPONSE    MessageType = 8
+	MessageType_EXECUTE_COMMAND_REQUEST   MessageType = 9
+	MessageType_EXECUTE_COMMAND_RESPONSE  MessageType = 10
+	MessageType_NETWORK_REQUEST           MessageType = 11
+	MessageType_NETWORK_RESPONSE          MessageType = 12
+	MessageType_PROCESS_METADATA_REQUEST  MessageType = 13
+	MessageType_PROCESS_METADATA_RESPONSE MessageType = 14
 	// 文件系统
 	MessageType_FS_LIST_DIR_REQUEST        MessageType = 20
 	MessageType_FS_LIST_DIR_RESPONSE       MessageType = 21
@@ -110,6 +112,8 @@ var (
 		10:  "EXECUTE_COMMAND_RESPONSE",
 		11:  "NETWORK_REQUEST",
 		12:  "NETWORK_RESPONSE",
+		13:  "PROCESS_METADATA_REQUEST",
+		14:  "PROCESS_METADATA_RESPONSE",
 		20:  "FS_LIST_DIR_REQUEST",
 		21:  "FS_LIST_DIR_RESPONSE",
 		22:  "FS_READ_FILE_REQUEST",
@@ -171,6 +175,8 @@ var (
 		"EXECUTE_COMMAND_RESPONSE":          10,
 		"NETWORK_REQUEST":                   11,
 		"NETWORK_RESPONSE":                  12,
+		"PROCESS_METADATA_REQUEST":          13,
+		"PROCESS_METADATA_RESPONSE":         14,
 		"FS_LIST_DIR_REQUEST":               20,
 		"FS_LIST_DIR_RESPONSE":              21,
 		"FS_READ_FILE_REQUEST":              22,
@@ -251,7 +257,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xa2\v\n" +
+	"\x12message_type.proto*\xdf\v\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -267,7 +273,9 @@ const file_message_type_proto_rawDesc = "" +
 	"\x18EXECUTE_COMMAND_RESPONSE\x10\n" +
 	"\x12\x13\n" +
 	"\x0fNETWORK_REQUEST\x10\v\x12\x14\n" +
-	"\x10NETWORK_RESPONSE\x10\f\x12\x17\n" +
+	"\x10NETWORK_RESPONSE\x10\f\x12\x1c\n" +
+	"\x18PROCESS_METADATA_REQUEST\x10\r\x12\x1d\n" +
+	"\x19PROCESS_METADATA_RESPONSE\x10\x0e\x12\x17\n" +
 	"\x13FS_LIST_DIR_REQUEST\x10\x14\x12\x18\n" +
 	"\x14FS_LIST_DIR_RESPONSE\x10\x15\x12\x18\n" +
 	"\x14FS_READ_FILE_REQUEST\x10\x16\x12\x19\n" +

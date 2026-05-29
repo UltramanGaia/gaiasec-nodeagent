@@ -142,6 +142,182 @@ func (x *ProcessesResponse) GetProcesses() []*Process {
 	return nil
 }
 
+type ProcessMetadataRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pid           int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProcessMetadataRequest) Reset() {
+	*x = ProcessMetadataRequest{}
+	mi := &file_process_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProcessMetadataRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessMetadataRequest) ProtoMessage() {}
+
+func (x *ProcessMetadataRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_process_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessMetadataRequest.ProtoReflect.Descriptor instead.
+func (*ProcessMetadataRequest) Descriptor() ([]byte, []int) {
+	return file_process_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ProcessMetadataRequest) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+type ProcessMetadataResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Pid            int32                  `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Cmdline        string                 `protobuf:"bytes,3,opt,name=cmdline,proto3" json:"cmdline,omitempty"`
+	Executable     string                 `protobuf:"bytes,4,opt,name=executable,proto3" json:"executable,omitempty"`
+	Cwd            string                 `protobuf:"bytes,5,opt,name=cwd,proto3" json:"cwd,omitempty"`
+	User           string                 `protobuf:"bytes,6,opt,name=user,proto3" json:"user,omitempty"`
+	JvmArgs        []string               `protobuf:"bytes,7,rep,name=jvm_args,json=jvmArgs,proto3" json:"jvm_args,omitempty"`
+	MainClass      string                 `protobuf:"bytes,8,opt,name=main_class,json=mainClass,proto3" json:"main_class,omitempty"`
+	JarPath        string                 `protobuf:"bytes,9,opt,name=jar_path,json=jarPath,proto3" json:"jar_path,omitempty"`
+	EnvVars        map[string]string      `protobuf:"bytes,10,rep,name=env_vars,json=envVars,proto3" json:"env_vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ListenPorts    []int32                `protobuf:"varint,11,rep,packed,name=listen_ports,json=listenPorts,proto3" json:"listen_ports,omitempty"`
+	StartSignature string                 `protobuf:"bytes,12,opt,name=start_signature,json=startSignature,proto3" json:"start_signature,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ProcessMetadataResponse) Reset() {
+	*x = ProcessMetadataResponse{}
+	mi := &file_process_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProcessMetadataResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProcessMetadataResponse) ProtoMessage() {}
+
+func (x *ProcessMetadataResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_process_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProcessMetadataResponse.ProtoReflect.Descriptor instead.
+func (*ProcessMetadataResponse) Descriptor() ([]byte, []int) {
+	return file_process_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ProcessMetadataResponse) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *ProcessMetadataResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ProcessMetadataResponse) GetCmdline() string {
+	if x != nil {
+		return x.Cmdline
+	}
+	return ""
+}
+
+func (x *ProcessMetadataResponse) GetExecutable() string {
+	if x != nil {
+		return x.Executable
+	}
+	return ""
+}
+
+func (x *ProcessMetadataResponse) GetCwd() string {
+	if x != nil {
+		return x.Cwd
+	}
+	return ""
+}
+
+func (x *ProcessMetadataResponse) GetUser() string {
+	if x != nil {
+		return x.User
+	}
+	return ""
+}
+
+func (x *ProcessMetadataResponse) GetJvmArgs() []string {
+	if x != nil {
+		return x.JvmArgs
+	}
+	return nil
+}
+
+func (x *ProcessMetadataResponse) GetMainClass() string {
+	if x != nil {
+		return x.MainClass
+	}
+	return ""
+}
+
+func (x *ProcessMetadataResponse) GetJarPath() string {
+	if x != nil {
+		return x.JarPath
+	}
+	return ""
+}
+
+func (x *ProcessMetadataResponse) GetEnvVars() map[string]string {
+	if x != nil {
+		return x.EnvVars
+	}
+	return nil
+}
+
+func (x *ProcessMetadataResponse) GetListenPorts() []int32 {
+	if x != nil {
+		return x.ListenPorts
+	}
+	return nil
+}
+
+func (x *ProcessMetadataResponse) GetStartSignature() string {
+	if x != nil {
+		return x.StartSignature
+	}
+	return ""
+}
+
 var File_process_proto protoreflect.FileDescriptor
 
 const file_process_proto_rawDesc = "" +
@@ -154,7 +330,29 @@ const file_process_proto_rawDesc = "" +
 	"\acmdline\x18\x04 \x01(\tR\acmdline\x12\x12\n" +
 	"\x04user\x18\x05 \x01(\tR\x04user\";\n" +
 	"\x11ProcessesResponse\x12&\n" +
-	"\tprocesses\x18\x01 \x03(\v2\b.ProcessR\tprocessesB)\n" +
+	"\tprocesses\x18\x01 \x03(\v2\b.ProcessR\tprocesses\"*\n" +
+	"\x16ProcessMetadataRequest\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\"\xbe\x03\n" +
+	"\x17ProcessMetadataResponse\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
+	"\acmdline\x18\x03 \x01(\tR\acmdline\x12\x1e\n" +
+	"\n" +
+	"executable\x18\x04 \x01(\tR\n" +
+	"executable\x12\x10\n" +
+	"\x03cwd\x18\x05 \x01(\tR\x03cwd\x12\x12\n" +
+	"\x04user\x18\x06 \x01(\tR\x04user\x12\x19\n" +
+	"\bjvm_args\x18\a \x03(\tR\ajvmArgs\x12\x1d\n" +
+	"\n" +
+	"main_class\x18\b \x01(\tR\tmainClass\x12\x19\n" +
+	"\bjar_path\x18\t \x01(\tR\ajarPath\x12@\n" +
+	"\benv_vars\x18\n" +
+	" \x03(\v2%.ProcessMetadataResponse.EnvVarsEntryR\aenvVars\x12!\n" +
+	"\flisten_ports\x18\v \x03(\x05R\vlistenPorts\x12'\n" +
+	"\x0fstart_signature\x18\f \x01(\tR\x0estartSignature\x1a:\n" +
+	"\fEnvVarsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B)\n" +
 	"\n" +
 	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
@@ -170,18 +368,22 @@ func file_process_proto_rawDescGZIP() []byte {
 	return file_process_proto_rawDescData
 }
 
-var file_process_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_process_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_process_proto_goTypes = []any{
-	(*Process)(nil),           // 0: Process
-	(*ProcessesResponse)(nil), // 1: ProcessesResponse
+	(*Process)(nil),                 // 0: Process
+	(*ProcessesResponse)(nil),       // 1: ProcessesResponse
+	(*ProcessMetadataRequest)(nil),  // 2: ProcessMetadataRequest
+	(*ProcessMetadataResponse)(nil), // 3: ProcessMetadataResponse
+	nil,                             // 4: ProcessMetadataResponse.EnvVarsEntry
 }
 var file_process_proto_depIdxs = []int32{
 	0, // 0: ProcessesResponse.processes:type_name -> Process
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	4, // 1: ProcessMetadataResponse.env_vars:type_name -> ProcessMetadataResponse.EnvVarsEntry
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_process_proto_init() }
@@ -195,7 +397,7 @@ func file_process_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_process_proto_rawDesc), len(file_process_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
