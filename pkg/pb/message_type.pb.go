@@ -32,14 +32,14 @@ const (
 	MessageType_INIT                      MessageType = 4
 	MessageType_PROCESSES_REQUEST         MessageType = 5
 	MessageType_PROCESSES_RESPONSE        MessageType = 6
+	MessageType_PROCESS_METADATA_REQUEST  MessageType = 13
+	MessageType_PROCESS_METADATA_RESPONSE MessageType = 14
 	MessageType_DEPLOY_PLUGIN_REQUEST     MessageType = 7
 	MessageType_DEPLOY_PLUGIN_RESPONSE    MessageType = 8
 	MessageType_EXECUTE_COMMAND_REQUEST   MessageType = 9
 	MessageType_EXECUTE_COMMAND_RESPONSE  MessageType = 10
 	MessageType_NETWORK_REQUEST           MessageType = 11
 	MessageType_NETWORK_RESPONSE          MessageType = 12
-	MessageType_PROCESS_METADATA_REQUEST  MessageType = 13
-	MessageType_PROCESS_METADATA_RESPONSE MessageType = 14
 	// 文件系统
 	MessageType_FS_LIST_DIR_REQUEST        MessageType = 20
 	MessageType_FS_LIST_DIR_RESPONSE       MessageType = 21
@@ -94,6 +94,13 @@ const (
 	// K8s 集群内提权分析
 	MessageType_K8S_PRIVILEGE_ESCALATION_REQUEST  MessageType = 106
 	MessageType_K8S_PRIVILEGE_ESCALATION_RESPONSE MessageType = 107
+	// 数据源信息
+	MessageType_DATASOURCE_LIST_REQUEST   MessageType = 70
+	MessageType_DATASOURCE_LIST_RESPONSE  MessageType = 71
+	MessageType_DATABASE_CATALOG_REQUEST  MessageType = 72
+	MessageType_DATABASE_CATALOG_RESPONSE MessageType = 73
+	MessageType_DATABASE_EXECUTE_REQUEST  MessageType = 74
+	MessageType_DATABASE_EXECUTE_RESPONSE MessageType = 75
 	// MCP bridge
 	MessageType_MCP_HTTP_REQUEST        MessageType = 108
 	MessageType_MCP_HTTP_RESPONSE       MessageType = 109
@@ -115,14 +122,14 @@ var (
 		4:   "INIT",
 		5:   "PROCESSES_REQUEST",
 		6:   "PROCESSES_RESPONSE",
+		13:  "PROCESS_METADATA_REQUEST",
+		14:  "PROCESS_METADATA_RESPONSE",
 		7:   "DEPLOY_PLUGIN_REQUEST",
 		8:   "DEPLOY_PLUGIN_RESPONSE",
 		9:   "EXECUTE_COMMAND_REQUEST",
 		10:  "EXECUTE_COMMAND_RESPONSE",
 		11:  "NETWORK_REQUEST",
 		12:  "NETWORK_RESPONSE",
-		13:  "PROCESS_METADATA_REQUEST",
-		14:  "PROCESS_METADATA_RESPONSE",
 		20:  "FS_LIST_DIR_REQUEST",
 		21:  "FS_LIST_DIR_RESPONSE",
 		22:  "FS_READ_FILE_REQUEST",
@@ -169,6 +176,12 @@ var (
 		105: "PRIVILEGE_ESCALATION_RESPONSE",
 		106: "K8S_PRIVILEGE_ESCALATION_REQUEST",
 		107: "K8S_PRIVILEGE_ESCALATION_RESPONSE",
+		70:  "DATASOURCE_LIST_REQUEST",
+		71:  "DATASOURCE_LIST_RESPONSE",
+		72:  "DATABASE_CATALOG_REQUEST",
+		73:  "DATABASE_CATALOG_RESPONSE",
+		74:  "DATABASE_EXECUTE_REQUEST",
+		75:  "DATABASE_EXECUTE_RESPONSE",
 		108: "MCP_HTTP_REQUEST",
 		109: "MCP_HTTP_RESPONSE",
 		110: "MCP_INITIALIZE_REQUEST",
@@ -186,14 +199,14 @@ var (
 		"INIT":                              4,
 		"PROCESSES_REQUEST":                 5,
 		"PROCESSES_RESPONSE":                6,
+		"PROCESS_METADATA_REQUEST":          13,
+		"PROCESS_METADATA_RESPONSE":         14,
 		"DEPLOY_PLUGIN_REQUEST":             7,
 		"DEPLOY_PLUGIN_RESPONSE":            8,
 		"EXECUTE_COMMAND_REQUEST":           9,
 		"EXECUTE_COMMAND_RESPONSE":          10,
 		"NETWORK_REQUEST":                   11,
 		"NETWORK_RESPONSE":                  12,
-		"PROCESS_METADATA_REQUEST":          13,
-		"PROCESS_METADATA_RESPONSE":         14,
 		"FS_LIST_DIR_REQUEST":               20,
 		"FS_LIST_DIR_RESPONSE":              21,
 		"FS_READ_FILE_REQUEST":              22,
@@ -240,6 +253,12 @@ var (
 		"PRIVILEGE_ESCALATION_RESPONSE":     105,
 		"K8S_PRIVILEGE_ESCALATION_REQUEST":  106,
 		"K8S_PRIVILEGE_ESCALATION_RESPONSE": 107,
+		"DATASOURCE_LIST_REQUEST":           70,
+		"DATASOURCE_LIST_RESPONSE":          71,
+		"DATABASE_CATALOG_REQUEST":          72,
+		"DATABASE_CATALOG_RESPONSE":         73,
+		"DATABASE_EXECUTE_REQUEST":          74,
+		"DATABASE_EXECUTE_RESPONSE":         75,
 		"MCP_HTTP_REQUEST":                  108,
 		"MCP_HTTP_RESPONSE":                 109,
 		"MCP_INITIALIZE_REQUEST":            110,
@@ -282,7 +301,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\x9e\r\n" +
+	"\x12message_type.proto*\xd3\x0e\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -291,16 +310,16 @@ const file_message_type_proto_rawDesc = "" +
 	"\tHEARTBEAT\x10\x03\x12\b\n" +
 	"\x04INIT\x10\x04\x12\x15\n" +
 	"\x11PROCESSES_REQUEST\x10\x05\x12\x16\n" +
-	"\x12PROCESSES_RESPONSE\x10\x06\x12\x19\n" +
+	"\x12PROCESSES_RESPONSE\x10\x06\x12\x1c\n" +
+	"\x18PROCESS_METADATA_REQUEST\x10\r\x12\x1d\n" +
+	"\x19PROCESS_METADATA_RESPONSE\x10\x0e\x12\x19\n" +
 	"\x15DEPLOY_PLUGIN_REQUEST\x10\a\x12\x1a\n" +
 	"\x16DEPLOY_PLUGIN_RESPONSE\x10\b\x12\x1b\n" +
 	"\x17EXECUTE_COMMAND_REQUEST\x10\t\x12\x1c\n" +
 	"\x18EXECUTE_COMMAND_RESPONSE\x10\n" +
 	"\x12\x13\n" +
 	"\x0fNETWORK_REQUEST\x10\v\x12\x14\n" +
-	"\x10NETWORK_RESPONSE\x10\f\x12\x1c\n" +
-	"\x18PROCESS_METADATA_REQUEST\x10\r\x12\x1d\n" +
-	"\x19PROCESS_METADATA_RESPONSE\x10\x0e\x12\x17\n" +
+	"\x10NETWORK_RESPONSE\x10\f\x12\x17\n" +
 	"\x13FS_LIST_DIR_REQUEST\x10\x14\x12\x18\n" +
 	"\x14FS_LIST_DIR_RESPONSE\x10\x15\x12\x18\n" +
 	"\x14FS_READ_FILE_REQUEST\x10\x16\x12\x19\n" +
@@ -346,7 +365,13 @@ const file_message_type_proto_rawDesc = "" +
 	"\x1cPRIVILEGE_ESCALATION_REQUEST\x10h\x12!\n" +
 	"\x1dPRIVILEGE_ESCALATION_RESPONSE\x10i\x12$\n" +
 	" K8S_PRIVILEGE_ESCALATION_REQUEST\x10j\x12%\n" +
-	"!K8S_PRIVILEGE_ESCALATION_RESPONSE\x10k\x12\x14\n" +
+	"!K8S_PRIVILEGE_ESCALATION_RESPONSE\x10k\x12\x1b\n" +
+	"\x17DATASOURCE_LIST_REQUEST\x10F\x12\x1c\n" +
+	"\x18DATASOURCE_LIST_RESPONSE\x10G\x12\x1c\n" +
+	"\x18DATABASE_CATALOG_REQUEST\x10H\x12\x1d\n" +
+	"\x19DATABASE_CATALOG_RESPONSE\x10I\x12\x1c\n" +
+	"\x18DATABASE_EXECUTE_REQUEST\x10J\x12\x1d\n" +
+	"\x19DATABASE_EXECUTE_RESPONSE\x10K\x12\x14\n" +
 	"\x10MCP_HTTP_REQUEST\x10l\x12\x15\n" +
 	"\x11MCP_HTTP_RESPONSE\x10m\x12\x1a\n" +
 	"\x16MCP_INITIALIZE_REQUEST\x10n\x12\x1b\n" +
