@@ -94,6 +94,15 @@ const (
 	// K8s 集群内提权分析
 	MessageType_K8S_PRIVILEGE_ESCALATION_REQUEST  MessageType = 106
 	MessageType_K8S_PRIVILEGE_ESCALATION_RESPONSE MessageType = 107
+	// MCP bridge
+	MessageType_MCP_HTTP_REQUEST        MessageType = 108
+	MessageType_MCP_HTTP_RESPONSE       MessageType = 109
+	MessageType_MCP_INITIALIZE_REQUEST  MessageType = 110
+	MessageType_MCP_INITIALIZE_RESPONSE MessageType = 111
+	MessageType_MCP_JSONRPC_REQUEST     MessageType = 112
+	MessageType_MCP_JSONRPC_RESPONSE    MessageType = 113
+	MessageType_MCP_EVENT               MessageType = 114
+	MessageType_MCP_SESSION_CLOSE       MessageType = 115
 )
 
 // Enum value maps for MessageType.
@@ -160,6 +169,14 @@ var (
 		105: "PRIVILEGE_ESCALATION_RESPONSE",
 		106: "K8S_PRIVILEGE_ESCALATION_REQUEST",
 		107: "K8S_PRIVILEGE_ESCALATION_RESPONSE",
+		108: "MCP_HTTP_REQUEST",
+		109: "MCP_HTTP_RESPONSE",
+		110: "MCP_INITIALIZE_REQUEST",
+		111: "MCP_INITIALIZE_RESPONSE",
+		112: "MCP_JSONRPC_REQUEST",
+		113: "MCP_JSONRPC_RESPONSE",
+		114: "MCP_EVENT",
+		115: "MCP_SESSION_CLOSE",
 	}
 	MessageType_value = map[string]int32{
 		"UNKNOWN":                           0,
@@ -223,6 +240,14 @@ var (
 		"PRIVILEGE_ESCALATION_RESPONSE":     105,
 		"K8S_PRIVILEGE_ESCALATION_REQUEST":  106,
 		"K8S_PRIVILEGE_ESCALATION_RESPONSE": 107,
+		"MCP_HTTP_REQUEST":                  108,
+		"MCP_HTTP_RESPONSE":                 109,
+		"MCP_INITIALIZE_REQUEST":            110,
+		"MCP_INITIALIZE_RESPONSE":           111,
+		"MCP_JSONRPC_REQUEST":               112,
+		"MCP_JSONRPC_RESPONSE":              113,
+		"MCP_EVENT":                         114,
+		"MCP_SESSION_CLOSE":                 115,
 	}
 )
 
@@ -257,7 +282,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xdf\v\n" +
+	"\x12message_type.proto*\x9e\r\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -321,7 +346,15 @@ const file_message_type_proto_rawDesc = "" +
 	"\x1cPRIVILEGE_ESCALATION_REQUEST\x10h\x12!\n" +
 	"\x1dPRIVILEGE_ESCALATION_RESPONSE\x10i\x12$\n" +
 	" K8S_PRIVILEGE_ESCALATION_REQUEST\x10j\x12%\n" +
-	"!K8S_PRIVILEGE_ESCALATION_RESPONSE\x10kB)\n" +
+	"!K8S_PRIVILEGE_ESCALATION_RESPONSE\x10k\x12\x14\n" +
+	"\x10MCP_HTTP_REQUEST\x10l\x12\x15\n" +
+	"\x11MCP_HTTP_RESPONSE\x10m\x12\x1a\n" +
+	"\x16MCP_INITIALIZE_REQUEST\x10n\x12\x1b\n" +
+	"\x17MCP_INITIALIZE_RESPONSE\x10o\x12\x17\n" +
+	"\x13MCP_JSONRPC_REQUEST\x10p\x12\x18\n" +
+	"\x14MCP_JSONRPC_RESPONSE\x10q\x12\r\n" +
+	"\tMCP_EVENT\x10r\x12\x15\n" +
+	"\x11MCP_SESSION_CLOSE\x10sB)\n" +
 	"\n" +
 	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 

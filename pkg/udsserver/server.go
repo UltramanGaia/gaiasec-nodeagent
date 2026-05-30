@@ -94,9 +94,12 @@ func (s *Server) HandleMessage(message *pb.Base) {
 	destination := message.Destination
 	if destination != "" {
 		if client, ok := s.getAgentClient(destination); ok {
+			log.Infof("Dispatching message to agent=%s type=%s source=%s session=%s payload_bytes=%d", destination, message.GetType(), message.GetSource(), message.GetSession(), len(message.GetData()))
 			err := client.SendMessage(message)
 			if err != nil {
 				log.Errorf("Error writing to agent %s: %s", destination, err)
+			} else {
+				log.Infof("Dispatched message to agent=%s type=%s session=%s", destination, message.GetType(), message.GetSession())
 			}
 		} else {
 			log.Errorf("Agent %s not found", destination)

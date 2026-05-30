@@ -10,8 +10,11 @@ import (
 	"google.golang.org/protobuf/proto"
 	"io"
 	"net"
+	"sync/atomic"
 	"sync"
 )
+
+var clientSeq uint64
 
 type Client struct {
 	conn        *net.Conn
@@ -20,6 +23,7 @@ type Client struct {
 	agentId     string
 	buffer      []byte
 	registerMsg *pb.Register
+	connID      uint64
 }
 
 func NewClient(conn *net.Conn, s *Server) (*Client, error) {
@@ -28,6 +32,7 @@ func NewClient(conn *net.Conn, s *Server) (*Client, error) {
 		server:  s,
 		agentId: "",
 		buffer:  make([]byte, 0),
+		connID:  atomic.AddUint64(&clientSeq, 1),
 	}, nil
 }
 
@@ -63,7 +68,7 @@ func (c *Client) HandleAgentMessage() {
 			if c.agentId == "" {
 				c.agentId = registerMsg.Id
 				c.server.registerAgent(c.agentId, c)
-				log.Infof("Agent %s register", registerMsg.Id)
+				log.Infof("Agent %s register conn_id=%d remote=%s", registerMsg.Id, c.connID, (*c.conn).RemoteAddr())
 			} else if c.agentId != registerMsg.Id {
 				log.Errorf("agent id changed from %s to %s", c.agentId, registerMsg.Id)
 				continue
@@ -130,7 +135,7 @@ func (c *Client) ReadMessage() ([]byte, error) {
 
 func (c *Client) unregister(agentId string) {
 	if agentId != "" {
-		log.Infof("Agent %s logout", agentId)
+		log.Infof("Agent %s logout conn_id=%d remote=%s", agentId, c.connID, (*c.conn).RemoteAddr())
 		agentLogout := &pb.Unregister{
 			Id: agentId,
 		}
@@ -168,5 +173,13 @@ func (c *Client) SendMessage(message *pb.Base) error {
 	if err != nil {
 		return err
 	}
+	log.Infof("Writing to agent=%s conn_id=%d remote=%s type=%s source=%s session=%s bytes=%d",
+		c.agentId,
+		c.connID,
+		(*c.conn).RemoteAddr(),
+		message.GetType(),
+		message.GetSource(),
+		message.GetSession(),
+		len(message.GetData()))
 	return c.sendMessage(data)
 }
