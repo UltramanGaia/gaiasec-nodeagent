@@ -110,9 +110,67 @@ const (
 	MessageType_MCP_JSONRPC_RESPONSE    MessageType = 113
 	MessageType_MCP_EVENT               MessageType = 114
 	MessageType_MCP_SESSION_CLOSE       MessageType = 115
-	MessageType_TOOL_CALL_REQUEST       MessageType = 116
-	MessageType_TOOL_CALL_RESPONSE      MessageType = 117
-	MessageType_TOOL_CALL_EVENT         MessageType = 118
+	// JVM 诊断工具 (120-139)
+	MessageType_JVM_REQUEST          MessageType = 120
+	MessageType_JVM_RESPONSE         MessageType = 121
+	MessageType_THREAD_REQUEST       MessageType = 122
+	MessageType_THREAD_RESPONSE      MessageType = 123
+	MessageType_SYS_PROP_REQUEST     MessageType = 124
+	MessageType_SYS_PROP_RESPONSE    MessageType = 125
+	MessageType_SYS_ENV_REQUEST      MessageType = 126
+	MessageType_SYS_ENV_RESPONSE     MessageType = 127
+	MessageType_MEMORY_REQUEST       MessageType = 128
+	MessageType_MEMORY_RESPONSE      MessageType = 129
+	MessageType_VM_OPTION_REQUEST    MessageType = 130
+	MessageType_VM_OPTION_RESPONSE   MessageType = 131
+	MessageType_MBEAN_REQUEST        MessageType = 132
+	MessageType_MBEAN_RESPONSE       MessageType = 133
+	MessageType_CLASSLOADER_REQUEST  MessageType = 134
+	MessageType_CLASSLOADER_RESPONSE MessageType = 135
+	MessageType_DASHBOARD_REQUEST    MessageType = 136
+	MessageType_DASHBOARD_RESPONSE   MessageType = 137
+	MessageType_VM_TOOL_REQUEST      MessageType = 138
+	MessageType_VM_TOOL_RESPONSE     MessageType = 139
+	// 类搜索工具 (140-149)
+	MessageType_SEARCH_CLASS_REQUEST   MessageType = 140
+	MessageType_SEARCH_CLASS_RESPONSE  MessageType = 141
+	MessageType_SEARCH_METHOD_REQUEST  MessageType = 142
+	MessageType_SEARCH_METHOD_RESPONSE MessageType = 143
+	MessageType_GET_STATIC_REQUEST     MessageType = 144
+	MessageType_GET_STATIC_RESPONSE    MessageType = 145
+	MessageType_OGNL_REQUEST           MessageType = 146
+	MessageType_OGNL_RESPONSE          MessageType = 147
+	MessageType_HEAP_DUMP_REQUEST      MessageType = 148
+	MessageType_HEAP_DUMP_RESPONSE     MessageType = 149
+	// 类增强工具 (150-159)
+	MessageType_JAD_REQUEST              MessageType = 150
+	MessageType_JAD_RESPONSE             MessageType = 151
+	MessageType_DUMP_CLASS_REQUEST       MessageType = 152
+	MessageType_DUMP_CLASS_RESPONSE      MessageType = 153
+	MessageType_MEMORY_COMPILER_REQUEST  MessageType = 154
+	MessageType_MEMORY_COMPILER_RESPONSE MessageType = 155
+	MessageType_REDEFINE_REQUEST         MessageType = 156
+	MessageType_REDEFINE_RESPONSE        MessageType = 157
+	MessageType_RETRANSFORM_REQUEST      MessageType = 158
+	MessageType_RETRANSFORM_RESPONSE     MessageType = 159
+	// 异步流式诊断工具 (160-179)
+	MessageType_WATCH_REQUEST        MessageType = 160
+	MessageType_WATCH_RESPONSE       MessageType = 161
+	MessageType_WATCH_EVENT          MessageType = 162
+	MessageType_TRACE_REQUEST        MessageType = 163
+	MessageType_TRACE_RESPONSE       MessageType = 164
+	MessageType_TRACE_EVENT          MessageType = 165
+	MessageType_STACK_REQUEST        MessageType = 166
+	MessageType_STACK_RESPONSE       MessageType = 167
+	MessageType_STACK_EVENT          MessageType = 168
+	MessageType_MONITOR_REQUEST      MessageType = 169
+	MessageType_MONITOR_RESPONSE     MessageType = 170
+	MessageType_MONITOR_EVENT        MessageType = 171
+	MessageType_TIME_TUNNEL_REQUEST  MessageType = 172
+	MessageType_TIME_TUNNEL_RESPONSE MessageType = 173
+	MessageType_TIME_TUNNEL_EVENT    MessageType = 174
+	MessageType_TASK_CANCEL_REQUEST  MessageType = 175
+	MessageType_TASK_CANCEL_RESPONSE MessageType = 176
 )
 
 // Enum value maps for MessageType.
@@ -193,9 +251,63 @@ var (
 		113: "MCP_JSONRPC_RESPONSE",
 		114: "MCP_EVENT",
 		115: "MCP_SESSION_CLOSE",
-		116: "TOOL_CALL_REQUEST",
-		117: "TOOL_CALL_RESPONSE",
-		118: "TOOL_CALL_EVENT",
+		120: "JVM_REQUEST",
+		121: "JVM_RESPONSE",
+		122: "THREAD_REQUEST",
+		123: "THREAD_RESPONSE",
+		124: "SYS_PROP_REQUEST",
+		125: "SYS_PROP_RESPONSE",
+		126: "SYS_ENV_REQUEST",
+		127: "SYS_ENV_RESPONSE",
+		128: "MEMORY_REQUEST",
+		129: "MEMORY_RESPONSE",
+		130: "VM_OPTION_REQUEST",
+		131: "VM_OPTION_RESPONSE",
+		132: "MBEAN_REQUEST",
+		133: "MBEAN_RESPONSE",
+		134: "CLASSLOADER_REQUEST",
+		135: "CLASSLOADER_RESPONSE",
+		136: "DASHBOARD_REQUEST",
+		137: "DASHBOARD_RESPONSE",
+		138: "VM_TOOL_REQUEST",
+		139: "VM_TOOL_RESPONSE",
+		140: "SEARCH_CLASS_REQUEST",
+		141: "SEARCH_CLASS_RESPONSE",
+		142: "SEARCH_METHOD_REQUEST",
+		143: "SEARCH_METHOD_RESPONSE",
+		144: "GET_STATIC_REQUEST",
+		145: "GET_STATIC_RESPONSE",
+		146: "OGNL_REQUEST",
+		147: "OGNL_RESPONSE",
+		148: "HEAP_DUMP_REQUEST",
+		149: "HEAP_DUMP_RESPONSE",
+		150: "JAD_REQUEST",
+		151: "JAD_RESPONSE",
+		152: "DUMP_CLASS_REQUEST",
+		153: "DUMP_CLASS_RESPONSE",
+		154: "MEMORY_COMPILER_REQUEST",
+		155: "MEMORY_COMPILER_RESPONSE",
+		156: "REDEFINE_REQUEST",
+		157: "REDEFINE_RESPONSE",
+		158: "RETRANSFORM_REQUEST",
+		159: "RETRANSFORM_RESPONSE",
+		160: "WATCH_REQUEST",
+		161: "WATCH_RESPONSE",
+		162: "WATCH_EVENT",
+		163: "TRACE_REQUEST",
+		164: "TRACE_RESPONSE",
+		165: "TRACE_EVENT",
+		166: "STACK_REQUEST",
+		167: "STACK_RESPONSE",
+		168: "STACK_EVENT",
+		169: "MONITOR_REQUEST",
+		170: "MONITOR_RESPONSE",
+		171: "MONITOR_EVENT",
+		172: "TIME_TUNNEL_REQUEST",
+		173: "TIME_TUNNEL_RESPONSE",
+		174: "TIME_TUNNEL_EVENT",
+		175: "TASK_CANCEL_REQUEST",
+		176: "TASK_CANCEL_RESPONSE",
 	}
 	MessageType_value = map[string]int32{
 		"UNKNOWN":                           0,
@@ -273,9 +385,63 @@ var (
 		"MCP_JSONRPC_RESPONSE":              113,
 		"MCP_EVENT":                         114,
 		"MCP_SESSION_CLOSE":                 115,
-		"TOOL_CALL_REQUEST":                 116,
-		"TOOL_CALL_RESPONSE":                117,
-		"TOOL_CALL_EVENT":                   118,
+		"JVM_REQUEST":                       120,
+		"JVM_RESPONSE":                      121,
+		"THREAD_REQUEST":                    122,
+		"THREAD_RESPONSE":                   123,
+		"SYS_PROP_REQUEST":                  124,
+		"SYS_PROP_RESPONSE":                 125,
+		"SYS_ENV_REQUEST":                   126,
+		"SYS_ENV_RESPONSE":                  127,
+		"MEMORY_REQUEST":                    128,
+		"MEMORY_RESPONSE":                   129,
+		"VM_OPTION_REQUEST":                 130,
+		"VM_OPTION_RESPONSE":                131,
+		"MBEAN_REQUEST":                     132,
+		"MBEAN_RESPONSE":                    133,
+		"CLASSLOADER_REQUEST":               134,
+		"CLASSLOADER_RESPONSE":              135,
+		"DASHBOARD_REQUEST":                 136,
+		"DASHBOARD_RESPONSE":                137,
+		"VM_TOOL_REQUEST":                   138,
+		"VM_TOOL_RESPONSE":                  139,
+		"SEARCH_CLASS_REQUEST":              140,
+		"SEARCH_CLASS_RESPONSE":             141,
+		"SEARCH_METHOD_REQUEST":             142,
+		"SEARCH_METHOD_RESPONSE":            143,
+		"GET_STATIC_REQUEST":                144,
+		"GET_STATIC_RESPONSE":               145,
+		"OGNL_REQUEST":                      146,
+		"OGNL_RESPONSE":                     147,
+		"HEAP_DUMP_REQUEST":                 148,
+		"HEAP_DUMP_RESPONSE":                149,
+		"JAD_REQUEST":                       150,
+		"JAD_RESPONSE":                      151,
+		"DUMP_CLASS_REQUEST":                152,
+		"DUMP_CLASS_RESPONSE":               153,
+		"MEMORY_COMPILER_REQUEST":           154,
+		"MEMORY_COMPILER_RESPONSE":          155,
+		"REDEFINE_REQUEST":                  156,
+		"REDEFINE_RESPONSE":                 157,
+		"RETRANSFORM_REQUEST":               158,
+		"RETRANSFORM_RESPONSE":              159,
+		"WATCH_REQUEST":                     160,
+		"WATCH_RESPONSE":                    161,
+		"WATCH_EVENT":                       162,
+		"TRACE_REQUEST":                     163,
+		"TRACE_RESPONSE":                    164,
+		"TRACE_EVENT":                       165,
+		"STACK_REQUEST":                     166,
+		"STACK_RESPONSE":                    167,
+		"STACK_EVENT":                       168,
+		"MONITOR_REQUEST":                   169,
+		"MONITOR_RESPONSE":                  170,
+		"MONITOR_EVENT":                     171,
+		"TIME_TUNNEL_REQUEST":               172,
+		"TIME_TUNNEL_RESPONSE":              173,
+		"TIME_TUNNEL_EVENT":                 174,
+		"TASK_CANCEL_REQUEST":               175,
+		"TASK_CANCEL_RESPONSE":              176,
 	}
 )
 
@@ -310,7 +476,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\x97\x0f\n" +
+	"\x12message_type.proto*\xf7\x18\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -388,10 +554,64 @@ const file_message_type_proto_rawDesc = "" +
 	"\x13MCP_JSONRPC_REQUEST\x10p\x12\x18\n" +
 	"\x14MCP_JSONRPC_RESPONSE\x10q\x12\r\n" +
 	"\tMCP_EVENT\x10r\x12\x15\n" +
-	"\x11MCP_SESSION_CLOSE\x10s\x12\x15\n" +
-	"\x11TOOL_CALL_REQUEST\x10t\x12\x16\n" +
-	"\x12TOOL_CALL_RESPONSE\x10u\x12\x13\n" +
-	"\x0fTOOL_CALL_EVENT\x10vB)\n" +
+	"\x11MCP_SESSION_CLOSE\x10s\x12\x0f\n" +
+	"\vJVM_REQUEST\x10x\x12\x10\n" +
+	"\fJVM_RESPONSE\x10y\x12\x12\n" +
+	"\x0eTHREAD_REQUEST\x10z\x12\x13\n" +
+	"\x0fTHREAD_RESPONSE\x10{\x12\x14\n" +
+	"\x10SYS_PROP_REQUEST\x10|\x12\x15\n" +
+	"\x11SYS_PROP_RESPONSE\x10}\x12\x13\n" +
+	"\x0fSYS_ENV_REQUEST\x10~\x12\x14\n" +
+	"\x10SYS_ENV_RESPONSE\x10\x7f\x12\x13\n" +
+	"\x0eMEMORY_REQUEST\x10\x80\x01\x12\x14\n" +
+	"\x0fMEMORY_RESPONSE\x10\x81\x01\x12\x16\n" +
+	"\x11VM_OPTION_REQUEST\x10\x82\x01\x12\x17\n" +
+	"\x12VM_OPTION_RESPONSE\x10\x83\x01\x12\x12\n" +
+	"\rMBEAN_REQUEST\x10\x84\x01\x12\x13\n" +
+	"\x0eMBEAN_RESPONSE\x10\x85\x01\x12\x18\n" +
+	"\x13CLASSLOADER_REQUEST\x10\x86\x01\x12\x19\n" +
+	"\x14CLASSLOADER_RESPONSE\x10\x87\x01\x12\x16\n" +
+	"\x11DASHBOARD_REQUEST\x10\x88\x01\x12\x17\n" +
+	"\x12DASHBOARD_RESPONSE\x10\x89\x01\x12\x14\n" +
+	"\x0fVM_TOOL_REQUEST\x10\x8a\x01\x12\x15\n" +
+	"\x10VM_TOOL_RESPONSE\x10\x8b\x01\x12\x19\n" +
+	"\x14SEARCH_CLASS_REQUEST\x10\x8c\x01\x12\x1a\n" +
+	"\x15SEARCH_CLASS_RESPONSE\x10\x8d\x01\x12\x1a\n" +
+	"\x15SEARCH_METHOD_REQUEST\x10\x8e\x01\x12\x1b\n" +
+	"\x16SEARCH_METHOD_RESPONSE\x10\x8f\x01\x12\x17\n" +
+	"\x12GET_STATIC_REQUEST\x10\x90\x01\x12\x18\n" +
+	"\x13GET_STATIC_RESPONSE\x10\x91\x01\x12\x11\n" +
+	"\fOGNL_REQUEST\x10\x92\x01\x12\x12\n" +
+	"\rOGNL_RESPONSE\x10\x93\x01\x12\x16\n" +
+	"\x11HEAP_DUMP_REQUEST\x10\x94\x01\x12\x17\n" +
+	"\x12HEAP_DUMP_RESPONSE\x10\x95\x01\x12\x10\n" +
+	"\vJAD_REQUEST\x10\x96\x01\x12\x11\n" +
+	"\fJAD_RESPONSE\x10\x97\x01\x12\x17\n" +
+	"\x12DUMP_CLASS_REQUEST\x10\x98\x01\x12\x18\n" +
+	"\x13DUMP_CLASS_RESPONSE\x10\x99\x01\x12\x1c\n" +
+	"\x17MEMORY_COMPILER_REQUEST\x10\x9a\x01\x12\x1d\n" +
+	"\x18MEMORY_COMPILER_RESPONSE\x10\x9b\x01\x12\x15\n" +
+	"\x10REDEFINE_REQUEST\x10\x9c\x01\x12\x16\n" +
+	"\x11REDEFINE_RESPONSE\x10\x9d\x01\x12\x18\n" +
+	"\x13RETRANSFORM_REQUEST\x10\x9e\x01\x12\x19\n" +
+	"\x14RETRANSFORM_RESPONSE\x10\x9f\x01\x12\x12\n" +
+	"\rWATCH_REQUEST\x10\xa0\x01\x12\x13\n" +
+	"\x0eWATCH_RESPONSE\x10\xa1\x01\x12\x10\n" +
+	"\vWATCH_EVENT\x10\xa2\x01\x12\x12\n" +
+	"\rTRACE_REQUEST\x10\xa3\x01\x12\x13\n" +
+	"\x0eTRACE_RESPONSE\x10\xa4\x01\x12\x10\n" +
+	"\vTRACE_EVENT\x10\xa5\x01\x12\x12\n" +
+	"\rSTACK_REQUEST\x10\xa6\x01\x12\x13\n" +
+	"\x0eSTACK_RESPONSE\x10\xa7\x01\x12\x10\n" +
+	"\vSTACK_EVENT\x10\xa8\x01\x12\x14\n" +
+	"\x0fMONITOR_REQUEST\x10\xa9\x01\x12\x15\n" +
+	"\x10MONITOR_RESPONSE\x10\xaa\x01\x12\x12\n" +
+	"\rMONITOR_EVENT\x10\xab\x01\x12\x18\n" +
+	"\x13TIME_TUNNEL_REQUEST\x10\xac\x01\x12\x19\n" +
+	"\x14TIME_TUNNEL_RESPONSE\x10\xad\x01\x12\x16\n" +
+	"\x11TIME_TUNNEL_EVENT\x10\xae\x01\x12\x18\n" +
+	"\x13TASK_CANCEL_REQUEST\x10\xaf\x01\x12\x19\n" +
+	"\x14TASK_CANCEL_RESPONSE\x10\xb0\x01B)\n" +
 	"\n" +
 	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
