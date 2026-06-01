@@ -110,6 +110,10 @@ const (
 	MessageType_MCP_JSONRPC_RESPONSE    MessageType = 113
 	MessageType_MCP_EVENT               MessageType = 114
 	MessageType_MCP_SESSION_CLOSE       MessageType = 115
+	// Tool call bridge
+	MessageType_TOOL_CALL_REQUEST  MessageType = 116
+	MessageType_TOOL_CALL_RESPONSE MessageType = 117
+	MessageType_TOOL_CALL_EVENT    MessageType = 118
 	// JVM 诊断工具 (120-139)
 	MessageType_JVM_REQUEST          MessageType = 120
 	MessageType_JVM_RESPONSE         MessageType = 121
@@ -251,6 +255,9 @@ var (
 		113: "MCP_JSONRPC_RESPONSE",
 		114: "MCP_EVENT",
 		115: "MCP_SESSION_CLOSE",
+		116: "TOOL_CALL_REQUEST",
+		117: "TOOL_CALL_RESPONSE",
+		118: "TOOL_CALL_EVENT",
 		120: "JVM_REQUEST",
 		121: "JVM_RESPONSE",
 		122: "THREAD_REQUEST",
@@ -385,6 +392,9 @@ var (
 		"MCP_JSONRPC_RESPONSE":              113,
 		"MCP_EVENT":                         114,
 		"MCP_SESSION_CLOSE":                 115,
+		"TOOL_CALL_REQUEST":                 116,
+		"TOOL_CALL_RESPONSE":                117,
+		"TOOL_CALL_EVENT":                   118,
 		"JVM_REQUEST":                       120,
 		"JVM_RESPONSE":                      121,
 		"THREAD_REQUEST":                    122,
@@ -476,7 +486,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xf7\x18\n" +
+	"\x12message_type.proto*\xbb\x19\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -554,7 +564,10 @@ const file_message_type_proto_rawDesc = "" +
 	"\x13MCP_JSONRPC_REQUEST\x10p\x12\x18\n" +
 	"\x14MCP_JSONRPC_RESPONSE\x10q\x12\r\n" +
 	"\tMCP_EVENT\x10r\x12\x15\n" +
-	"\x11MCP_SESSION_CLOSE\x10s\x12\x0f\n" +
+	"\x11MCP_SESSION_CLOSE\x10s\x12\x15\n" +
+	"\x11TOOL_CALL_REQUEST\x10t\x12\x16\n" +
+	"\x12TOOL_CALL_RESPONSE\x10u\x12\x13\n" +
+	"\x0fTOOL_CALL_EVENT\x10v\x12\x0f\n" +
 	"\vJVM_REQUEST\x10x\x12\x10\n" +
 	"\fJVM_RESPONSE\x10y\x12\x12\n" +
 	"\x0eTHREAD_REQUEST\x10z\x12\x13\n" +
