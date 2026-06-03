@@ -101,19 +101,6 @@ const (
 	MessageType_DATABASE_CATALOG_RESPONSE MessageType = 73
 	MessageType_DATABASE_EXECUTE_REQUEST  MessageType = 74
 	MessageType_DATABASE_EXECUTE_RESPONSE MessageType = 75
-	// MCP bridge
-	MessageType_MCP_HTTP_REQUEST        MessageType = 108
-	MessageType_MCP_HTTP_RESPONSE       MessageType = 109
-	MessageType_MCP_INITIALIZE_REQUEST  MessageType = 110
-	MessageType_MCP_INITIALIZE_RESPONSE MessageType = 111
-	MessageType_MCP_JSONRPC_REQUEST     MessageType = 112
-	MessageType_MCP_JSONRPC_RESPONSE    MessageType = 113
-	MessageType_MCP_EVENT               MessageType = 114
-	MessageType_MCP_SESSION_CLOSE       MessageType = 115
-	// Tool call bridge
-	MessageType_TOOL_CALL_REQUEST  MessageType = 116
-	MessageType_TOOL_CALL_RESPONSE MessageType = 117
-	MessageType_TOOL_CALL_EVENT    MessageType = 118
 	// JVM 诊断工具 (120-139)
 	MessageType_JVM_REQUEST          MessageType = 120
 	MessageType_JVM_RESPONSE         MessageType = 121
@@ -247,17 +234,6 @@ var (
 		73:  "DATABASE_CATALOG_RESPONSE",
 		74:  "DATABASE_EXECUTE_REQUEST",
 		75:  "DATABASE_EXECUTE_RESPONSE",
-		108: "MCP_HTTP_REQUEST",
-		109: "MCP_HTTP_RESPONSE",
-		110: "MCP_INITIALIZE_REQUEST",
-		111: "MCP_INITIALIZE_RESPONSE",
-		112: "MCP_JSONRPC_REQUEST",
-		113: "MCP_JSONRPC_RESPONSE",
-		114: "MCP_EVENT",
-		115: "MCP_SESSION_CLOSE",
-		116: "TOOL_CALL_REQUEST",
-		117: "TOOL_CALL_RESPONSE",
-		118: "TOOL_CALL_EVENT",
 		120: "JVM_REQUEST",
 		121: "JVM_RESPONSE",
 		122: "THREAD_REQUEST",
@@ -384,17 +360,6 @@ var (
 		"DATABASE_CATALOG_RESPONSE":         73,
 		"DATABASE_EXECUTE_REQUEST":          74,
 		"DATABASE_EXECUTE_RESPONSE":         75,
-		"MCP_HTTP_REQUEST":                  108,
-		"MCP_HTTP_RESPONSE":                 109,
-		"MCP_INITIALIZE_REQUEST":            110,
-		"MCP_INITIALIZE_RESPONSE":           111,
-		"MCP_JSONRPC_REQUEST":               112,
-		"MCP_JSONRPC_RESPONSE":              113,
-		"MCP_EVENT":                         114,
-		"MCP_SESSION_CLOSE":                 115,
-		"TOOL_CALL_REQUEST":                 116,
-		"TOOL_CALL_RESPONSE":                117,
-		"TOOL_CALL_EVENT":                   118,
 		"JVM_REQUEST":                       120,
 		"JVM_RESPONSE":                      121,
 		"THREAD_REQUEST":                    122,
@@ -486,7 +451,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xbb\x19\n" +
+	"\x12message_type.proto*\xb8\x17\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -556,18 +521,7 @@ const file_message_type_proto_rawDesc = "" +
 	"\x18DATABASE_CATALOG_REQUEST\x10H\x12\x1d\n" +
 	"\x19DATABASE_CATALOG_RESPONSE\x10I\x12\x1c\n" +
 	"\x18DATABASE_EXECUTE_REQUEST\x10J\x12\x1d\n" +
-	"\x19DATABASE_EXECUTE_RESPONSE\x10K\x12\x14\n" +
-	"\x10MCP_HTTP_REQUEST\x10l\x12\x15\n" +
-	"\x11MCP_HTTP_RESPONSE\x10m\x12\x1a\n" +
-	"\x16MCP_INITIALIZE_REQUEST\x10n\x12\x1b\n" +
-	"\x17MCP_INITIALIZE_RESPONSE\x10o\x12\x17\n" +
-	"\x13MCP_JSONRPC_REQUEST\x10p\x12\x18\n" +
-	"\x14MCP_JSONRPC_RESPONSE\x10q\x12\r\n" +
-	"\tMCP_EVENT\x10r\x12\x15\n" +
-	"\x11MCP_SESSION_CLOSE\x10s\x12\x15\n" +
-	"\x11TOOL_CALL_REQUEST\x10t\x12\x16\n" +
-	"\x12TOOL_CALL_RESPONSE\x10u\x12\x13\n" +
-	"\x0fTOOL_CALL_EVENT\x10v\x12\x0f\n" +
+	"\x19DATABASE_EXECUTE_RESPONSE\x10K\x12\x0f\n" +
 	"\vJVM_REQUEST\x10x\x12\x10\n" +
 	"\fJVM_RESPONSE\x10y\x12\x12\n" +
 	"\x0eTHREAD_REQUEST\x10z\x12\x13\n" +
