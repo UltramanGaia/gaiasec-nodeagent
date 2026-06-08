@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"gaiasec-nodeagent/pkg/pb"
 	"path/filepath"
-	"sort"
 	"strings"
+	"time"
 
 	"github.com/shirou/gopsutil/v3/process"
 )
@@ -15,6 +15,7 @@ const (
 	maxEnvVars        = 256
 	maxEnvKeyLength   = 128
 	maxEnvValueLength = 2048
+	envCollectTimeout = 2 * time.Second
 )
 
 // ProcessInfo represents process information
@@ -80,17 +81,12 @@ func GetProcessMetadata(pid int32) (*pb.ProcessMetadataResponse, error) {
 	}
 	cwd = sanitizePath(cwd)
 
-	envVars := collectEnvVars(proc)
+	envVars := collectEnvVarsWithTimeout(proc, envCollectTimeout)
 	cmdlineArgs, err := proc.CmdlineSlice()
 	if err != nil || len(cmdlineArgs) == 0 {
 		cmdlineArgs = splitCommandLine(processInfo.GetCmdline())
 	}
 	jvmArgs, mainClass, jarPath := parseJavaCommand(cmdlineArgs)
-
-	listenPorts, err := collectListenPorts(proc)
-	if err != nil {
-		listenPorts = nil
-	}
 
 	startSignature, err := buildStartSignature(proc)
 	if err != nil {
@@ -108,7 +104,6 @@ func GetProcessMetadata(pid int32) (*pb.ProcessMetadataResponse, error) {
 		MainClass:      mainClass,
 		JarPath:        jarPath,
 		EnvVars:        envVars,
-		ListenPorts:    listenPorts,
 		StartSignature: startSignature,
 	}, nil
 }
@@ -207,34 +202,14 @@ func collectEnvVars(proc *process.Process) map[string]string {
 	return envVars
 }
 
-func collectListenPorts(proc *process.Process) ([]int32, error) {
-	connections, err := proc.Connections()
-	if err != nil {
-		return nil, err
+func collectEnvVarsWithTimeout(proc *process.Process, timeout time.Duration) map[string]string {
+	envVars, ok := collectWithTimeout(timeout, func() map[string]string {
+		return collectEnvVars(proc)
+	})
+	if !ok {
+		return nil
 	}
-
-	ports := make(map[uint32]struct{})
-	for _, connection := range connections {
-		if connection.Status != "LISTEN" || connection.Laddr.Port == 0 {
-			continue
-		}
-		ports[connection.Laddr.Port] = struct{}{}
-	}
-	if len(ports) == 0 {
-		return nil, nil
-	}
-
-	ordered := make([]int, 0, len(ports))
-	for port := range ports {
-		ordered = append(ordered, int(port))
-	}
-	sort.Ints(ordered)
-
-	result := make([]int32, 0, len(ordered))
-	for _, port := range ordered {
-		result = append(result, int32(port))
-	}
-	return result, nil
+	return envVars
 }
 
 func buildStartSignature(proc *process.Process) (string, error) {
@@ -303,4 +278,23 @@ func truncateString(value string, limit int) string {
 		return value
 	}
 	return value[:limit]
+}
+
+func collectWithTimeout[T any](timeout time.Duration, fn func() T) (T, bool) {
+	if timeout <= 0 {
+		return fn(), true
+	}
+
+	resultCh := make(chan T, 1)
+	go func() {
+		resultCh <- fn()
+	}()
+
+	select {
+	case result := <-resultCh:
+		return result, true
+	case <-time.After(timeout):
+		var zero T
+		return zero, false
+	}
 }
