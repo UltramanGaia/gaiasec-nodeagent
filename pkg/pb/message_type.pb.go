@@ -162,6 +162,13 @@ const (
 	MessageType_TIME_TUNNEL_EVENT    MessageType = 174
 	MessageType_TASK_CANCEL_REQUEST  MessageType = 175
 	MessageType_TASK_CANCEL_RESPONSE MessageType = 176
+	// MCP 协议 (180-189)
+	MessageType_MCP_INITIALIZE_REQUEST  MessageType = 180
+	MessageType_MCP_INITIALIZE_RESPONSE MessageType = 181
+	MessageType_MCP_JSONRPC_REQUEST     MessageType = 182
+	MessageType_MCP_JSONRPC_RESPONSE    MessageType = 183
+	MessageType_MCP_SESSION_CLOSE       MessageType = 184
+	MessageType_MCP_EVENT               MessageType = 185
 )
 
 // Enum value maps for MessageType.
@@ -291,6 +298,12 @@ var (
 		174: "TIME_TUNNEL_EVENT",
 		175: "TASK_CANCEL_REQUEST",
 		176: "TASK_CANCEL_RESPONSE",
+		180: "MCP_INITIALIZE_REQUEST",
+		181: "MCP_INITIALIZE_RESPONSE",
+		182: "MCP_JSONRPC_REQUEST",
+		183: "MCP_JSONRPC_RESPONSE",
+		184: "MCP_SESSION_CLOSE",
+		185: "MCP_EVENT",
 	}
 	MessageType_value = map[string]int32{
 		"UNKNOWN":                           0,
@@ -417,6 +430,12 @@ var (
 		"TIME_TUNNEL_EVENT":                 174,
 		"TASK_CANCEL_REQUEST":               175,
 		"TASK_CANCEL_RESPONSE":              176,
+		"MCP_INITIALIZE_REQUEST":            180,
+		"MCP_INITIALIZE_RESPONSE":           181,
+		"MCP_JSONRPC_REQUEST":               182,
+		"MCP_JSONRPC_RESPONSE":              183,
+		"MCP_SESSION_CLOSE":                 184,
+		"MCP_EVENT":                         185,
 	}
 )
 
@@ -451,7 +470,7 @@ var File_message_type_proto protoreflect.FileDescriptor
 
 const file_message_type_proto_rawDesc = "" +
 	"\n" +
-	"\x12message_type.proto*\xb8\x17\n" +
+	"\x12message_type.proto*\xd0\x18\n" +
 	"\vMessageType\x12\v\n" +
 	"\aUNKNOWN\x10\x00\x12\f\n" +
 	"\bREGISTER\x10\x01\x12\x0e\n" +
@@ -578,7 +597,13 @@ const file_message_type_proto_rawDesc = "" +
 	"\x14TIME_TUNNEL_RESPONSE\x10\xad\x01\x12\x16\n" +
 	"\x11TIME_TUNNEL_EVENT\x10\xae\x01\x12\x18\n" +
 	"\x13TASK_CANCEL_REQUEST\x10\xaf\x01\x12\x19\n" +
-	"\x14TASK_CANCEL_RESPONSE\x10\xb0\x01B)\n" +
+	"\x14TASK_CANCEL_RESPONSE\x10\xb0\x01\x12\x1b\n" +
+	"\x16MCP_INITIALIZE_REQUEST\x10\xb4\x01\x12\x1c\n" +
+	"\x17MCP_INITIALIZE_RESPONSE\x10\xb5\x01\x12\x18\n" +
+	"\x13MCP_JSONRPC_REQUEST\x10\xb6\x01\x12\x19\n" +
+	"\x14MCP_JSONRPC_RESPONSE\x10\xb7\x01\x12\x16\n" +
+	"\x11MCP_SESSION_CLOSE\x10\xb8\x01\x12\x0e\n" +
+	"\tMCP_EVENT\x10\xb9\x01B)\n" +
 	"\n" +
 	"gaiasec.pbP\x01Z\x19gaiasec-nodeagent/pkg/pb/b\x06proto3"
 
