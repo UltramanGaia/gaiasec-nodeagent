@@ -73,6 +73,7 @@ func ParseMain() {
 	log.SetFormatter(&JavaAgentStyleFormatter{
 		NodeID: cfg.NodeID,
 	})
+	log.Infof("Protobuf schema: %s", pb.ProtobufVersionString())
 
 	// 初始化运行环境
 	EnvInit(cfg)
